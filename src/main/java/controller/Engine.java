@@ -1,4 +1,4 @@
-package main.java.controller;
+package controller;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -26,13 +26,7 @@ public class Engine {
         GPIO = new GpioController();
     }
 
-    //upate once evry 10 sec
-    @Scheduled(fixedRate = 10000)
-    public void updateHVAC()
-    {
-        systemHVAC.setCurrentTemp(GPIO.getCurrentTemp());
-        systemHVAC.update();
-    }
+
 
     @Scheduled(fixedRate = 5000)
     public void updateCurrentTemp()
@@ -40,10 +34,11 @@ public class Engine {
 
     }
 
+    public void setRoomTemp(double d){systemHVAC.setRoomTemp(d);}
 
-    public void setTemp(double d)
+    public void setSystemTemp(double d)
     {
-        systemHVAC.setCurrentTemp(d);
+        systemHVAC.setSystemTemp(d);
     }
 
     public void setAc(boolean b)

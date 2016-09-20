@@ -1,4 +1,4 @@
-package main.java.controller;
+package controller;
 
 /**
  * Created by Will on 9/3/2016.
@@ -16,7 +16,7 @@ public class HVAC{
     public void update() {
         if(state.getPower()) {
             if( state.getAcPower()) {
-                if (state.getCurrentTemp() > state.getSetTemp()) {
+                if (state.getRoomTemp() > state.getSystemTemp()) {
                     state.setAc(true);
                     state.setFan(true);
                 }
@@ -29,7 +29,7 @@ public class HVAC{
             }
             else if(state.getHeatPower())
             {
-                 if(state.getCurrentTemp() < state.getSetTemp())
+                 if(state.getRoomTemp() < state.getSystemTemp())
                 {
                     state.setHeat(true);
                     state.setFan(false);
@@ -49,8 +49,10 @@ public class HVAC{
 
     }
 
-    public void setCurrentTemp(double d) {
-        state.setCurrentTemp(d);
+    public void setRoomTemp(double d){ state.setRoomTemp(d);}
+
+    public void setSystemTemp(double d) {
+        state.setSystemTemp(d);
     }
 
     public SystemState getState() {

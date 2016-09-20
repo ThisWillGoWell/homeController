@@ -6,3 +6,5 @@ target*
 *.iml
 mvnw
 mvnw.cmd
+.mvn
+build/

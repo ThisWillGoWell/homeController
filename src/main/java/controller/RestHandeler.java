@@ -1,4 +1,4 @@
-package main.java.controller;
+package controller;
 
 /**
  * Created by Will on 9/3/2016.
@@ -26,13 +26,25 @@ public class RestHandeler {
     }
 
 
+    @RequestMapping(value = "/setRoomTemp", method = RequestMethod.GET)
+    public void setRoomTemp(@RequestParam(value = "temp", defaultValue = "27") String temp)
+    {
+        System.out.println("Setting Room Temp: " + temp);
+        try {
+            engine.setRoomTemp(Double.parseDouble(temp));
+        }
+        catch (Exception e)
+        {
+            System.out.println("Error in setting Room Temp");
+        }
+    }
 
-    @RequestMapping(value = "/setTemp", method = RequestMethod.GET)
+    @RequestMapping(value = "/setSystemTemp", method = RequestMethod.GET)
     public void setTemp(@RequestParam(value="temp", defaultValue = "27") String temp)
     {
 
         try {
-            engine.setTemp(Double.parseDouble(temp));
+            engine.setSystemTemp(Double.parseDouble(temp));
         }
         catch(Exception e)
         {

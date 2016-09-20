@@ -1,4 +1,4 @@
-package main.java.controller;
+package controller;
 
 /**
  * Created by Will on 9/3/2016.
@@ -15,8 +15,8 @@ public class SystemState {
     private boolean ac;
     private boolean fan;
 
-    private double currentTemp;
-    private double setTemp;
+    private double roomTemp;
+    private double systemTemp;
 
 
     public SystemState()
@@ -31,8 +31,8 @@ public class SystemState {
         ac = false;
         fan = false;
 
-        currentTemp = 27;
-        setTemp = 27;
+        roomTemp = 27;
+        systemTemp = 27;
     }
 
     public boolean getPower()
@@ -74,24 +74,24 @@ public class SystemState {
         fan = b;
     }
 
-    public void setCurrentTemp(double temp)
+    public void setRoomTemp(double temp)
     {
-        currentTemp = temp;
+        roomTemp = temp;
     }
 
-    public double getCurrentTemp()
+    public double getRoomTemp()
     {
-        return currentTemp;
+        return roomTemp;
     }
 
-    public void setSetTemp(double d)
+    public void setSystemTemp(double d)
     {
-        setTemp = d;
+        systemTemp = d;
     }
 
-    public double getSetTemp()
+    public double getSystemTemp()
     {
-        return  setTemp;
+        return systemTemp;
     }
 
     public void setFanPower(boolean b)
@@ -126,20 +126,22 @@ public class SystemState {
 
     public String getStateJSON()
     {
-        String s = "{\"settings\": [";
+        String s = "{\"settings\": {";
 
-        s += "power :\"" + power + "\",";
+        s += "\"power\" :\"" + power + "\",";
 
-        s += "fanPower :\"" + fanPower + "\",";
-        s += "heatPower :\"" + heatPower + "\",";
-        s += "acPower :\"" + acPower + "\",";
+        s += "\"fanPower\" :\"" + fanPower + "\",";
+        s += "\"heatPower\" :\"" + heatPower + "\",";
+        s += "\"acPower\" :\"" + acPower + "\",";
 
-        s += "heat :\"" + heat + "\",";
-        s += "ac :\"" + ac + "\",";
-        s += "fan :\"" + fan + "\",";
+        s += "\"heat\" :\"" + heat + "\",";
+        s += "\"ac\" :\"" + ac + "\",";
+        s += "\"fan\" :\"" + fan + "\",";
 
-        s += "currentTemp :\"" + currentTemp + "\",";
-        s += "setTemp :\"" + setTemp + "\",";
+        s += "\"roomTemp\" :\"" + roomTemp + "\",";
+        s += "\"systemTemp\" :\"" + systemTemp + "\"";
+
+        s+="}}";
 
         return s;
 
