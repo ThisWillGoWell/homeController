@@ -1,0 +1,20 @@
+
+Wiering Stats:
+Black Connector (power, i2c)
+    Pi => Conenctor
+    3.3v => Gnd
+    5v => Gray
+    Gnd => yellow
+    GPIO14 => White
+    SDA1, i2c=> orange
+    SCL1, i2c=>Red
+    GPIO04 =>purple
+
+Blue Connector
+   GPIO21 => orange => yellow
+   GPIO20=>Blue =+ blue
+   GPIO16=>White
+   Grnd =>Red
+   GPIO13=> Green
+   GPIO19=>Black
+   GPIO

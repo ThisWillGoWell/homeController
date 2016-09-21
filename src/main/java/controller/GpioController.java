@@ -24,9 +24,4 @@ public class GpioController {
 
     }
 
-    public double getCurrentTemp()
-    {
-        return 30;
-    }
-
 }

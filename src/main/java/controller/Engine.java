@@ -23,7 +23,6 @@ public class Engine {
     {
 
         systemHVAC = new HVAC();
-        GPIO = new GpioController();
     }
 
 
@@ -33,6 +32,7 @@ public class Engine {
     {
 
     }
+
 
     public void setRoomTemp(double d){systemHVAC.setRoomTemp(d);}
 

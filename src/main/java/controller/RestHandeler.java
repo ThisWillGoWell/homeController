@@ -12,6 +12,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RestController
 public class RestHandeler {
 
+    @RequestMapping(value = "/")
+    public String index()
+    {
+        return "Home Controller";
+    }
+
+
     Engine engine;
     @Autowired
     public RestHandeler(Engine e)
@@ -42,7 +49,7 @@ public class RestHandeler {
     @RequestMapping(value = "/setSystemTemp", method = RequestMethod.GET)
     public void setTemp(@RequestParam(value="temp", defaultValue = "27") String temp)
     {
-
+        System.out.println("Setting System Temp");
         try {
             engine.setSystemTemp(Double.parseDouble(temp));
         }
