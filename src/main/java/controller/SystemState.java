@@ -129,18 +129,14 @@ public class SystemState {
         String s = "{\"settings\": {";
 
         s += "\"power\" :\"" + power + "\",";
-
         s += "\"fanPower\" :\"" + fanPower + "\",";
         s += "\"heatPower\" :\"" + heatPower + "\",";
         s += "\"acPower\" :\"" + acPower + "\",";
-
         s += "\"heat\" :\"" + heat + "\",";
         s += "\"ac\" :\"" + ac + "\",";
         s += "\"fan\" :\"" + fan + "\",";
-
         s += "\"roomTemp\" :\"" + roomTemp + "\",";
         s += "\"systemTemp\" :\"" + systemTemp + "\"";
-
         s+="}}";
 
         return s;

@@ -2,9 +2,13 @@ build.gradle
 gradle*
 .idea*
 out*
-target*
+target/classes
+target/gen*
+target/maven*
 *.iml
 mvnw
 mvnw.cmd
 .mvn
 build/
+*.original
+*.idea

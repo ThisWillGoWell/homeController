@@ -16,6 +16,7 @@ public class RestHandeler {
     public String index()
     {
         return "Home Controller";
+
     }
 
 
@@ -34,9 +35,8 @@ public class RestHandeler {
 
 
     @RequestMapping(value = "/setRoomTemp", method = RequestMethod.GET)
-    public void setRoomTemp(@RequestParam(value = "temp", defaultValue = "27") String temp)
+    public String setRoomTemp(@RequestParam(value = "temp", defaultValue = "27") String temp)
     {
-        System.out.println("Setting Room Temp: " + temp);
         try {
             engine.setRoomTemp(Double.parseDouble(temp));
         }
@@ -44,10 +44,11 @@ public class RestHandeler {
         {
             System.out.println("Error in setting Room Temp");
         }
+        return engine.getState();
     }
 
     @RequestMapping(value = "/setSystemTemp", method = RequestMethod.GET)
-    public void setTemp(@RequestParam(value="temp", defaultValue = "27") String temp)
+    public String setTemp(@RequestParam(value="temp", defaultValue = "27") String temp)
     {
         System.out.println("Setting System Temp");
         try {
@@ -58,49 +59,57 @@ public class RestHandeler {
             System.out.println("Error in setting temp");
             e.printStackTrace();
         }
+        return engine.getState();
     }
 
     @RequestMapping(value = "/setAc")
-    public void setAc(@RequestParam(value = "state", defaultValue = "off") String state)
+    public String setAc(@RequestParam(value = "state", defaultValue = "off") String state)
     {
-        if(state == "off")
+        System.out.println("Setting AC to " + state);
+        if(state.equals("off"))
             engine.setAc(false);
-        else if(state == "on")
+        else if(state.equals("on"))
             engine.setAc(true);
+        return engine.getState();
     }
 
     @RequestMapping(value = "/setHeat")
-    public void setHeat(@RequestParam(value = "state", defaultValue = "off") String state)
+    public String setHeat(@RequestParam(value = "state", defaultValue = "off") String state)
     {
-        if(state == "off")
+        System.out.println("Settign Heat to " + state);
+        if(state.equals("off"))
             engine.setHeat(false);
-        else if(state == "on")
+        else if(state.equals("on"))
             engine.setHeat(true);
+
+        return engine.getState();
     }
 
     @RequestMapping(value = "/setFan")
-    public void setFan(@RequestParam(value = "state", defaultValue = "off") String state)
+    public String setFan(@RequestParam(value = "state", defaultValue = "off") String state)
     {
-        if(state == "off")
+        if(state.equals("off"))
             engine.setFan(false);
-        else if(state == "on")
+        else if(state.equals("on"))
             engine.setFan(true);
+        return engine.getState();
     }
 
 
 
     @RequestMapping(value = "/setPower")
-    public void setPower(@RequestParam(value = "state", defaultValue = "off") String state)
+    public String setPower(@RequestParam(value = "state", defaultValue = "off") String state)
     {
-        if(state == "off")
+        System.out.println("Setting Power " + state);
+        if(state.equals("off"))
         {
             engine.setPower(false);
         }
-        else if(state == "on")
+        else if(state.equals("on"))
         {
             engine.setPower(true);
         }
-
+        return engine.getState();
     }
 
     @RequestMapping(value = "/getState")

@@ -8,70 +8,72 @@ public class HVAC{
 
 
     private SystemState state;
+    private double THRESHOLD = 2;
+
     HVAC()
     {
         state = new SystemState();
     }
 
-    public void update() {
+    void update() {
         if(state.getPower()) {
             if( state.getAcPower()) {
-                if (state.getRoomTemp() > state.getSystemTemp()) {
+                /*
+                 * AC Mode
+                 */
+                if (state.getRoomTemp() > state.getSystemTemp() + THRESHOLD) {
                     state.setAc(true);
                     state.setFan(true);
                 }
-                else
-                {
+                /*
+                 * Cool down till it gets below the threshold
+                 */
+                else if (state.getRoomTemp() < state.getRoomTemp() - THRESHOLD) {
                     state.setAc(false);
                     state.setFan(false);
                 }
-
             }
-            else if(state.getHeatPower())
-            {
-                 if(state.getRoomTemp() < state.getSystemTemp())
-                {
+            else if(state.getHeatPower()) {
+                /*
+                *  Heat Mode
+                *
+                 */
+                 if(state.getRoomTemp() < (state.getSystemTemp() - THRESHOLD)) {
                     state.setHeat(true);
-                    state.setFan(false);
+                    state.setFan(true);
                 }
-
+                else if(state.getRoomTemp() > (state.getSystemTemp()+THRESHOLD)) {
+                     state.setHeat(false);
+                     state.setFan(false);
+                 }
             }
-            else if(state.getFanPower())
-            {
-
+            else if(state.getFanPower()) {
+                state.setFan(true);
             }
-            else
-            {
-
+            else {
+                state.setFan(false);
             }
-
         }
 
     }
 
-    public void setRoomTemp(double d){ state.setRoomTemp(d);}
-
-    public void setSystemTemp(double d) {
-        state.setSystemTemp(d);
-    }
-
-    public SystemState getState() {
-        return state;
-    }
-
-    public void setPower(boolean b)
+    void setPower(boolean b)
     {
-        //anytime the power changes we want to make sure allthings are off
+        //anytime the power changes we want to make sure all things are off
         state.setPower(b);
         state.setFan(false);
+        state.setFanPower(false);
         state.setAc(false);
+        state.setAcPower(false);
         state.setHeat(false);
-
+        state.setHeatPower(false);
     }
-    public void setAc(boolean b)
+    void setAc(boolean b)
     {
 
         state.setHeatPower(false);
+        state.setHeat(false);
+
         state.setFanPower(b);
         state.setAcPower(b);
 
@@ -82,11 +84,12 @@ public class HVAC{
         }
     }
 
-    public void setHeat(boolean b)
+    void setHeat(boolean b)
     {
         state.setHeatPower(b);
         state.setFanPower(b);
         state.setAcPower(false);
+        state.setAc(false);
 
         if(b == false)
         {
@@ -95,17 +98,21 @@ public class HVAC{
         }
     }
 
-    public void setFan(boolean b)
+    void setFan(boolean b)
     {
         state.setFan(b);
     }
-
-    public String getStateJSON()
+    String getStateJSON()
     {
         return state.getStateJSON();
     }
-
-
+    void setRoomTemp(double d){ state.setRoomTemp(d);}
+    void setSystemTemp(double d) {
+        state.setSystemTemp(d);
+    }
+    public SystemState getState() {
+        return state;
+    }
 
 }
 
