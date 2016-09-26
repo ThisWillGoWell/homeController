@@ -18,3 +18,17 @@ Blue Connector
    GPIO13=> Green
    GPIO19=>Black
    GPIO
+
+Whats the deal?
+    1) Menu on the LCD Sreen
+    2) Brennans App
+    3) SQL <-!!!! (though not required with this logging...)
+    4) Hue Light intergration
+    5) Controller in my room...
+        benefit of controlling them though server (vs stand alone app)?
+        Can put switches in my room!
+        maybe rewire light boox lol, and
+        Brennans code!
+    6)
+
+

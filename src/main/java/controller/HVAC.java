@@ -8,7 +8,7 @@ public class HVAC{
 
 
     private SystemState state;
-    private double THRESHOLD = 2;
+    private double THRESHOLD = 0.75;
 
     HVAC()
     {
@@ -34,10 +34,7 @@ public class HVAC{
                 }
             }
             else if(state.getHeatPower()) {
-                /*
-                *  Heat Mode
-                *
-                 */
+                //Heat Mode
                  if(state.getRoomTemp() < (state.getSystemTemp() - THRESHOLD)) {
                     state.setHeat(true);
                     state.setFan(true);
@@ -72,7 +69,10 @@ public class HVAC{
     {
 
         state.setHeatPower(false);
+
         state.setHeat(false);
+        state.setAc(false);
+        state.setFan(false);
 
         state.setFanPower(b);
         state.setAcPower(b);
@@ -90,6 +90,8 @@ public class HVAC{
         state.setFanPower(b);
         state.setAcPower(false);
         state.setAc(false);
+        state.setFan(false);
+        state.setFan(false);
 
         if(b == false)
         {

@@ -1,0 +1,33 @@
+
+This system started as a way to control my HVAC system
+Materials:
+3   Power Relays    https://www.adafruit.com/products/3191
+1   Rasp Pi         https://www.adafruit.com/products/3055
+1   Temp Sen        https://www.adafruit.com/products/1782
+1   LCD Screen      https://www.adafruit.com/products/716
+Wire
+Breadboard
+
+Concept
+Server-modulas
+
+since I want this project to be able to control/monitor my entrire house, I wanted there to be a central server that
+all other "modules" would make HHTP requests. In this case we are running the server on the same pi so all requets of
+the module makes are though local host.
+
+THis means that the server has no direct connection to the outside world. It can talk only though the network
+Also, It does not know what modules are in the system, the moduels just know what calls to make to effect their system.
+
+SO basically to add a new modual to the system
+
+Calls go: /set?system=HVAV_0&what=roomTemp%to=78
+The system woukd know whould have a link to the HVAC0 system to the hvac0 object.
+
+then there is either getSystemState
+or /get?system=HVAC_0&what=roomTemp
+
+Other objects easly added:
+Lights
+Garage Door
+
+

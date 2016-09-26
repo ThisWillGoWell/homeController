@@ -19,7 +19,7 @@ class Engine {
 
     HVAC systemHVAC;
     GpioController GPIO;
-
+    WiFiMonitor wiFiMonitor;
     static String timestamp()
     {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss\t").format(Calendar.getInstance().getTime());
@@ -31,13 +31,18 @@ class Engine {
     }
     void initialize()
     {
-
+        wiFiMonitor = new WiFiMonitor();
         systemHVAC = new HVAC();
     }
 
+    @Scheduled(fixedRate = 5 * 60000)
+    public void logWifi()
+    {
+        System.out.println();
+    }
 
     @Scheduled(fixedRate = 60000)
-    public void log(){
+    public void logSystem(){
         System.out.println(timestamp() + systemHVAC.getStateJSON());
     }
 
