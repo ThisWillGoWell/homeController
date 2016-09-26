@@ -1,13 +1,11 @@
 package controller;
 
+import modules.WiFiMonitor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  * Created by Will on 9/3/2016.
@@ -17,9 +15,10 @@ import java.util.Date;
 @Service
 class Engine {
 
-    HVAC systemHVAC;
-    GpioController GPIO;
-    WiFiMonitor wiFiMonitor;
+    private HVAC systemHVAC;
+    private GpioController GPIO;
+    private WiFiMonitor wiFiMonitor;
+
     static String timestamp()
     {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss\t").format(Calendar.getInstance().getTime());

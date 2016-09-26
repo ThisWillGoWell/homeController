@@ -1,11 +1,7 @@
-package controller;
+package modules;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 
@@ -13,8 +9,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URL;
-import java.sql.Date;
 import java.util.ArrayList;
 
 
@@ -37,7 +31,7 @@ public class WiFiMonitor {
 
     private CloseableHttpClient client;
 
-    WiFiMonitor()
+    public WiFiMonitor()
     {
      client = HttpClientBuilder.create().build();
     }
