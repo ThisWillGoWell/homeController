@@ -1,9 +1,9 @@
-package controller;
+package system.hvac;
 
 /**
  * Created by Will on 9/3/2016.
  */
-public class SystemState {
+public class HvacSystemState {
 
     private boolean power;
 
@@ -19,7 +19,7 @@ public class SystemState {
     private double systemTemp;
 
 
-    public SystemState()
+    public HvacSystemState()
     {
         power = false;
 
@@ -126,7 +126,7 @@ public class SystemState {
 
     public String getStateJSON()
     {
-        String s = "{\"settings\": {";
+        String s = "\"HVAC\": {";
 
         s += "\"power\" :\"" + power + "\",";
         s += "\"fanPower\" :\"" + fanPower + "\",";
@@ -137,7 +137,7 @@ public class SystemState {
         s += "\"fan\" :\"" + fan + "\",";
         s += "\"roomTemp\" :\"" + roomTemp + "\",";
         s += "\"systemTemp\" :\"" + systemTemp + "\"";
-        s+="}}";
+        s+="}";
 
         return s;
 

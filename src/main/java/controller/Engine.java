@@ -1,8 +1,9 @@
 package controller;
 
-import modules.WiFiMonitor;
+import system.network.NetworkSystem;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import system.hvac.HvacSystem;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -15,9 +16,10 @@ import java.util.Calendar;
 @Service
 class Engine {
 
-    private HVAC systemHVAC;
+    private HvacSystem systemHVAC;
     private GpioController GPIO;
-    private WiFiMonitor wiFiMonitor;
+    private NetworkSystem networkSystem;
+
 
     static String timestamp()
     {
@@ -30,8 +32,8 @@ class Engine {
     }
     void initialize()
     {
-        wiFiMonitor = new WiFiMonitor();
-        systemHVAC = new HVAC();
+        networkSystem = new NetworkSystem();
+        systemHVAC = new HvacSystem();
     }
 
     @Scheduled(fixedRate = 5 * 60000)
@@ -40,9 +42,9 @@ class Engine {
         System.out.println();
     }
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 1000)
     public void logSystem(){
-        System.out.println(timestamp() + systemHVAC.getStateJSON());
+        System.out.println(timestamp() + getState());
     }
 
     @Scheduled(fixedRate = 5000)
@@ -79,7 +81,7 @@ class Engine {
     }
     String getState()
     {
-        return systemHVAC.getStateJSON();
+        return "{\"state\":" + networkSystem.getStateJSON() + "," + systemHVAC.getStateJSON() + "}";
     }
 
 

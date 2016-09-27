@@ -1,21 +1,21 @@
-package controller;
+package system.hvac;
 
 /**
  * Created by Will on 9/3/2016.
  */
 
-public class HVAC{
+public class HvacSystem {
 
 
-    private SystemState state;
+    private HvacSystemState state;
     private double THRESHOLD = 0.75;
 
-    HVAC()
+    public HvacSystem()
     {
-        state = new SystemState();
+        state = new HvacSystemState();
     }
 
-    void update() {
+    public void update() {
         if(state.getPower()) {
             if( state.getAcPower()) {
                 /*
@@ -54,7 +54,7 @@ public class HVAC{
 
     }
 
-    void setPower(boolean b)
+    public void setPower(boolean b)
     {
         //anytime the power changes we want to make sure all things are off
         state.setPower(b);
@@ -65,7 +65,7 @@ public class HVAC{
         state.setHeat(false);
         state.setHeatPower(false);
     }
-    void setAc(boolean b)
+    public void setAc(boolean b)
     {
 
         state.setHeatPower(false);
@@ -84,7 +84,7 @@ public class HVAC{
         }
     }
 
-    void setHeat(boolean b)
+    public void setHeat(boolean b)
     {
         state.setHeatPower(b);
         state.setFanPower(b);
@@ -100,19 +100,19 @@ public class HVAC{
         }
     }
 
-    void setFan(boolean b)
+    public void setFan(boolean b)
     {
         state.setFan(b);
     }
-    String getStateJSON()
+    public String getStateJSON()
     {
         return state.getStateJSON();
     }
-    void setRoomTemp(double d){ state.setRoomTemp(d);}
-    void setSystemTemp(double d) {
+    public void setRoomTemp(double d){ state.setRoomTemp(d);}
+    public void setSystemTemp(double d) {
         state.setSystemTemp(d);
     }
-    public SystemState getState() {
+    public HvacSystemState getState() {
         return state;
     }
 
