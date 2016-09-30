@@ -1,5 +1,6 @@
 package controller;
 
+import modules.Weather;
 import system.network.NetworkSystem;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ class Engine {
     private HvacSystem systemHVAC;
     private GpioController GPIO;
     private NetworkSystem networkSystem;
+    private Weather weather;
 
 
     static String timestamp()
@@ -34,6 +36,7 @@ class Engine {
     {
         networkSystem = new NetworkSystem();
         systemHVAC = new HvacSystem();
+        weather= new Weather();
     }
 
     @Scheduled(fixedRate = 5 * 60000)
@@ -79,6 +82,24 @@ class Engine {
     {
         systemHVAC.setPower(b);
     }
+
+    double getMaxTempToday()
+    {
+        return weather.getTodayHigh();
+    }
+
+    double getMinTempToday()
+    {
+        return weather.getTodayLow();
+    }
+
+    String getForcast()
+    {
+        return weather.getTodayForcast();
+    }
+
+
+
     String getState()
     {
         return "{\"state\":" + networkSystem.getStateJSON() + "," + systemHVAC.getStateJSON() + "}";

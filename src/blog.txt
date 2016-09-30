@@ -21,7 +21,7 @@ Also, It does not know what modules are in the system, the moduels just know wha
 SO basically to add a new modual to the system
 
 Calls go: /set?system=HVAV_0&what=roomTemp%to=78
-The system woukd know whould have a link to the HVAC0 system to the hvac0 object.
+The system would know what HVAC0 system to the hvac0 object.
 
 then there is either getSystemState
 or /get?system=HVAC_0&what=roomTemp

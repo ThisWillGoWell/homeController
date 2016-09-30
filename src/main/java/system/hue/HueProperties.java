@@ -1,4 +1,4 @@
-package com.philips.lighting.data;
+package system.hue;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
