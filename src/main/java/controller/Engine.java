@@ -15,7 +15,7 @@ import java.util.Calendar;
  * Starts evryhting up on boot, and controls the timeing of the check chav cotnrol
  */
 @Service
-class Engine {
+public class Engine {
 
     private HvacSystem systemHVAC;
     private GpioController GPIO;
@@ -23,10 +23,16 @@ class Engine {
     private Weather weather;
 
 
-    static String timestamp()
+    public static String timestamp()
     {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss\t").format(Calendar.getInstance().getTime());
     }
+    public static String time()
+    {
+        return new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
+    }
+
+
 
     public Engine()
     {
