@@ -24,7 +24,7 @@ public class Weather {
     {
 
         client = HttpClientBuilder.create().build();
-
+        update();
     }
 
     private JsonObject conditions, forecast;
@@ -34,7 +34,6 @@ public class Weather {
         HttpGet request = new HttpGet(CURRENT_WEATHER_ADDRESS);
         ResponseHandler<String> responseHandler=new BasicResponseHandler();
         String response = client.execute(request, responseHandler);
-        System.out.println(response);
         JsonObject json = new JsonParser().parse(response).getAsJsonObject();
         return json;
     }
@@ -43,14 +42,13 @@ public class Weather {
         HttpGet request = new HttpGet(FORCAST_WEATHER_ADDRESS);
         ResponseHandler<String> responseHandler=new BasicResponseHandler();
         String response = client.execute(request, responseHandler);
-        System.out.println(response);
         JsonObject json = new JsonParser().parse(response).getAsJsonObject();
         return json;
     }
 
 
 
-    private void update()
+    public void update()
     {
 
         try {

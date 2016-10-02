@@ -46,6 +46,23 @@
             <version>2.7</version>
         </dependency>
 
+        <dependency>
+            <groupId>hueSDK</groupId>
+            <artifactId>libs</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/huelocalsdk.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>hueResources</groupId>
+            <artifactId>libs</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/huesdkresources.jar</systemPath>
+        </dependency>
+
+
+
     </dependencies>
 
     <properties>
@@ -58,8 +75,24 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+
+            </plugin>
+
+
+        <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>controller.Application</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
-    </build>
+
+
+</build>
 
 </project>

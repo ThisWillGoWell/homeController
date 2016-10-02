@@ -1,5 +1,6 @@
 package system.ClockDisplay;
 
+import modules.Weather;
 import system.SystemParent;
 
 import javax.imageio.ImageIO;
@@ -20,9 +21,10 @@ public class ClockDisplaySystem extends SystemParent{
     */
 
    Frame masterFrame;
-
-    public ClockDisplaySystem()
+    Weather weather;
+    public ClockDisplaySystem(Weather weather)
     {
+        this.weather = weather;
         masterFrame = new Frame(64,32);
     }
 
@@ -31,19 +33,20 @@ public class ClockDisplaySystem extends SystemParent{
         return "";
     }
 
-    public void getFrame()
+    public File writeFrame()
     {
-
+        return  masterFrame.writeFrame("frame.gif");
     }
 
     public void update()
     {
-
+        masterFrame.placeFrame(0,1,new ClockFrame(2));
+        masterFrame.placeFrame(25,5, new WeatherFrame(weather));
     }
 
     public static void main(String args[]) {
-        ClockDisplaySystem system = new ClockDisplaySystem();
-        Frame clockFrame = new ClockFrame();
+        ClockDisplaySystem system = new ClockDisplaySystem(new Weather());
+        Frame clockFrame = new ClockFrame(2);
 
         BufferedImage image = new BufferedImage(64, 32, BufferedImage.TYPE_INT_RGB);
         for (int i = 0; i < clockFrame.getHeight(); i++) {
@@ -59,6 +62,4 @@ public class ClockDisplaySystem extends SystemParent{
             e.printStackTrace();
         }
     }
-
-
-    }
+}

@@ -1,11 +1,15 @@
 package controller;
 
 import modules.Weather;
+import system.ClockDisplay.ClockDisplayState;
+import system.ClockDisplay.ClockDisplaySystem;
 import system.network.NetworkSystem;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import system.hvac.HvacSystem;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -21,7 +25,7 @@ public class Engine {
     private GpioController GPIO;
     private NetworkSystem networkSystem;
     private Weather weather;
-
+    private ClockDisplaySystem clockDisplaySystem;
 
     public static String timestamp()
     {
@@ -29,7 +33,7 @@ public class Engine {
     }
     public static String time()
     {
-        return new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
+        return new SimpleDateFormat("h:mm").format(Calendar.getInstance().getTime());
     }
 
 
@@ -40,11 +44,13 @@ public class Engine {
     }
     void initialize()
     {
-        networkSystem = new NetworkSystem();
+        //networkSystem = new NetworkSystem();
         systemHVAC = new HvacSystem();
         weather= new Weather();
+        clockDisplaySystem = new ClockDisplaySystem(weather);
     }
 
+    /*
     @Scheduled(fixedRate = 5 * 60000)
     public void logWifi()
     {
@@ -55,18 +61,24 @@ public class Engine {
     public void logSystem(){
         System.out.println(timestamp() + getState());
     }
-
+*/
     @Scheduled(fixedRate = 5000)
     public void updateSystem()
     {
         systemHVAC.update();
     }
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 5 * 60000)
     public void updateCurrentTemp()
     {
-
+        weather.update();
     }
+    public File getImage()
+    {
+        clockDisplaySystem.update();
+        return clockDisplaySystem.writeFrame();
+    }
+
     void setRoomTemp(double d){systemHVAC.setRoomTemp(d);}
     void setSystemTemp(double d)
     {
