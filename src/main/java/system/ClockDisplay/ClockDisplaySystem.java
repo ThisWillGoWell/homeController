@@ -1,13 +1,20 @@
 package system.ClockDisplay;
 
+import controller.Engine;
 import modules.Weather;
+import org.json.hue.JSONObject;
 import system.SystemParent;
 
 import javax.imageio.ImageIO;
+import javax.imageio.stream.FileImageOutputStream;
+import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by Willi on 9/29/2016.
@@ -22,44 +29,80 @@ public class ClockDisplaySystem extends SystemParent{
 
    Frame masterFrame;
     Weather weather;
-    public ClockDisplaySystem(Weather weather)
+
+    File ResouceGif;
+
+    int rows = 32;
+    int cols = 64;
+    SpriteDict spriteDict;
+    ClockElement clock;
+    ArrayList<DisplayElement> elements = new ArrayList<>();
+    File resouceGif;
+    public ClockDisplaySystem(Engine e)
     {
-        this.weather = weather;
-        masterFrame = new Frame(64,32);
+
+        spriteDict = new SpriteDict();
+        elements.add(new ClockElement("clock", spriteDict, 2,0,0,new SimpleDateFormat("h:mm"), 5));
+        try {
+            writeResourceGif();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
     }
+
+    public File getResouceGif()
+    {
+        return resouceGif;
+    }
+    private void writeResourceGif() throws IOException {
+        resouceGif = new File("resources.gif");
+        ImageOutputStream output = new FileImageOutputStream(resouceGif);
+        GifSequenceWriter writer = new GifSequenceWriter(output, BufferedImage.TYPE_INT_RGB,1, false);
+        int currentFrame = 0;
+        for (String key : spriteDict.keySet()) {
+            for (Frame f: spriteDict.get(key).getFrames() ) {
+                f.setFrameNumber(currentFrame++);
+                BufferedImage img = new BufferedImage(cols, rows, BufferedImage.TYPE_INT_RGB);
+                for (int i = 0; i < f.getHeight(); i++) {
+                    for (int j = 0; j < f.getLength(); j++) {
+                        img.setRGB(j, i, f.getPixel(i, j).getRGB());
+                    }
+                }
+                writer.writeToSequence(img);
+
+
+            }
+        }
+        writer.close();
+        output.close();
+
+
+
+    }
+
+
+
+
 
     @Override
     public String getStateJSON() {
         return "";
     }
 
-    public File writeFrame()
-    {
-        return  masterFrame.writeFrame("frame.gif");
+    @Override
+    public void update() {
+
     }
 
-    public void update()
+
+    public static void main(String[] args)
     {
-        masterFrame.placeFrame(0,1,new ClockFrame(2));
-        masterFrame.placeFrame(25,5, new WeatherFrame(weather));
-    }
-
-    public static void main(String args[]) {
-        ClockDisplaySystem system = new ClockDisplaySystem(new Weather());
-        Frame clockFrame = new ClockFrame(2);
-
-        BufferedImage image = new BufferedImage(64, 32, BufferedImage.TYPE_INT_RGB);
-        for (int i = 0; i < clockFrame.getHeight(); i++) {
-            for (int j = 0; j < clockFrame.getLength(); j++) {
-                image.setRGB(j, i, clockFrame.getPixel(i, j).getRGB());
-            }
-        }
-
-        File outputFile = new File("testImage.gif");
+        ClockDisplaySystem system = new ClockDisplaySystem(null);
         try {
-            ImageIO.write(image, "gif", outputFile);
+            system.writeResourceGif();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 }

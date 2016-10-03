@@ -47,7 +47,7 @@ public class Engine {
         //networkSystem = new NetworkSystem();
         systemHVAC = new HvacSystem();
         weather= new Weather();
-        clockDisplaySystem = new ClockDisplaySystem(weather);
+        clockDisplaySystem = new ClockDisplaySystem(this);
     }
 
     /*
@@ -73,10 +73,9 @@ public class Engine {
     {
         weather.update();
     }
-    public File getImage()
+    public File getImageResource()
     {
-        clockDisplaySystem.update();
-        return clockDisplaySystem.writeFrame();
+        return clockDisplaySystem.getResouceGif();
     }
 
     void setRoomTemp(double d){systemHVAC.setRoomTemp(d);}

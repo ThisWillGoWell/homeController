@@ -4,7 +4,6 @@ package controller;
  * Created by Will on 9/3/2016.
  */
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -14,12 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.imageio.stream.ImageInputStream;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.Buffer;
 
 @RestController
 public class RestHandeler {
@@ -130,11 +126,10 @@ public class RestHandeler {
         return engine.getState();
     }
 
-    @RequestMapping(value= "/getImage", method = RequestMethod.GET, produces = "application/gif")
-    public ResponseEntity<InputStreamResource> getImage() throws IOException
+    @RequestMapping(value= "/getImageResource", method = RequestMethod.GET, produces = "application/gif")
+    public ResponseEntity<InputStreamResource> getImageResource() throws IOException
     {
-
-        File image = engine.getImage();
+        File image = engine.getImageResource();
 
 
         HttpHeaders headers = new HttpHeaders();
@@ -142,12 +137,14 @@ public class RestHandeler {
         headers.add("Pragma", "no-cache");
         headers.add("Expires", "0");
 
+
         return ResponseEntity
                 .ok()
                 .headers(headers)
                 .contentLength(image.length())
                 .contentType(MediaType.IMAGE_GIF)
                 .body(new InputStreamResource(new FileInputStream(image)));
+
     }
 
 

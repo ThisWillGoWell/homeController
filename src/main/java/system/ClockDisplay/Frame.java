@@ -44,7 +44,7 @@ public class Frame {
     static protected Frame[] NUMBERS_FRAME_SMALL = new Frame[]{ZERO_FRAME_SMALL, ONE_FRAME_SMALL, TWO_FRAME_SMALL, THREE_FRAME_SMALL, FOUR_FRAME_SMALL, FIVE_FRAME_SMALL, SIX_FRAME_SMALL, SEVEN_FRAME_SMALL, EIGHT_FRAME_SMALL, NINE_FRAME_SMALL};
     static protected Frame EMPTY_FRAME_SMALL = new Frame(3,5, new int[]{0,0,0,0,0});
 
-
+    //Large 13x19 ASCII Frames
     static protected Frame ZERO_FRAME_LARGE        = new Frame(13,19, new int[]{1016,2044,4094,7967,7695,7175,7175,7175,7175,7175,7175,7175,7175,7175,7695,7967,4094,2044,1016,});
     static protected Frame ONE_FRAME_LARGE         = new Frame(13,19, new int[]{224,496,1008,2032,4080,240,240,240,240,240,240,240,240,240,240,240,240,240,240,});
     static protected Frame TWO_FRAME_LARGE         = new Frame(13,19, new int[]{504,1020,2046,3855,3079,7,15,30,60,120,240,480,960,1920,3840,7168,7168,8190,4095,});
@@ -60,23 +60,23 @@ public class Frame {
     static protected Frame EMPTY_FRAME_LARGE = new Frame(13,19, new int[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
 
 
-    //Large Ascii
-    static Frame zeroLarge = null;
-    static Frame oneLarge = null;
-    static Frame twoLarge = null;
-    static Frame threeLarge=  null;
-    static Frame fourLarge = null;
-    static Frame fiveLarge = null;
-    static Frame sixLarge = null;
-    static Frame sevenLarge = null;
-    static Frame eightLarge = null;
-    static Frame nineLarge = null;
-    static Frame colonLarge = null;
+    //Spin1 Motion Frame
+    static protected Frame SPIN1_0 = new Frame(5,7, new int[]{27,27,27,0,27,27,27});
+    static protected Frame SPIN1_1 = new Frame(5,7, new int[]{3,3,3,0,27,27,27});
+    static protected Frame SPIN1_2 = new Frame(5,7, new int[]{24,24,24,0,27,27,27});
+    static protected Frame SPIN1_3 = new Frame(5,7, new int[]{27,27,27,0,24,24,24});
+    static protected Frame SPIN1_4 = new Frame(5,7, new int[]{27,27,27,0,3,3,3});
+    static protected Frame[] SPIN1 = new Frame[]{SPIN1_0, SPIN1_1,SPIN1_2, SPIN1_3,SPIN1_4};
 
 
+
+
+
+    protected  String FrameID;
     protected int length, height;
     protected Pixel[][] pixels;
     protected ArrayList<Frame> subFrames;
+    protected int frameNumber = -1;
 
     public Frame(int length,int height)
     {
@@ -116,6 +116,10 @@ public class Frame {
             }
         }
 
+    }
+    void setFrameNumber(int i)
+    {
+        frameNumber = i;
     }
 
     Pixel[][] getPixels()
