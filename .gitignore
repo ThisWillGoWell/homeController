@@ -12,3 +12,4 @@ mvnw.cmd
 build/
 *.original
 *.idea
+com*

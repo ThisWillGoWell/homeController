@@ -115,7 +115,7 @@ public class Engine {
         return weather.getTodayForcast();
     }
 
-
+    String getImageTime(long start, long stop){return clockDisplaySystem.getImageUpdate(start, stop);}
 
     String getState()
     {

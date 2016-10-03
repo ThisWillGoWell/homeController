@@ -8,8 +8,6 @@ import java.util.ArrayList;
 public class MotionSprite extends Sprite {
 
     long updateInterval;
-    long startTime;
-    int currentIndex;
     long nextUpdateTime;
     int numFrames;
 
@@ -18,8 +16,6 @@ public class MotionSprite extends Sprite {
         super(spriteID,frames);
 
         this.updateInterval = updateInterval;
-        this.startTime = System.currentTimeMillis();
-        currentIndex = 0;
         numFrames = frames.size();
         animated = true;
     }
@@ -27,9 +23,7 @@ public class MotionSprite extends Sprite {
     MotionSprite(String spriteID, Frame[] f, long updateInterval) {
         super(spriteID,f);
         this.updateInterval = updateInterval;
-        this.startTime = System.currentTimeMillis();
-        currentIndex = 0;
-        numFrames = this.frames.size();
+        numFrames = frames.size();
         animated = true;
 
     }
@@ -40,7 +34,7 @@ public class MotionSprite extends Sprite {
      */
     int getFrameIndex(long time)
     {
-        return (int) (((System.currentTimeMillis())/updateInterval) % numFrames);
+        return (int) (((time)/updateInterval) % numFrames);
     }
 
     long getNextUpdateTime()

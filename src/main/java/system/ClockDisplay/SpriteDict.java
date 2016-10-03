@@ -24,7 +24,7 @@ public class SpriteDict extends HashMap<String,Sprite>{
         this.put(":", new Sprite(":", new Frame[]{Frame.COLON_FRAME_SMALL, Frame.COLON_FRAME, Frame.COLON_FRAME_LARGE}));
         this.put("degree", new Sprite("degree", new Frame[]{Frame.DEGREE_FRAME_SMALL, Frame.DEGREE_FRAME}));
         this.put(".", new Sprite(".", new Frame[]{Frame.DECIMAL_FRAME_SMALL}));
-        this.put("spin1", new MotionSprite("spin1",Frame.SPIN1, 500));
+        this.put("spin1", new MotionSprite("spin1",Frame.SPIN1, 200));
 
 
     }

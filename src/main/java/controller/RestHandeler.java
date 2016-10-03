@@ -4,6 +4,7 @@ package controller;
  * Created by Will on 9/3/2016.
  */
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.SystemEnvironmentPropertySource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -124,6 +125,15 @@ public class RestHandeler {
     public String getState()
     {
         return engine.getState();
+    }
+
+    @RequestMapping(value = "/getImageTimeline")
+    public String getImageTimeline(@RequestParam(value = "start") String start, @RequestParam(value = "end") String end)
+    {
+        long startTime = System.currentTimeMillis();
+        String s= engine.getImageTime(Long.parseLong(start), Long.parseLong(end));
+        System.out.println(System.currentTimeMillis() - startTime);
+        return s;
     }
 
     @RequestMapping(value= "/getImageResource", method = RequestMethod.GET, produces = "application/gif")

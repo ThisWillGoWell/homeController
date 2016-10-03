@@ -2,6 +2,7 @@ package system.ClockDisplay;
 
 import controller.Engine;
 import modules.Weather;
+import org.json.hue.JSONArray;
 import org.json.hue.JSONObject;
 import system.SystemParent;
 
@@ -43,11 +44,37 @@ public class ClockDisplaySystem extends SystemParent{
 
         spriteDict = new SpriteDict();
         elements.add(new ClockElement("clock", spriteDict, 2,0,0,new SimpleDateFormat("h:mm"), 5));
+        elements.add(new MotionElement("spin1", spriteDict, 23, 58));
         try {
             writeResourceGif();
         } catch (IOException e1) {
             e1.printStackTrace();
         }
+    }
+
+    public String getImageUpdate(long start, long stop)
+    {
+        //start at 5 fps
+        long interval = 100; //once every 100 ms
+        JSONObject imageUpdate = new JSONObject();
+        JSONArray frames = new JSONArray();
+        for(long i=start; i<stop; i+=interval)
+        {
+            JSONObject time = new JSONObject();
+            JSONArray eles = new JSONArray();
+            for (DisplayElement e: elements) {
+                eles.put(e.get(i));
+            }
+            time.put("elements", eles);
+            time.put("time", i);
+            frames.put(time);
+        }
+        imageUpdate.put("frames",frames);
+        imageUpdate.put("start",start);
+        imageUpdate.put("stop", stop);
+        imageUpdate.put("interval", interval);
+
+        return imageUpdate.toString();
     }
 
     public File getResouceGif()
@@ -103,6 +130,7 @@ public class ClockDisplaySystem extends SystemParent{
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println(system.getImageUpdate(System.currentTimeMillis(), System.currentTimeMillis() + 1000));
     }
 
 }

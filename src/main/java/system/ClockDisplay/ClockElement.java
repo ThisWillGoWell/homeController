@@ -40,7 +40,7 @@ public class ClockElement extends DisplayElement {
             frameData.put("r", writePointerRow);
             frameData.put("c", writePointerCol);
             list.put(frameData);
-            writePointerCol += s.length + size+1;
+            writePointerCol += s.length + 1;
         }
         json.put("id", id);
         json.put("t", time);

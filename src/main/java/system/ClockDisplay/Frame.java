@@ -66,7 +66,7 @@ public class Frame {
     static protected Frame SPIN1_2 = new Frame(5,7, new int[]{24,24,24,0,27,27,27});
     static protected Frame SPIN1_3 = new Frame(5,7, new int[]{27,27,27,0,24,24,24});
     static protected Frame SPIN1_4 = new Frame(5,7, new int[]{27,27,27,0,3,3,3});
-    static protected Frame[] SPIN1 = new Frame[]{SPIN1_0, SPIN1_1,SPIN1_2, SPIN1_3,SPIN1_4};
+    static protected Frame[] SPIN1 = new Frame[]{SPIN1_1,SPIN1_2, SPIN1_3,SPIN1_4};
 
 
 
