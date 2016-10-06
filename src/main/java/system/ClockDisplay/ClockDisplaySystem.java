@@ -1,5 +1,7 @@
 package system.ClockDisplay;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import controller.Engine;
 import modules.Weather;
 import org.json.hue.JSONArray;
@@ -56,23 +58,23 @@ public class ClockDisplaySystem extends SystemParent{
     {
         //start at 5 fps
         long interval = 100; //once every 100 ms
-        JSONObject imageUpdate = new JSONObject();
-        JSONArray frames = new JSONArray();
+        JsonObject imageUpdate = new JsonObject();
+        JsonArray frames = new JsonArray();
         for(long i=start; i<stop; i+=interval)
         {
-            JSONObject time = new JSONObject();
-            JSONArray eles = new JSONArray();
+            JsonObject time = new JsonObject();
+            JsonArray eles = new JsonArray();
             for (DisplayElement e: elements) {
-                eles.put(e.get(i));
+                eles.add(e.get(i));
             }
-            time.put("elements", eles);
-            time.put("time", i);
-            frames.put(time);
+            time.add("elements", eles);
+            time.addProperty("time", i);
+            frames.add(time);
         }
-        imageUpdate.put("frames",frames);
-        imageUpdate.put("start",start);
-        imageUpdate.put("stop", stop);
-        imageUpdate.put("interval", interval);
+        imageUpdate.add("frames",frames);
+        imageUpdate.addProperty("start",start);
+        imageUpdate.addProperty("stop", stop);
+        imageUpdate.addProperty("interval", interval);
 
         return imageUpdate.toString();
     }

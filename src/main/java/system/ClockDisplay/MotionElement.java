@@ -1,7 +1,9 @@
 package system.ClockDisplay;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.json.hue.JSONArray;
-import org.json.hue.JSONObject;
+
 
 /**
  * Created by Willi on 10/3/2016.
@@ -16,21 +18,21 @@ public class MotionElement extends DisplayElement{
     }
 
     @Override
-    JSONObject get(long time) {
-        JSONObject json = new JSONObject();
+    JsonObject get(long time) {
+        JsonObject json = new JsonObject();
         Frame f = motionSprite.getFrames().get(motionSprite.getFrameIndex(time));
-        JSONArray list = new JSONArray();
-        JSONObject frame = new JSONObject();
-        frame.put("n", f.frameNumber);
-        frame.put("w", f.getLength());
-        frame.put("h", f.getHeight());
-        frame.put("r", row);
-        frame.put("c", col);
+        JsonArray list = new JsonArray();
+        JsonObject frame = new JsonObject();
+        frame.addProperty("n", f.frameNumber);
+        frame.addProperty("w", f.getLength());
+        frame.addProperty("h", f.getHeight());
+        frame.addProperty("r", row);
+        frame.addProperty("c", col);
 
-        list.put(frame);
-        json.put("f", list);
-        json.put("id", id);
-        json.put("t", time);
+        list.add(frame);
+        json.add("f", list);
+        json.addProperty("id", id);
+        json.addProperty("t", time);
 
         return json;
     }

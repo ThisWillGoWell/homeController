@@ -119,7 +119,7 @@ public class Engine {
 
     String getState()
     {
-        return "{\"state\":" + networkSystem.getStateJSON() + "," + systemHVAC.getStateJSON() + "}";
+        return "{\"state\":{"  + systemHVAC.getStateJSON() + "}}";
     }
 
 

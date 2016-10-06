@@ -1,5 +1,6 @@
 package system.ClockDisplay;
 
+import com.google.gson.JsonObject;
 import org.json.hue.JSONObject;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public abstract class DisplayElement {
         this.updateInterval = updateInterval;
     }
 
-    abstract JSONObject get(long time);
+    abstract JsonObject get(long time);
 
     long getUpdateInterval(){
         return updateInterval;

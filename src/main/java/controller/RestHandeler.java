@@ -132,7 +132,8 @@ public class RestHandeler {
     {
         long startTime = System.currentTimeMillis();
         String s= engine.getImageTime(Long.parseLong(start), Long.parseLong(end));
-        System.out.println(System.currentTimeMillis() - startTime);
+
+        System.out.println(s);
         return s;
     }
 
@@ -154,8 +155,5 @@ public class RestHandeler {
                 .contentLength(image.length())
                 .contentType(MediaType.IMAGE_GIF)
                 .body(new InputStreamResource(new FileInputStream(image)));
-
     }
-
-
 }

@@ -27,6 +27,8 @@ public class Frame {
     static protected Frame COLON_FRAME = new Frame(5,7, new int[]{0,12,12,0,12,12,0});
     static protected Frame[] NUMBERS_FRAME = new Frame[]{ZERO_FRAME, ONE_FRAME, TWO_FRAME, THREE_FRAME, FOUR_FRAME, FIVE_FRAME, SIX_FRAME, SEVEN_FRAME, EIGHT_FRAME, NINE_FRAME};
     static protected Frame EMPTY_FRAME = new Frame(5,7, new int[]{0,0,0,0,0,0,0});
+
+
     //Small ASCII 3 x 5
     static private Frame ZERO_FRAME_SMALL =     new Frame(3, 5, new int[]{7,5,5,5,7});
     static private Frame ONE_FRAME_SMALL =      new Frame(2, 5, new int[]{1,1,1,1,1});
@@ -67,6 +69,8 @@ public class Frame {
     static protected Frame SPIN1_3 = new Frame(5,7, new int[]{27,27,27,0,24,24,24});
     static protected Frame SPIN1_4 = new Frame(5,7, new int[]{27,27,27,0,3,3,3});
     static protected Frame[] SPIN1 = new Frame[]{SPIN1_1,SPIN1_2, SPIN1_3,SPIN1_4};
+
+
 
 
 

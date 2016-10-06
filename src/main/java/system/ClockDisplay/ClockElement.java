@@ -1,4 +1,6 @@
 package system.ClockDisplay;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import controller.Engine;
 import org.json.hue.JSONArray;
 import org.json.hue.JSONObject;
@@ -21,30 +23,30 @@ public class ClockElement extends DisplayElement {
         this.format = format;
     }
 
-    JSONObject get(long time) {
+    JsonObject get(long time) {
         //make the time for that time
         String timeStr = format.format(new Date(time));
         while (timeStr.length() < characterCount){
             timeStr = " " + timeStr;
         }
-        JSONObject json = new JSONObject();
-        JSONArray list = new JSONArray();
+        JsonObject json = new JsonObject();
+        JsonArray list = new JsonArray();
         int writePointerRow = row;
         int writePointerCol = col;
         for (int i = 0; i < timeStr.length(); i++) {
-            JSONObject frameData = new JSONObject();
+            JsonObject frameData = new JsonObject();
             Frame s = spriteDict.get(timeStr.charAt(i) + "").getFrames().get(size);
-            frameData.put("n", s.frameNumber);
-            frameData.put("w", s.length);
-            frameData.put("h", s.height);
-            frameData.put("r", writePointerRow);
-            frameData.put("c", writePointerCol);
-            list.put(frameData);
+            frameData.addProperty("n", s.frameNumber);
+            frameData.addProperty("w", s.length);
+            frameData.addProperty("h", s.height);
+            frameData.addProperty("r", writePointerRow);
+            frameData.addProperty("c", writePointerCol);
+            list.add(frameData);
             writePointerCol += s.length + 1;
         }
-        json.put("id", id);
-        json.put("t", time);
-        json.put("f", list);
+        json.addProperty("id", id);
+        json.addProperty("t", time);
+        json.add("f", list);
 
         return json;
     }
