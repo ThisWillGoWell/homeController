@@ -1,5 +1,7 @@
 package system.hvac;
 
+import java.util.HashMap;
+
 /**
  * Created by Will on 9/3/2016.
  */
@@ -33,7 +35,11 @@ public class HvacSystemState {
 
         roomTemp = 27;
         systemTemp = 27;
+
+
     }
+
+
 
     public boolean getPower()
     {

@@ -4,20 +4,22 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import controller.Engine;
 import modules.Weather;
-import org.json.hue.JSONArray;
-import org.json.hue.JSONObject;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import system.SystemParent;
 
-import javax.imageio.ImageIO;
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * Created by Willi on 9/29/2016.
@@ -43,7 +45,7 @@ public class ClockDisplaySystem extends SystemParent{
     File resouceGif;
     public ClockDisplaySystem(Engine e)
     {
-
+        super(e);
         spriteDict = new SpriteDict();
         elements.add(new ClockElement("clock", spriteDict, 2,0,0,new SimpleDateFormat("h:mm"), 5));
         elements.add(new MotionElement("spin1", spriteDict, 23, 58));
@@ -54,7 +56,7 @@ public class ClockDisplaySystem extends SystemParent{
         }
     }
 
-    public String getImageUpdate(long start, long stop)
+    private String getImageUpdate(long start, long stop)
     {
         //start at 5 fps
         long interval = 100; //once every 100 ms
@@ -79,9 +81,24 @@ public class ClockDisplaySystem extends SystemParent{
         return imageUpdate.toString();
     }
 
-    public File getResouceGif()
-    {
-        return resouceGif;
+    private Object getResourceGif() throws FileNotFoundException {
+        File image = resouceGif;
+
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .contentLength(image.length())
+                .contentType(MediaType.IMAGE_GIF)
+                .body(new InputStreamResource(new FileInputStream(image)));
+
+
     }
     private void writeResourceGif() throws IOException {
         resouceGif = new File("resources.gif");
@@ -104,14 +121,26 @@ public class ClockDisplaySystem extends SystemParent{
         }
         writer.close();
         output.close();
-
-
-
     }
 
 
+    @Override
+    public Object get(String what) {
+        if(Objects.equals(what, "resourceImage")){
+            try {
+                return getResourceGif();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
 
+        return null;
+    }
 
+    @Override
+    public String set(String what, String to) {
+        return null;
+    }
 
     @Override
     public String getStateJSON() {

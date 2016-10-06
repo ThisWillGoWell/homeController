@@ -1,5 +1,6 @@
 package system.network;
 
+import controller.Engine;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
@@ -29,8 +30,9 @@ public class NetworkSystem extends SystemParent{
     private CloseableHttpClient client;
     private NetworkState state;
 
-    public NetworkSystem()
+    public NetworkSystem(Engine e)
     {
+        super(e);
         client = HttpClientBuilder.create().build();
         state = new NetworkState();
         routerLogin();
@@ -83,6 +85,16 @@ public class NetworkSystem extends SystemParent{
         getNetworkList();
     }
 
+    @Override
+    public Object get(String what) {
+        return null;
+    }
+
+    @Override
+    public String set(String what, String to) {
+        return null;
+    }
+
     public String getStateJSON()
     {
         String s = "\"Network\": {";
@@ -93,7 +105,7 @@ public class NetworkSystem extends SystemParent{
 
     public static void main(String args[])
     {
-        NetworkSystem wirelessMonitor = new NetworkSystem();
+        NetworkSystem wirelessMonitor = new NetworkSystem(new Engine());
         wirelessMonitor.routerLogin();
     }
 

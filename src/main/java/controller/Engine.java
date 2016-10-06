@@ -3,6 +3,7 @@ package controller;
 import modules.Weather;
 import system.ClockDisplay.ClockDisplayState;
 import system.ClockDisplay.ClockDisplaySystem;
+import system.SystemParent;
 import system.network.NetworkSystem;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 
 /**
  * Created by Will on 9/3/2016.
@@ -20,12 +22,20 @@ import java.util.Calendar;
  */
 @Service
 public class Engine {
+    HashMap<String, SystemParent> systems;
 
-    private HvacSystem systemHVAC;
-    private GpioController GPIO;
-    private NetworkSystem networkSystem;
-    private Weather weather;
-    private ClockDisplaySystem clockDisplaySystem;
+    public Engine()
+    {
+        initialize();
+    }
+    void initialize()
+    {
+        systems = new HashMap<>();
+        systems.put("clock", new ClockDisplaySystem(this));
+        systems.put("HVAC", new HvacSystem(this));
+        systems.put("weather", new Weather(this));
+    }
+
 
     public static String timestamp()
     {
@@ -36,32 +46,24 @@ public class Engine {
         return new SimpleDateFormat("h:mm").format(Calendar.getInstance().getTime());
     }
 
-
-
-    public Engine()
+    public Object get(String system, String what)
     {
-        initialize();
-    }
-    void initialize()
-    {
-        //networkSystem = new NetworkSystem();
-        systemHVAC = new HvacSystem();
-        weather= new Weather();
-        clockDisplaySystem = new ClockDisplaySystem(this);
+        if(systems.keySet().contains(system)) {
+            return systems.get(system).get(what);
+        }
+        return "system not found";
+
     }
 
+    public String set(String system , String what, String to)
+    {
+        if(systems.keySet().contains(system))
+        {
+            return systems.get(system).set(what, to);
+        }
+        return "system not found";
+    }
     /*
-    @Scheduled(fixedRate = 5 * 60000)
-    public void logWifi()
-    {
-        System.out.println();
-    }
-
-    @Scheduled(fixedRate = 1000)
-    public void logSystem(){
-        System.out.println(timestamp() + getState());
-    }
-*/
     @Scheduled(fixedRate = 5000)
     public void updateSystem()
     {
@@ -78,27 +80,7 @@ public class Engine {
         return clockDisplaySystem.getResouceGif();
     }
 
-    void setRoomTemp(double d){systemHVAC.setRoomTemp(d);}
-    void setSystemTemp(double d)
-    {
-        systemHVAC.setSystemTemp(d);
-    }
-    void setAc(boolean b)
-    {
-        systemHVAC.setAc(b);
-    }
-    void setHeat(boolean b)
-    {
-        systemHVAC.setHeat(b);
-    }
-    void setFan(boolean b)
-    {
-        systemHVAC.setFan(b);
-    }
-    void setPower(boolean b)
-    {
-        systemHVAC.setPower(b);
-    }
+
 
     double getMaxTempToday()
     {
@@ -121,6 +103,9 @@ public class Engine {
     {
         return "{\"state\":{"  + systemHVAC.getStateJSON() + "}}";
     }
+    */
+
+
 
 
 

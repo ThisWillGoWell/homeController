@@ -2,11 +2,13 @@ package modules;
 
 import com.google.gson.*;
 
+import controller.Engine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
+import system.SystemParent;
 
 import java.io.IOException;
 
@@ -14,17 +16,34 @@ import java.io.IOException;
 /**
  * Created by Willi on 9/26/2016.
  */
-public class Weather {
+public class Weather extends SystemParent{
     private final String CURRENT_WEATHER_ADDRESS = "http://api.wunderground.com/api/0457bdf6163baa58/conditions/q/NY/Rochester.json";
     private final String FORCAST_WEATHER_ADDRESS = "http://api.wunderground.com/api/0457bdf6163baa58/forecast/q/NY/Rochester.json";
 
 
-    HttpClient client ;
-    public Weather()
-    {
+    private HttpClient client ;
 
+    public Weather(Engine e)
+    {
+        super(e);
         client = HttpClientBuilder.create().build();
         update();
+    }
+
+    @Override
+    public Object get(String what) {
+
+        return null;
+    }
+
+    @Override
+    public String set(String what, String to) {
+        return null;
+    }
+
+    @Override
+    public String getStateJSON() {
+        return null;
     }
 
     private JsonObject conditions, forecast;
@@ -90,7 +109,7 @@ public class Weather {
     }
 
     public static void main(String args[]){
-        Weather weather = new Weather();
+        Weather weather = new Weather(new Engine());
         String s = null;
         JsonObject json = null;
         weather.update();
