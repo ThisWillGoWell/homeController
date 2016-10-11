@@ -7,6 +7,7 @@ $(function() {
 	var tempDec = $('.temp-dec');
 	var acButton = $('.ac-toggle');
 	var heatButton = $('.heat-toggle');
+    var currentMode = "off";
 
 	var localSystemTemp = 0;
 	var serverState = {};
@@ -18,9 +19,8 @@ $(function() {
 	var SERVER_ENDPOINTS = {
 		"getState" : "/get?system=" + SYSTEM_NAME + "&what=state",
 		"setSystemTemp" : "/set?system="+ SYSTEM_NAME + "&what=systemTemp&to=",
-		"setAc" : "/set?system="+ SYSTEM_NAME + "&what=ac&to=",
-		"setHeat" : "/set?system="+ SYSTEM_NAME + "&what=heat&to=",
-		"setAc" : "/set?system="+ SYSTEM_NAME + "&what=fan&to="
+		"setMode" : "/set?system="+ SYSTEM_NAME + "&what=mode&to=",
+
 	}
 	
 	acButton.click(function() {
@@ -53,6 +53,13 @@ $(function() {
 	function setServerTemp(){
 		put(SERVER_URL + SERVER_ENDPOINTS["setSystemTemp"] + localSystemTemp, success)
 	}
+
+	function setServerState(){
+	    put(SERVER_URL + SERVER_ENDPOINTS["setMode"])
+	}
+
+	function
+
 
     function success(responseText)
     {
@@ -91,6 +98,20 @@ $(function() {
 				serverState = JSON.parse(responseText)[SYSTEM_NAME];
 				if(serverState["systemTemp"] != localSystemTemp){
 					setNewTemp(serverState["systemTemp"]);
+
+					if(serverState["mode"] == "off"){
+
+					}
+					else if((serverState["mode"] == "cool")){
+					}
+
+					else if((serverState["mode"] == "heat")){
+
+					}
+                    else if((serverState["mode"] == "fan")){
+
+                    }
+
 					changed = false;
 				}
 

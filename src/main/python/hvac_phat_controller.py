@@ -1,7 +1,7 @@
 
 #TODO 9/20/2016
 #need to get this and the jar running on the pi.... 
-ON_PI = False
+ON_PI = True
 import time
 if ON_PI:
 	from microdotphat import write_string, clear, show
@@ -16,8 +16,8 @@ import math
 
 
 #Program Constants
-SERVER_ADDRESS = 'http://localhost:8080'
-SERVER_ENDPOINTS = ['/get?system=HVAC&what=state','/set?system=HVAC&what=systemTemp','/set?system=HVAC&what=roomTemp', '/set?system=HVAC&what=ac', '/set?system=HVAC&what=heat', '/set?system=HVAC&what=fan', '/set?system=HVAC&what=systemPower']
+SERVER_ADDRESS = 'http://192.168.1.153:8080'
+SERVER_ENDPOINTS = ['/get?system=HVAC&what=state','/set?system=HVAC&what=roomTemp']
 
 
 UPDATE_RATE = 1 #server update once a second
@@ -78,35 +78,11 @@ def getState():
 	systemTemp = state["systemTemp"]
 	pass
 
-def setSystemTemp(temp):
-	url = SERVER_ADDRESS + SERVER_ENDPOINTS[1]
-	response = request.put(url + '&to=' + str(temp))
-	pass
 
 def setRoomTemp(temp):
-	url = SERVER_ADDRESS + SERVER_ENDPOINTS[2]
-	response = request.put(url + '&to=' + str(temp))
+	url = SERVER_ADDRESS + SERVER_ENDPOINTS[1]
+	response = request.get(url + '&to=' + str(temp))
 	print(response.text)
-	pass
-
-def setPower(state):
-	url = SERVER_ADDRESS + SERVER_ENDPOINTS[6]
-	response = request.put(url+'&to=' + str(state))
-	pass
-
-def setFan(state):
-	url = SERVER_ADDRESS + SERVER_ENDPOINTS[5]
-	response = request.put(url+'&to=' + str(state))
-	pass
-
-def setHeat(state):
-	url = SERVER_ADDRESS  +SERVER_ENDPOINTS[4]
-	response = request.put(url + '&to=' + str(state))
-	pass
-
-def setAc(state):
-	url =  SERVER_ADDRESS + SERVER_ENDPOINTS[3]
-	response = request.put(url + '&to=' + str(state))
 	pass
 
 
@@ -120,7 +96,7 @@ def update():
 		url = SERVER_ADDRESS + SERVER_ENDPOINTS[0]
 		response = request.get(url)
 		state = response.json()["HVAC"]
-
+		print(response.text)
 		if systemTemp != state["systemTemp"]:
 			systemTemp = state["systemTemp"]
 			change = True
@@ -151,17 +127,17 @@ def toggleGPIO():
 	global HEAT_PIN
 	global change
 	if ON_PI:
-		if (state['ac'] == 'true') != ac:
+		if (state['acState'] == 'true') != ac:
 			ac = not ac
 			GPIO.output(AC_PIN,ac)
 			change = True
 			
-		if (state['fan'] == 'true') != fan:
+		if (state['fanState'] == 'true') != fan:
 			fan = not fan
 			GPIO.output(FAN_PIN, fan)
 			change = True
 
-		if (state['heat'] == 'true') != heat:
+		if (state['heatState'] == 'true') != heat:
 			heat = not heat
 			GPIO.output(HEAT_PIN, heat)
 			change = True
