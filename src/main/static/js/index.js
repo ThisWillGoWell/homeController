@@ -12,7 +12,7 @@ $(function() {
 	var serverState = {};
 	var mode = "off";
 	var changed = false;
-
+    var serverSyncTime = 2000;
 	var SERVER_URL = "http://localhost:8080"
 	var SYSTEM_NAME = "HVAC"
 	var SERVER_ENDPOINTS = {
@@ -51,9 +51,13 @@ $(function() {
 	//sends the system temp to the server
 	//
 	function setServerTemp(){
-		put(SERVER_URL + SERVER_ENDPOINTS["setSystemTemp"] + localSystemTemp)
+		put(SERVER_URL + SERVER_ENDPOINTS["setSystemTemp"] + localSystemTemp, success)
 	}
 
+    function success(responseText)
+    {
+
+    }
 
 	//Will wait 1 second of inactivity until the
 	//server temp is sent to sever, 
@@ -73,7 +77,15 @@ $(function() {
 	//Update the client with the server
 	//Gets current system temp and what mode (Ac/off/heat)
 	//called on return of the getState
-	function serverSync(responseText)
+	function serverSync()
+	{
+        if(!changed)
+        {
+            get(SERVER_URL + SERVER_ENDPOINTS["getState"], serverSyncResponse)
+        }
+	}
+
+	function serverSyncResponse(responseText)
 	{
 		if(!changed){
 				serverState = JSON.parse(responseText)[SYSTEM_NAME];
@@ -103,11 +115,14 @@ $(function() {
 	        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
 	            callback(xmlHttp.responseText);
 	    }
-	    xmlHttp.open("PUT", theUrl, true); 
+	    xmlHttp.open("GET", theUrl, true);
 	    xmlHttp.send(null);
 	}
 
-	setInterval(get(SERVER_URL + SERVER_ENDPOINTS["getState"], serverSync))
+	setInterval(serverSync, serverSyncTime);
 
+    window.addEventListener("load", function() {
+    		get(SERVER_URL + SERVER_ENDPOINTS["getState"], serverSync)
+    	});
 
 });

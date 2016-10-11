@@ -14,9 +14,7 @@ public class Application {
 
     public static void main(String[] args) {
         Engine e = new Engine();
-        //SpringApplication.run(Application.class, args);
-
-        SpringApplication.run(SampleWebStaticApplication.class, args);
+        SpringApplication.run(Application.class, args);
     }
 
     @Bean

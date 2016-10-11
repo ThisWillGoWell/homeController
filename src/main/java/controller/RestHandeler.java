@@ -38,7 +38,7 @@ public class RestHandeler {
         return engine.get(allRequestParams);
     }
 
-    @RequestMapping(value = "/set", method = RequestMethod.PUT)
+    @RequestMapping(value = "/set", method = RequestMethod.GET)
     public String set(@RequestParam Map<String,String> allRequestParams, ModelMap model)
     {
         return engine.set(allRequestParams);
