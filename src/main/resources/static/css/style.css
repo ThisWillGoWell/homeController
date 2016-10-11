@@ -1,0 +1,196 @@
+@import url(http://fonts.googleapis.com/css?family=Roboto:400,100,300,500,700);
+@import url(https://fonts.googleapis.com/css?family=Lato:400,300,300italic,700,900,400italic,700italic);
+* {
+  border: none;
+  padding: 0px;
+  margin: 0px;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -moz-transition: all ease-in-out 0.32s;
+  -o-transition: all ease-in-out 0.32s;
+  -webkit-transition: all ease-in-out 0.32s;
+  transition: all ease-in-out 0.32s;
+}
+*:focus {
+  outline: 0 !important;
+}
+a:hover,
+a:visited,
+a:link,
+a:active {
+  text-decoration: none !important;
+}
+html,
+body {
+  font-family: 'Lato', 'Open sans', 'montserrat', sans-serif !important;
+  height: 100%;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: text;
+}
+body {
+  background-color: #93b1c5;
+  padding-top: 50px;
+}
+.no-select {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.inset-shadow-lg {
+  box-shadow: 0 0 30px 20px rgba(0, 0, 0, 0.6) inset;
+}
+.no-padding-left {
+  padding-left: 0 !important;
+}
+.transition-all-fast {
+  -moz-transition: all ease-in-out 0.17s;
+  -o-transition: all ease-in-out 0.17s;
+  -webkit-transition: all ease-in-out 0.17s;
+  transition: all ease-in-out 0.17s;
+}
+.transition-all-quick {
+  -moz-transition: all ease-in-out 0.1s;
+  -o-transition: all ease-in-out 0.1s;
+  -webkit-transition: all ease-in-out 0.1s;
+  transition: all ease-in-out 0.1s;
+}
+.transition-all-speedy {
+  -moz-transition: all ease-in-out 0.03s;
+  -o-transition: all ease-in-out 0.03s;
+  -webkit-transition: all ease-in-out 0.03s;
+  transition: all ease-in-out 0.03s;
+}
+.transition-all-bez-normal {
+  -moz-transition: all 200ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  -o-transition: all 200ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  -webkit-transition: all 200ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transition: all 200ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+.bot-shadow {
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+}
+#controller-container #current-temp-view {
+  height: 300px;
+  width: 300px;
+  background-color: #ffffff;
+  border: solid 3px #ffffff;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 280px;
+  font-size: 96px;
+  margin: 0 auto 50px auto;
+  position: relative;
+  color: #777;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+}
+#controller-container #set-temp-view {
+  width: 100%;
+  text-align: center;
+}
+#controller-container #set-temp-view .btn-circle {
+  height: 80px;
+  width: 80px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  line-height: 110px;
+  cursor: pointer;
+}
+#controller-container #set-temp-view .btn-circle i {
+  font-size: 42px;
+}
+#controller-container #temp-control-container {
+  display: -ms-flex;
+  display: -webkit-flex;
+  display: flex;
+  width: 260px;
+  margin: 0 auto;
+  flex-flow: row wrap;
+}
+#controller-container #temp-control-container .control-btn-container {
+  width: 50%;
+}
+#controller-container #temp-control-container .control-btn-container .control-btn {
+  height: 80px;
+  width: 80px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  line-height: 110px;
+  cursor: pointer;
+  margin: 0 auto 40px auto;
+}
+#controller-container #temp-control-container .control-btn-container .control-btn i {
+  font-size: 42px;
+  color: #888;
+  margin-top: 4px;
+}
+#controller-container #temp-control-container .control-btn-container .control-btn.temp-dec i {
+  padding-top: 10px;
+  font-size: 70px;
+  color: #5c6bc0;
+}
+#controller-container #temp-control-container .control-btn-container .control-btn.temp-inc i {
+  padding-top: 10px;
+  font-size: 70px;
+  color: #ef5350;
+}
+#controller-container #temp-control-container .control-btn-container .control-btn.ac-on {
+  background-color: #5c6bc0;
+}
+#controller-container #temp-control-container .control-btn-container .control-btn.ac-on i {
+  color: #ffffff;
+}
+#controller-container #temp-control-container .control-btn-container .control-btn.heat-on {
+  background-color: #ef5350;
+}
+#controller-container #temp-control-container .control-btn-container .control-btn.heat-on i {
+  color: #ffffff;
+}
+#controller-container #temp-control-array {
+  height: 75px;
+  list-style-type: none;
+  position: absolute;
+  right: 0;
+  left: 0;
+  margin-top: 50px;
+  opacity: 0;
+}
+#controller-container #temp-control-array li {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  z-index: 2;
+  height: 80px;
+  width: 80px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  margin-right: 10px;
+  margin-left: 10px;
+  margin-bottom: 15px;
+  /*border: solid 2px @white;*/
+  -moz-transition: all ease-in-out 0.17s;
+  -o-transition: all ease-in-out 0.17s;
+  -webkit-transition: all ease-in-out 0.17s;
+  transition: all ease-in-out 0.17s;
+}
+#controller-container #temp-control-array li.collapsed {
+  opacity: 0;
+}
+#controller-container #temp-control-array li.expanded {
+  opacity: 1;
+}
+#controller-container #temp-control-array li.hvac-power {
+  background-color: #66bb6a;
+}
+#controller-container #temp-control-array li.hvac-heat {
+  background-color: #ef5350;
+}
+#controller-container #temp-control-array li.hvac-ac {
+  background-color: #5c6bc0;
+}
+#controller-container #temp-control-array li.hvac-fan {
+  background-color: #f39468;
+}

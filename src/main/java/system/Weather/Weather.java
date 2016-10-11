@@ -1,4 +1,4 @@
-package modules;
+package system.Weather;
 
 import com.google.gson.*;
 
@@ -11,6 +11,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import system.SystemParent;
 
 import java.io.IOException;
+import java.util.Map;
 
 
 /**
@@ -31,13 +32,13 @@ public class Weather extends SystemParent{
     }
 
     @Override
-    public Object get(String what) {
+    public Object get(String what, Map<String, String> requestParams) {
 
         return null;
     }
 
     @Override
-    public String set(String what, String to) {
+    public String set(String what, String to, Map<String, String> requestParams) {
         return null;
     }
 

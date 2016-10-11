@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html >
+  <head>
+    <meta charset="UTF-8">
+    <title>HVAC Controller</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+
+    
+    
+    <link rel='stylesheet prefetch' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css'>
+<link rel='stylesheet prefetch' href='https://fonts.googleapis.com/icon?family=Material+Icons'>
+
+        <link rel="stylesheet" href="css/style.css">
+
+    
+    
+    
+    
+  </head>
+
+  <body>
+
+    <div class="container-fluid">
+
+	<div class="row">
+		<div id="controller-container" class="col-xs-12">
+			<div id="current-temp-view">
+				76&#176;
+			</div>
+			<div id="set-temp-view">
+				<!--
+				<div class="btn-circle center-block">
+					<i class="material-icons">menu</i>
+				</div>
+				-->
+				<div id="temp-control-container">
+					<div class="control-btn-container">
+						<div class="btn-floating btn-large waves-effect waves-light control-btn temp-dec">
+							<i class="material-icons">arrow_drop_down</i>
+						</div>
+					</div>
+					<div class="control-btn-container">
+						<div class="btn-floating btn-large waves-effect waves-light control-btn temp-inc">
+							<i class="material-icons">arrow_drop_up</i>
+						</div>
+					</div>
+					<div class="control-btn-container">
+						<div class="btn-floating btn-large waves-effect waves-light control-btn ac-toggle">
+							<i class="material-icons">power_settings_new</i>
+						</div>
+					</div>
+					<div class="control-btn-container">
+						<div class="btn-floating btn-large waves-effect waves-light control-btn heat-toggle">
+							<i class="material-icons">power_settings_new</i>
+						</div>
+					</div>
+				</div>
+				<!--
+				<ul id="temp-control-array">
+					<li class="hvac-power"></li>
+					<li class="hvac-heat"></li>
+					<li class="hvac-ac"></li>
+					<li class="hvac-fan"></li>
+					
+				</ul>
+				-->
+			</div>
+		</div>
+	</div>
+</div>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js'></script>
+<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'></script>
+
+        <script src="js/index.js"></script>
+
+    
+    
+  </body>
+</html>

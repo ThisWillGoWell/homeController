@@ -3,7 +3,7 @@ package system.ClockDisplay;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import controller.Engine;
-import modules.Weather;
+import system.Weather.Weather;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -125,7 +126,7 @@ public class ClockDisplaySystem extends SystemParent{
 
 
     @Override
-    public Object get(String what) {
+    public Object get(String what, Map<String, String> requestParams) {
         if(Objects.equals(what, "resourceImage")){
             try {
                 return getResourceGif();
@@ -138,7 +139,8 @@ public class ClockDisplaySystem extends SystemParent{
     }
 
     @Override
-    public String set(String what, String to) {
+    public String set(String what, String to, Map<String, String> requestParams) {
+
         return null;
     }
 

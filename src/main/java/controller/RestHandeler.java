@@ -4,33 +4,26 @@ package controller;
  * Created by Will on 9/3/2016.
  */
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.SystemEnvironmentPropertySource;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 @RestController
 public class RestHandeler {
 
-    @RequestMapping(value = "/")
-    public String index()
+    @RequestMapping(value = "/**",method = RequestMethod.OPTIONS)
+    public String getOption(HttpServletResponse response,Model model)
     {
-        return "Home Controller";
+        System.out.println("FUCKK");
+        response.setHeader("Access-Control-Allow-Origin","*");
 
+        response.setHeader("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
+
+        return "";
     }
-
-
-
-
 
 
     Engine engine;
@@ -39,24 +32,19 @@ public class RestHandeler {
     {
         engine = e;
     }
-    @RequestMapping(value = "/initialize", method = RequestMethod.GET)
-    public void init(){
-
-        System.out.println("Init");
-        engine.initialize();
-    }
 
     @RequestMapping(value = "/get", method = RequestMethod.GET)
-    public Object get(@RequestParam(value = "system") String system, @RequestParam(value = "what") String what)
-    {
-        return engine.get(system,what);
+    public Object get(@RequestParam Map<String,String> allRequestParams, ModelMap model){
+        return engine.get(allRequestParams);
     }
 
     @RequestMapping(value = "/set", method = RequestMethod.PUT)
-    public String set(@RequestParam(value = "system") String system, @RequestParam(value = "what") String what, @RequestParam(value = "to") String to)
+    public String set(@RequestParam Map<String,String> allRequestParams, ModelMap model)
     {
-        return engine.set(system,what,to);
+        return engine.set(allRequestParams);
     }
+
+
 
 
 }

@@ -3,6 +3,7 @@ package system.hvac;
 import controller.Engine;
 import system.SystemParent;
 
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -12,17 +13,20 @@ import java.util.Objects;
 public class HvacSystem extends SystemParent{
 
 
+
     private HvacSystemState state;
     private double THRESHOLD = 0.75;
+    private int mode;
 
     public HvacSystem(Engine e)
     {
         super(e);
         state = new HvacSystemState();
+        mode = 0;
     }
 
     @Override
-    public Object get(String what) {
+    public Object get(String what, Map<String, String> requestParams) {
         switch (what)
         {
             case "state":
@@ -34,20 +38,14 @@ public class HvacSystem extends SystemParent{
             case "roomTemp":
                 return state.getRoomTemp();
 
-            case "systemPower":
-                return state.getPower();
-
-            case "acPower":
-                return state.getAcPower();
+            case "mode":
+                return state.getMode();
             case "acState":
                 return state.getAc();
-            case "heatPower":
-                return state.getHeatPower();
+
             case "heatState":
                 return state.getHeat();
 
-            case "fanPower":
-                return state.getFanPower();
             case "fanState":
                 return state.getFan();
             default:
@@ -57,7 +55,7 @@ public class HvacSystem extends SystemParent{
     }
 
     @Override
-    public String set(String what, String to) {
+    public String set(String what, String to, Map<String, String> requestParams) {
         switch (what)
         {
             case "systemTemp":
@@ -78,54 +76,25 @@ public class HvacSystem extends SystemParent{
                     return to + " is not supported for " + what;
                 }
 
-            case "systemPower":
-                if(Objects.equals(to, "on")){
-                    setPower(true);
-                }
-                else if(Objects.equals(to, "off")) {
-                    setPower(false);
-                }
-                else
-                {
-                    return  to + " not supported for " + what;
-                }
-                return state.getPower() + "";
 
-            case "acPower":
-                if(Objects.equals(to, "on")){
-                    setAc(true);
+            case "mode":
+                if(Objects.equals(to, HvacSystemState.MODE_OFF_S )){
+                     state.setMode(HvacSystemState.MODE_OFF);
                 }
-                else if(Objects.equals(to, "off")) {
-                    setAc(false);
+                else if(Objects.equals(to, HvacSystemState.MODE_COOL_S)) {
+                    state.setMode(HvacSystemState.MODE_COOL);
                 }
-                else
-                {
-                    return  to + " not supported for " + what;
+                else if(Objects.equals(to, HvacSystemState.MODE_HEAT_S)) {
+                    state.setMode(HvacSystemState.MODE_HEAT);
                 }
-                return state.getAcPower() + "";
-            case "heatPower":
-                if(Objects.equals(to, "on")){
-                    setHeat(true);
-                }
-                else if(Objects.equals(to, "off")) {
-                    setHeat(false);
+                else if(Objects.equals(to, HvacSystemState.MODE_FAN_S)) {
+                    state.setMode(HvacSystemState.MODE_FAN);
                 }
                 else
                 {
                     return  to + " not supported for " + what;
                 }
 
-            case "fanPower":
-                if(Objects.equals(to, "on")){
-                    setPower(true);
-                }
-                else if(Objects.equals(to, "off")) {
-                    setPower(false);
-                }
-                else
-                {
-                    return  to + " not supported for " + what;
-                }
             default:
                 return what + " not supported set for HVAC";
         }
@@ -139,94 +108,51 @@ public class HvacSystem extends SystemParent{
     }
 
     public void update() {
-        if(state.getPower()) {
-            if( state.getAcPower()) {
-                /*
-                 * AC Mode
-                 */
-                if (state.getRoomTemp() > state.getSystemTemp() + THRESHOLD) {
-                    state.setAc(true);
-                    state.setFan(true);
-                }
+        if(state.getMode() == HvacSystemState.MODE_COOL)
+        {
+            state.setHeat(false);
+
+            if (state.getRoomTemp() > state.getSystemTemp() + THRESHOLD) {
+                state.setAc(true);
+                state.setFan(true);
+            }
                 /*
                  * Cool down till it gets below the threshold
                  */
-                else if (state.getRoomTemp() < state.getRoomTemp() - THRESHOLD) {
-                    state.setAc(false);
-                    state.setFan(false);
-                }
+            else if (state.getRoomTemp() < state.getRoomTemp() - THRESHOLD) {
+                state.setAc(false);
+                state.setFan(false);
             }
-            else if(state.getHeatPower()) {
-                //Heat Mode
-                 if(state.getRoomTemp() < (state.getSystemTemp() - THRESHOLD)) {
-                    state.setHeat(true);
-                    state.setFan(true);
-                }
-                else if(state.getRoomTemp() > (state.getSystemTemp()+THRESHOLD)) {
-                     state.setHeat(false);
-                     state.setFan(false);
-                 }
-            }
-            else if(state.getFanPower()) {
+
+        }
+        else if (state.getMode() == HvacSystemState.MODE_HEAT)
+        {
+            state.setAc(false);
+            //Heat Mode
+            if(state.getRoomTemp() < (state.getSystemTemp() - THRESHOLD)) {
+                state.setHeat(true);
                 state.setFan(true);
             }
-            else {
+            else if(state.getRoomTemp() > (state.getSystemTemp()+THRESHOLD)) {
+                state.setHeat(false);
                 state.setFan(false);
             }
         }
-
-    }
-
-    private void setPower(boolean b)
-    {
-        //anytime the power changes we want to make sure all things are off
-        state.setPower(b);
-        state.setFan(false);
-        state.setFanPower(false);
-        state.setAc(false);
-        state.setAcPower(false);
-        state.setHeat(false);
-        state.setHeatPower(false);
-    }
-    private void setAc(boolean b)
-    {
-
-        state.setHeatPower(false);
-
-        state.setHeat(false);
-        state.setAc(false);
-        state.setFan(false);
-
-        state.setFanPower(b);
-        state.setAcPower(b);
-
-        if(b == false)
+        else if (state.getMode() == HvacSystemState.MODE_FAN)
         {
             state.setAc(false);
+            state.setFan(true );
+            state.setHeat(false);
+        }
+        else
+        {
+            state.setAc(false);
+            state.setHeat(false);
             state.setFan(false);
         }
     }
 
-    private void setHeat(boolean b)
-    {
-        state.setHeatPower(b);
-        state.setFanPower(b);
-        state.setAcPower(false);
-        state.setAc(false);
-        state.setFan(false);
-        state.setFan(false);
 
-        if(b == false)
-        {
-            state.setFanPower(false);
-            state.setHeatPower(false);
-        }
-    }
-
-    private void setFan(boolean b)
-    {
-        state.setFan(b);
-    }
     private void setRoomTemp(double d){ state.setRoomTemp(d);}
     private void setSystemTemp(double d) {
         state.setSystemTemp(d);

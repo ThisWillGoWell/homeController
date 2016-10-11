@@ -1,19 +1,16 @@
 package controller;
 
-import modules.Weather;
-import system.ClockDisplay.ClockDisplayState;
+import system.Weather.Weather;
 import system.ClockDisplay.ClockDisplaySystem;
 import system.SystemParent;
-import system.network.NetworkSystem;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import system.hvac.HvacSystem;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by Will on 9/3/2016.
@@ -33,7 +30,7 @@ public class Engine {
         systems = new HashMap<>();
         systems.put("clock", new ClockDisplaySystem(this));
         systems.put("HVAC", new HvacSystem(this));
-        systems.put("weather", new Weather(this));
+        //systems.put("weather", new Weather(this));
     }
 
 
@@ -46,20 +43,44 @@ public class Engine {
         return new SimpleDateFormat("h:mm").format(Calendar.getInstance().getTime());
     }
 
-    public Object get(String system, String what)
+
+    public Object get(String system, String what, Map<String, String> requestParams)
     {
         if(systems.keySet().contains(system)) {
-            return systems.get(system).get(what);
+            return systems.get(system).get(what, requestParams);
+        }
+        return "system not found";
+    }
+    public Object get(Map<String, String> requestParams)
+    {
+        if (!(requestParams.containsKey("system") && requestParams.containsKey("what")))
+        {
+            return "missing required params: system, what";
+        }
+        String system = requestParams.get("system");
+        String what = requestParams.get("what");
+
+
+        if(systems.keySet().contains(system)) {
+            return systems.get(system).get(what, requestParams);
         }
         return "system not found";
 
     }
 
-    public String set(String system , String what, String to)
+    public String set(Map<String, String> requestParams)
     {
+        if (!(requestParams.containsKey("system") && requestParams.containsKey("to") && requestParams.containsKey("what")))
+        {
+            return "missing required params: system, to, what";
+        }
+        String system = requestParams.get("system");
+        String what = requestParams.get("what");
+        String to = requestParams.get("to");
+
         if(systems.keySet().contains(system))
         {
-            return systems.get(system).set(what, to);
+            return systems.get(system).set(what, to, requestParams);
         }
         return "system not found";
     }

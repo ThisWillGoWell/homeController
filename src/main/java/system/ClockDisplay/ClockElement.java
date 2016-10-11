@@ -1,13 +1,9 @@
 package system.ClockDisplay;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import controller.Engine;
-import org.json.hue.JSONArray;
-import org.json.hue.JSONObject;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 
 /**
  * Created by Willi on 9/30/2016.

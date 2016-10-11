@@ -1,5 +1,7 @@
 package system.hvac;
 
+import com.google.gson.JsonObject;
+
 import java.util.HashMap;
 
 /**
@@ -7,11 +9,21 @@ import java.util.HashMap;
  */
 public class HvacSystemState {
 
-    private boolean power;
 
-    private boolean heatPower;
-    private boolean acPower;
-    private boolean fanPower;
+    HashMap<Integer, String> modeMap;
+
+    final static String MODE_OFF_S = "off";
+    final static int MODE_OFF = 0;
+    final static String MODE_COOL_S = "cool";
+    final static int MODE_COOL = 1;
+    final static String MODE_HEAT_S = "heat";
+    final static int MODE_HEAT = 2;
+    final static String MODE_FAN_S = "fan";
+    final static int MODE_FAN = 3;
+
+
+    private int mode;
+
 
     private boolean heat;
     private boolean ac;
@@ -23,11 +35,12 @@ public class HvacSystemState {
 
     public HvacSystemState()
     {
-        power = false;
-
-        fanPower = false;
-        heatPower = false;
-        acPower = false;
+        mode = MODE_OFF;
+        modeMap = new HashMap<>(4);
+        modeMap.put(MODE_COOL, MODE_COOL_S);
+        modeMap.put(MODE_FAN, MODE_FAN_S);
+        modeMap.put(MODE_OFF, MODE_OFF_S);
+        modeMap.put(MODE_HEAT, MODE_HEAT_S);
 
         heat = false;
         ac = false;
@@ -39,111 +52,71 @@ public class HvacSystemState {
 
     }
 
-
-
-    public boolean getPower()
-    {
-        return power;
-    }
-
-    public void setPower(boolean b)
-    {
-        power = b;
-    }
-    public boolean getHeat()
+    boolean getHeat()
     {
         return heat;
     }
 
-    public void setHeat(boolean b)
+    void setHeat(boolean b)
     {
         heat = b;
     }
 
-    public boolean getAc()
+    boolean getAc()
     {
         return ac;
     }
 
-    public void setAc(boolean b)
+    void setAc(boolean b)
     {
         ac = b;
     }
 
-    public boolean getFan()
+    boolean getFan()
     {
         return fan ;
     }
 
-    public void setFan(boolean b)
+    void setFan(boolean b)
     {
         fan = b;
     }
 
-    public void setRoomTemp(double temp)
+    void setRoomTemp(double temp)
     {
         roomTemp = temp;
     }
 
-    public double getRoomTemp()
+    double getRoomTemp()
     {
         return roomTemp;
     }
 
-    public void setSystemTemp(double d)
+    void setSystemTemp(double d)
     {
         systemTemp = d;
     }
 
-    public double getSystemTemp()
+    double getSystemTemp()
     {
         return systemTemp;
     }
 
-    public void setFanPower(boolean b)
-    {
-        fanPower = b;
-    }
-
-    public boolean getFanPower()
-    {
-        return  fanPower;
-    }
-
-    public void setHeatPower(boolean b)
-    {
-        heatPower = b;
-    }
-
-    public boolean getHeatPower()
-    {
-        return  heatPower;
-    }
-
-    public void setAcPower(boolean b)
-    {
-        acPower = b;
-    }
-
-    public boolean  getAcPower()
-    {
-        return  acPower;
-    }
+    void setMode(int m)   {mode = m;}
+    int getMode()    {return mode;}
 
     public String getStateJSON()
     {
-        String s = "\"HVAC\": {";
 
-        s += "\"power\" :\"" + power + "\",";
-        s += "\"fanPower\" :\"" + fanPower + "\",";
-        s += "\"heatPower\" :\"" + heatPower + "\",";
-        s += "\"acPower\" :\"" + acPower + "\",";
-        s += "\"heat\" :\"" + heat + "\",";
-        s += "\"ac\" :\"" + ac + "\",";
-        s += "\"fan\" :\"" + fan + "\",";
-        s += "\"roomTemp\" :\"" + roomTemp + "\",";
-        s += "\"systemTemp\" :\"" + systemTemp + "\"";
-        s+="}";
+        String s = "{\"HVAC\": {";
+
+        s += "\"mode\" :\"" + modeMap.get(mode) + "\",";
+        s += "\"heatState\" :" + heat + ",";
+        s += "\"acState\" :" + ac + ",";
+        s += "\"fanState\" :" + fan + ",";
+        s += "\"roomTemp\" :" + roomTemp + ",";
+        s += "\"systemTemp\" :" + systemTemp;
+        s+="}}";
 
         return s;
 

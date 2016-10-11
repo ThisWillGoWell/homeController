@@ -1,9 +1,7 @@
 package system.ClockDisplay;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import controller.Engine;
-import modules.Weather;
 
 /**
  * Created by Willi on 10/1/2016.

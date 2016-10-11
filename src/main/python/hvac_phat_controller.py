@@ -1,21 +1,24 @@
 
 #TODO 9/20/2016
 #need to get this and the jar running on the pi.... 
-
+ON_PI = False
 import time
-import Adafruit_CharLCD as LCD
-import Adafruit_MCP9808.MCP9808 as MCP9808
-import urllib as request
+if ON_PI:
+	from microdotphat import write_string, clear, show
+	import Adafruit_MCP9808.MCP9808 as MCP9808
+	import RPi.GPIO as GPIO
+	
+import requests as request
 import json
-import RPi.GPIO as GPIO
+
 import math
+
 
 
 #Program Constants
 SERVER_ADDRESS = 'http://localhost:8080'
-SERVER_ENDPOINTS = SERVER_ENDPOINTS = ['/getState','/setSystemTemp','/setRoomTemp', '/setAc', '/setHeat', '/setFan', '/setPower']
-lcd = LCD.Adafruit_CharLCDPlate()
-sensor = MCP9808.MCP9808()
+SERVER_ENDPOINTS = ['/get?system=HVAC&what=state','/set?system=HVAC&what=systemTemp','/set?system=HVAC&what=roomTemp', '/set?system=HVAC&what=ac', '/set?system=HVAC&what=heat', '/set?system=HVAC&what=fan', '/set?system=HVAC&what=systemPower']
+
 
 UPDATE_RATE = 1 #server update once a second
 READ_RATE = 2	#Read rate for sensor evry 2 seconds
@@ -30,7 +33,7 @@ systemTemp = 68
 tempTemp = 68
 
 pressedButton = 0
-buttonList = [LCD.SELECT, LCD.UP, LCD.DOWN]
+buttonList = []
 buttonStatus = [False, False, False, False]
 timeoutLen = 5
 timeoutTime = 0
@@ -39,9 +42,9 @@ state = []
 toggle = True
 
 #GPIO Map
-AC_PIN = 4
-FAN_PIN = 21
-HEAT_PIN = 20
+AC_PIN = 20
+FAN_PIN = 4
+HEAT_PIN = 21
 #Should these be on
 ac = False
 heat = False
@@ -52,94 +55,58 @@ acPower = False
 heatPower = False
 fanPower = False
 power = False
+startTime = time.time();
 
-#GPIO_DIRECTION
+if ON_PI:
+	sensor = MCP9808.MCP9808()
+	#GPIO_DIRECTION
+	GPIO.setmode(GPIO.BCM)
 
-GPIO.setup(AC_PIN, GPIO.OUT)
-GPIO.setup(FAN_PIN, GPIO.OUT)
-GPIO.setup(HEAT_PIN, GPIO.OUT)
+	GPIO.setup(AC_PIN, GPIO.OUT)
+	GPIO.setup(FAN_PIN, GPIO.OUT)
+	GPIO.setup(HEAT_PIN, GPIO.OUT)
 
-GPIO.output(AC_PIN,False)
-GPIO.output(FAN_PIN,False)
-GPIO.output(HEAT_PIN,False)
-
-
-
-def buttons():
-	global toggle
-	global tempTemp	
-	global timeoutTime	
-	global	change	
-	global lcd
-	global	pressedButton	
-	global	buttonList	
-	if not toggle:
-		if(not lcd.is_pressed(buttonList[pressedButton])):
-			change = True
-			toggle = True
-	else:
-		if(lcd.is_pressed(LCD.UP)):
-			tempTemp = tempTemp + 1
-			pressedButton = 1
-			toggle = False
-		 	lcd.clear()
-			lcd.message( str(tempTemp) + '\x01')
-			timeoutTime = time.time() + timeoutLen
-
-		if(lcd.is_pressed(LCD.DOWN)):
-			tempTemp = tempTemp -1
-			pressedButton = 2
-			toggle = False
-			lcd.clear()
-			lcd.message(str(tempTemp) + '\x01')
-			timeoutTime = time.time() + timeoutLen
-
-		if(lcd.is_pressed(LCD.SELECT)):
-			setSystemTemp(tempTemp)
-			pressedButton = 0
-			toggle = False
-			lcd.clear()
-			lcd.message("Setting temp to: ")
-			timeoutTime = time.time() + timeoutLen
+	GPIO.output(AC_PIN,False)
+	GPIO.output(FAN_PIN,False)
+	GPIO.output(HEAT_PIN,False)
 
 def getState():
 	global	state	
 	url = SERVER_ADDRESS + SERVER_ENDPOINTS[0]
-	response = request.urlopen(url)
-	jsonStr = str(response.read())
-	print(jsonStr)
-	state = json.loads(jsonStr)
-	systemTemp = state["settings"]["systemTemp"]
+	response = request.get(url)
+	state = response.json();
+	systemTemp = state["systemTemp"]
 	pass
 
 def setSystemTemp(temp):
 	url = SERVER_ADDRESS + SERVER_ENDPOINTS[1]
-	response = request.urlopen(url + '?temp=' + str(temp))
+	response = request.put(url + '&to=' + str(temp))
 	pass
 
 def setRoomTemp(temp):
 	url = SERVER_ADDRESS + SERVER_ENDPOINTS[2]
-	response = request.urlopen(url + '?temp=' + str(temp))
+	response = request.put(url + '&to=' + str(temp))
+	print(response.text)
 	pass
 
 def setPower(state):
 	url = SERVER_ADDRESS + SERVER_ENDPOINTS[6]
-	response = request.urlopen(url+'?state=' + str(state))
+	response = request.put(url+'&to=' + str(state))
 	pass
 
 def setFan(state):
 	url = SERVER_ADDRESS + SERVER_ENDPOINTS[5]
-	response = request.urlopen(url+'?state=' + str(state))
+	response = request.put(url+'&to=' + str(state))
 	pass
 
 def setHeat(state):
 	url = SERVER_ADDRESS  +SERVER_ENDPOINTS[4]
-	response = request.urlopen(url + '?state=' + str(state))
+	response = request.put(url + '&to=' + str(state))
 	pass
 
 def setAc(state):
 	url =  SERVER_ADDRESS + SERVER_ENDPOINTS[3]
-	response = request.urlopen(url + '?state=' + str(state))
+	response = request.put(url + '&to=' + str(state))
 	pass
 
 
@@ -148,55 +115,30 @@ def update():
 	global	systemTemp	
 	global	change	
 	global state
+	global nextUpdateTime
 	if time.time() > nextUpdateTime:
 		url = SERVER_ADDRESS + SERVER_ENDPOINTS[0]
-		response = request.urlopen(url)
-		jsonStr = str(response.read())
-		state = json.loads(jsonStr)
+		response = request.get(url)
+		state = response.json()["HVAC"]
 
-		if systemTemp != state["settings"]["systemTemp"]:
-			systemTemp = state["settings"]["systemTemp"]
+		if systemTemp != state["systemTemp"]:
+			systemTemp = state["systemTemp"]
 			change = True
 
-		if float(roomTemp)	 != round(float(state["settings"]["roomTemp"])):
-			roomTemp = str(round(float(state["settings"]["roomTemp"])))
+		if float(roomTemp)	 != round(float(state["roomTemp"])):
+			roomTemp = str(round(float(state["roomTemp"])))
 			change = True
+		nextUpdateTime += 1
 
 def readSensor():
+	global startTime
+	global nextReadTime
 	if time.time() > nextReadTime:
-		setRoomTemp(sensor.readTempC())
-	
-
-def timeout():
-	global	timeoutTime	
-	global	change	
-	global tempTemp
-	global heatPower
-	global heat
-	global fanPower
-	global fan
-	global acPower
-	global ac
-
-	if time.time() > timeoutTime and change:
-		change = False
-		tempTemp = float(systemTemp)
-		lcd.clear()
-		if power == False:
-			lcd.message('System off     '+ THEMO_SYMBOL + roomTemp + DEGREE_SYMBOL)
+		if ON_PI:
+			setRoomTemp(sensor.readTempC())
 		else:
-			if acPower == True:
-				lcd.message('Cooling     '+ THEMO_SYMBOL + roomTemp + DEGREE_SYMBOL)
-				lcd.message('\n            '+PLAY_PAUSE_SYMBOL + systemTemp + DEGREE_SYMBOL)
-			elif heatPower == True:
-				lcd.message('Heating     '+ THEMO_SYMBOL + roomTemp + DEGREE_SYMBOL)
-				lcd.message('\n            '+PLAY_PAUSE_SYMBOL + systemTemp + DEGREE_SYMBOL)
-			elif fanPower == True:
-				lcd.message('Fanning     ' + THEMO_SYMBOL + roomTemp + DEGREE_SYMBOL)
-				lcd.message('\n            '+PLAY_PAUSE_SYMBOL + systemTemp + DEGREE_SYMBOL)
-			else:
-				lcd.message('Standby     ' + THEMO_SYMBOL + roomTemp + DEGREE_SYMBOL)
-				lcd.message('\n            '+PLAY_PAUSE_SYMBOL + systemTemp + DEGREE_SYMBOL)
+			setRoomTemp( time.time() - startTime /60)
+		nextReadTime += 1
 
 
 def toggleGPIO():
@@ -208,46 +150,28 @@ def toggleGPIO():
 	global FAN_PIN
 	global HEAT_PIN
 	global change
+	if ON_PI:
+		if (state['ac'] == 'true') != ac:
+			ac = not ac
+			GPIO.output(AC_PIN,ac)
+			change = True
+			
+		if (state['fan'] == 'true') != fan:
+			fan = not fan
+			GPIO.output(FAN_PIN, fan)
+			change = True
 
-	if (state['settings']['ac'] == 'true') != ac:
-		ac = not ac
-		GPIO.output(AC_PIN,ac)
-		change = True
-		
-	if (state['settings']['fan'] == 'true') != fan:
-		fan = not fan
-		GPIO.output(FAN_PIN, fan)
-		change = True
+		if (state['heat'] == 'true') != heat:
+			heat = not heat
+			GPIO.output(HEAT_PIN, heat)
+			change = True
 
-	if (state['settings']['heat'] == 'true') != heat:
-		heat = not heat
-		GPIO.output(HEAT_PIN, heat)
-		change = True
-
-def mode():
-	global state
-	global power
-	global fanPower
-	global heatPower
-	global acPower
-	global change
-	if (state['settings']['power'] == 'true') != power:
-		change = True 
-		power = not power;
-
-	if (state['settings']['acPower'] == 'true') != acPower:
-		change = True
-		acPower = not acPower
-
-	if (state['settings']['heatPower'] == 'true') != heatPower:
-		change = True
-		heatPower = not heatPower
-
-	if (state['settings']['fanPower'] == 'true') != fanPower:
-		change = True
-		fanPower = not fanPower
-
-
+def display():
+	global roomTemp
+	global systemTemp
+	if ON_PI:
+		write_string( str(systemTemp)[0:2]+"  " + str(roomTemp)[0:2] , kerning=False)
+		show()
 
 
 #Pre Program Functions
@@ -263,7 +187,8 @@ THEMO_SYMBOL = '\x03'
 #lcd.clear()
 #lcd.message('Waiting for connection')
 #init sensor
-sensor.begin()
+if ON_PI:
+	sensor.begin()
 
 update()
 tempTemp = float(systemTemp)
@@ -274,7 +199,7 @@ while True:
 	#buttons()
 	update()
 	toggleGPIO()
-	#mode()
+	display()
 	#timeout()
 	#Update form sever
 
