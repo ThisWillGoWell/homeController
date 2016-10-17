@@ -113,6 +113,12 @@ body {
 #controller-container #temp-control-container .control-btn-container {
   width: 50%;
 }
+#controller-container #temp-control-container .control-btn-container .btn-label {
+  color: #ffffff;
+  font-size: 22px;
+  text-align: center;
+  margin-bottom: 20px;
+}
 #controller-container #temp-control-container .control-btn-container .control-btn {
   height: 80px;
   width: 80px;
@@ -120,7 +126,7 @@ body {
   border-radius: 50%;
   line-height: 110px;
   cursor: pointer;
-  margin: 0 auto 40px auto;
+  margin: 0 auto 10px auto;
 }
 #controller-container #temp-control-container .control-btn-container .control-btn i {
   font-size: 42px;

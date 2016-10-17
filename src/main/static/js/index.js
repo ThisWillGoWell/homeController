@@ -9,12 +9,17 @@ $(function() {
 	var heatButton = $('.heat-toggle');
     var currentMode = "off";
 
+	var heatState = 0;
+	var acState = 0;
+
+
 	var localSystemTemp = 0;
 	var serverState = {};
 	var mode = "off";
-	var changed = false;
+	var tempChanged = false;
+	var modeChanged = false;
     var serverSyncTime = 2000;
-	var SERVER_URL = "http://192.168.1.153:8080"
+	var SERVER_URL = "http://localhost:8080"
 	var SYSTEM_NAME = "HVAC"
 	var SERVER_ENDPOINTS = {
 		"getState" : "/get?system=" + SYSTEM_NAME + "&what=state",
@@ -23,13 +28,47 @@ $(function() {
 
 	}
 	
-	acButton.click(function() {
-		acButton.toggleClass('ac-on');
-	});
+	acButton.click(toggleAc);
 
-	heatButton.click(function() {
-		heatButton.toggleClass('heat-on');
-	});
+	function toggleAc()
+	{
+		modeChanged = true;
+		nextModeSendTime = (new Date).getTime()  + 1000
+		if(!heatState) {
+			acState = !acState;
+			acButton.toggleClass('ac-on');
+			acButton.attr("data-acState", acState);
+		} else {
+			heatState = !heatState;
+			heatButton.toggleClass('heat-on');
+			heatButton.attr("data-heatState", heatState);
+			acState = !acState;
+			acButton.toggleClass('ac-on');
+			acButton.attr("data-acState", acState);
+		}
+
+	}
+
+	heatButton.click(toggleHeat);
+
+	function toggleHeat()
+	{
+		modeChanged = true;
+		nextModeSendTime = (new Date).getTime()  + 1000;
+		if(!acState) {
+			heatState = !heatState;
+			heatButton.toggleClass('heat-on');
+			heatButton.attr("data-heatState", heatState);
+		} else {
+			acState = !acState;
+			acButton.toggleClass('ac-on');
+			acButton.attr("data-acState", acState);
+			heatState = !heatState;
+			heatButton.toggleClass('heat-on');
+			heatButton.attr("data-heatState", heatState);
+		}
+
+	}
 	
 	tempInc.click(function() {
 		setNewTemp(localSystemTemp + 1);
@@ -40,12 +79,12 @@ $(function() {
 	});
 	
 	
-	var nextSendTime;
+	var nextTempSendTime;
 	function setNewTemp(val) {
 		localSystemTemp = val;
 		tempView.text(localSystemTemp+degreeSymbol);
-		nextSendTime = (new Date).getTime()  + 1000;
-		changed = true;
+		nextTempSendTime = (new Date).getTime()  + 1000;
+		tempChanged = true;
 	}
 
 	//sends the system temp to the server
@@ -54,11 +93,19 @@ $(function() {
 		put(SERVER_URL + SERVER_ENDPOINTS["setSystemTemp"] + localSystemTemp, success)
 	}
 
-	function setServerState(){
-	    put(SERVER_URL + SERVER_ENDPOINTS["setMode"])
+
+	function setServerMode(){
+		var mode = "off";
+		if(acState)
+			mode = "cool"
+		else if(heatState)
+			mode = "heat"
+
+
+	    put(SERVER_URL + SERVER_ENDPOINTS["setMode"] + mode, success)
 	}
 
-	function
+
 
 
     function success(responseText)
@@ -66,14 +113,21 @@ $(function() {
 
     }
 
+
+
 	//Will wait 1 second of inactivity until the
 	//server temp is sent to sever, 
 	//prevent rapid changes ans unesscarry calls
 	function timeout(){
-		if((changed == true) && (new Date).getTime() > nextSendTime)
+		if((tempChanged) && (new Date).getTime() > nextTempSendTime)
 		{
 			setServerTemp();
-			changed = false;
+			tempChanged = false;
+		}
+		if(modeChanged && (new Date).getTime() > nextModeSendTime)
+		{
+			setServerMode();
+			modeChanged = false;
 		}
 
 	}
@@ -86,7 +140,7 @@ $(function() {
 	//called on return of the getState
 	function serverSync()
 	{
-        if(!changed)
+        if(!tempChanged && !modeChanged)
         {
             get(SERVER_URL + SERVER_ENDPOINTS["getState"], serverSyncResponse)
         }
@@ -94,28 +148,38 @@ $(function() {
 
 	function serverSyncResponse(responseText)
 	{
-		if(!changed){
-				serverState = JSON.parse(responseText)[SYSTEM_NAME];
-				if(serverState["systemTemp"] != localSystemTemp){
-					setNewTemp(serverState["systemTemp"]);
+		if(!tempChanged){
+			serverState = JSON.parse(responseText)[SYSTEM_NAME];
+			if(serverState["systemTemp"] != localSystemTemp){
+				setNewTemp(serverState["systemTemp"]);
+				tempChanged = false;
+			}
 
-					if(serverState["mode"] == "off"){
-
-					}
-					else if((serverState["mode"] == "cool")){
-					}
-
-					else if((serverState["mode"] == "heat")){
-
-					}
-                    else if((serverState["mode"] == "fan")){
-
-                    }
-
-					changed = false;
-				}
+			if(serverState["mode"] == "off"){
+				if(acState)
+					toggleAc();
+				if(heatState)
+					toggleHeat();
 
 			}
+			else if((serverState["mode"] == "cool")){
+				if(!acState)
+					toggleAc();
+			}
+
+			else if((serverState["mode"] == "heat")){
+				if(!heatState)
+					toggleHeat();
+
+			}
+            else if((serverState["mode"] == "fan")){
+            	if(acState)
+					toggleAc();
+				if(heatState)
+					toggleHeat();
+
+            }
+		}
 	}
 	
 	function get(theUrl, callback)
