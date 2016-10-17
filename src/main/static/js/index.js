@@ -19,7 +19,7 @@ $(function() {
 	var tempChanged = false;
 	var modeChanged = false;
     var serverSyncTime = 2000;
-	var SERVER_URL = "http://localhost:8080"
+	var SERVER_URL = "http://192.168.1.153:8080"
 	var SYSTEM_NAME = "HVAC"
 	var SERVER_ENDPOINTS = {
 		"getState" : "/get?system=" + SYSTEM_NAME + "&what=state",
