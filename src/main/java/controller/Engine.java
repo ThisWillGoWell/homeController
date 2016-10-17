@@ -42,7 +42,9 @@ public class Engine {
     {
         return new SimpleDateFormat("h:mm").format(Calendar.getInstance().getTime());
     }
-
+    public static boolean isNumeric(String s) {
+        return s.matches("[-+]?\\d*\\.?\\d+");
+    }
 
     public Object get(String system, String what, Map<String, String> requestParams)
     {

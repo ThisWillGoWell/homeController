@@ -57,22 +57,76 @@ public class ClockDisplaySystem extends SystemParent{
         }
     }
 
-    private String getImageUpdate(long start, long stop)
+
+    @Override
+    public Object get(String what, Map<String, String> requestParams) {
+        if(Objects.equals(what, "resourceImage")){
+            try {
+                return getResourceGif();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        else if(Objects.equals(what,"imageStart"))
+        {
+            if((requestParams.containsKey("t1") && Engine.isNumeric(requestParams.get("t1"))) &&
+                    (requestParams.containsKey("t2") && Engine.isNumeric(requestParams.get("t2"))) &&
+                    (requestParams.containsKey("interval") && Engine.isNumeric(requestParams.get("interval"))))
+            {
+                return getImageUpdate(Long.parseLong(requestParams.get("t1")), Long.parseLong(requestParams.get("t2")),
+                        Integer.parseInt(requestParams.get("interval")), true);
+            }
+            else
+            {
+                return(what + " requires long param t1 and t2");
+            }
+        }
+
+        else if(Objects.equals(what, "imageUpdate"))
+        {
+            if((requestParams.containsKey("t1") && Engine.isNumeric(requestParams.get("t1"))) &&
+                    (requestParams.containsKey("t2") && Engine.isNumeric(requestParams.get("t2"))) &&
+                    (requestParams.containsKey("interval") && Engine.isNumeric(requestParams.get("interval"))))
+            {
+                return getImageUpdate(Long.parseLong(requestParams.get("t1")), Long.parseLong(requestParams.get("t2")),
+                        Integer.parseInt(requestParams.get("interval")), false);
+            }
+            else
+            {
+                return(what + " requires long param t1 and t2");
+            }
+        }
+
+
+
+
+        return null;
+    }
+
+
+    private String getImageUpdate(long start, long stop, long interval, boolean fullImage)
     {
-        //start at 5 fps
-        long interval = 100; //once every 100 ms
+
         JsonObject imageUpdate = new JsonObject();
         JsonArray frames = new JsonArray();
+
         for(long i=start; i<stop; i+=interval)
         {
             JsonObject time = new JsonObject();
             JsonArray eles = new JsonArray();
             for (DisplayElement e: elements) {
-                eles.add(e.get(i));
+                if(fullImage && i==start) {
+                    eles.add(e.get(i));
+                }
+                else if(i%e.getUpdateInterval() < interval){
+                    eles.add(e.get(i));
+                }
             }
-            time.add("elements", eles);
-            time.addProperty("time", i);
-            frames.add(time);
+            if(eles.size() != 0) {
+                time.add("elements", eles);
+                time.addProperty("time", i);
+                frames.add(time);
+            }
         }
         imageUpdate.add("frames",frames);
         imageUpdate.addProperty("start",start);
@@ -125,18 +179,6 @@ public class ClockDisplaySystem extends SystemParent{
     }
 
 
-    @Override
-    public Object get(String what, Map<String, String> requestParams) {
-        if(Objects.equals(what, "resourceImage")){
-            try {
-                return getResourceGif();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return null;
-    }
 
     @Override
     public String set(String what, String to, Map<String, String> requestParams) {
@@ -163,7 +205,6 @@ public class ClockDisplaySystem extends SystemParent{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(system.getImageUpdate(System.currentTimeMillis(), System.currentTimeMillis() + 1000));
     }
 
 }
