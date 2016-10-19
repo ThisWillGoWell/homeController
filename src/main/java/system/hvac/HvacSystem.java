@@ -1,6 +1,7 @@
 package system.hvac;
 
 import controller.Engine;
+import org.springframework.scheduling.annotation.Scheduled;
 import system.SystemParent;
 
 import java.util.Map;
@@ -108,6 +109,7 @@ public class HvacSystem extends SystemParent{
     }
 
     public void update() {
+        System.out.println("Update!");
         if(state.getMode() == HvacSystemState.MODE_COOL)
         {
             state.setHeat(false);
@@ -119,7 +121,7 @@ public class HvacSystem extends SystemParent{
                 /*
                  * Cool down till it gets below the threshold
                  */
-            else if (state.getRoomTemp() < state.getRoomTemp() - THRESHOLD) {
+            else if (state.getRoomTemp() < state.getSystemTemp() - THRESHOLD) {
                 state.setAc(false);
                 state.setFan(false);
             }
