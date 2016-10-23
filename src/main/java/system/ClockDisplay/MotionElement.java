@@ -30,9 +30,10 @@ public class MotionElement extends DisplayElement{
         frame.addProperty("c", col);
 
         list.add(frame);
-        json.add("f", list);
         json.addProperty("id", id);
         json.addProperty("t", time);
+        json.add("f", list);
+
 
         return json;
     }

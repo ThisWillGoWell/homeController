@@ -39,26 +39,28 @@ public class ClockDisplaySystem extends SystemParent{
     File ResouceGif;
 
     int rows = 32;
-    int cols = 64;
+    int cols = 96;
     SpriteDict spriteDict;
     ClockElement clock;
     ArrayList<DisplayElement> elements = new ArrayList<>();
-    File resouceGif;
+    File resourceGif;
     public ClockDisplaySystem(Engine e)
     {
         super(e);
         spriteDict = new SpriteDict();
-        elements.add(new ClockElement("clock", spriteDict, 2,0,0,new SimpleDateFormat("h:mm"), 5));
-        elements.add(new MotionElement("spin1", spriteDict, 23, 58));
         try {
             writeResourceGif();
         } catch (IOException e1) {
             e1.printStackTrace();
         }
+        elements.add(new ClockElement("clock", spriteDict, 2,0,0,new SimpleDateFormat("h:mm"), 5));
+        //elements.add(new MotionElement("spin1", spriteDict, 23, 70));
+        elements.add(new WeatherElement("weather", spriteDict,8,23,0, 10000,e));
+
+
     }
 
 
-    @Override
     public Object get(String what, Map<String, String> requestParams) {
         if(Objects.equals(what, "resourceImage")){
             try {
@@ -93,7 +95,7 @@ public class ClockDisplaySystem extends SystemParent{
             }
             else
             {
-                return(what + " requires long param t1 and t2");
+                return(what + " requires long param t1 and t2 and interval");
             }
         }
 
@@ -118,7 +120,7 @@ public class ClockDisplaySystem extends SystemParent{
                 if(fullImage && i==start) {
                     eles.add(e.get(i));
                 }
-                else if(i%e.getUpdateInterval() < interval){
+                else if((i-1)%e.getUpdateInterval()/2 > (i+interval-1)%e.getUpdateInterval()/2){
                     eles.add(e.get(i));
                 }
             }
@@ -137,7 +139,7 @@ public class ClockDisplaySystem extends SystemParent{
     }
 
     private Object getResourceGif() throws FileNotFoundException {
-        File image = resouceGif;
+        File image = resourceGif;
 
 
         HttpHeaders headers = new HttpHeaders();
@@ -156,8 +158,8 @@ public class ClockDisplaySystem extends SystemParent{
 
     }
     private void writeResourceGif() throws IOException {
-        resouceGif = new File("resources.gif");
-        ImageOutputStream output = new FileImageOutputStream(resouceGif);
+        resourceGif = new File("resources.gif");
+        ImageOutputStream output = new FileImageOutputStream(resourceGif);
         GifSequenceWriter writer = new GifSequenceWriter(output, BufferedImage.TYPE_INT_RGB,1, false);
         int currentFrame = 0;
         for (String key : spriteDict.keySet()) {

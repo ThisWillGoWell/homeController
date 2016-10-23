@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 public class ClockElement extends DisplayElement {
     SimpleDateFormat format;
     int characterCount;
-    static long UPDATE_INTERVAL = 1000;
+    static long UPDATE_INTERVAL =5000;
 
     ClockElement(String id, SpriteDict spriteDict, int size, int row, int col, SimpleDateFormat format, int characterCount) {
         super(id, spriteDict, size, row, col, UPDATE_INTERVAL);
