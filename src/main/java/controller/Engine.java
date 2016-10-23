@@ -1,5 +1,6 @@
 package controller;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import system.Weather.Weather;
 import system.ClockDisplay.ClockDisplaySystem;
 import system.SystemParent;
@@ -28,9 +29,10 @@ public class Engine {
     void initialize()
     {
         systems = new HashMap<>();
+        systems.put("weather", new Weather(this));
         systems.put("clock", new ClockDisplaySystem(this));
         systems.put("HVAC", new HvacSystem(this));
-        //systems.put("weather", new Weather(this));
+
     }
 
 
@@ -86,18 +88,20 @@ public class Engine {
         }
         return "system not found";
     }
-    /*
-    @Scheduled(fixedRate = 5000)
-    public void updateSystem()
+
+    public SystemParent getSystem(String s)
     {
-        systemHVAC.update();
+        return systems.get(s);
     }
 
-    @Scheduled(fixedRate = 5 * 60000)
+
+
+    @Scheduled(fixedRate = 3000)
     public void updateCurrentTemp()
     {
-        weather.update();
+        systems.get("HVAC").update();
     }
+        /*
     public File getImageResource()
     {
         return clockDisplaySystem.getResouceGif();
