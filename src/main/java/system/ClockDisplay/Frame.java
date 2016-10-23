@@ -40,47 +40,43 @@ public class Frame {
     static private Frame SEVEN_FRAME_SMALL =    new Frame(3, 5, new int[]{7,1,1,1,1});
     static private Frame EIGHT_FRAME_SMALL =    new Frame(3, 5, new int[]{7,5,7,5,7});
     static private Frame NINE_FRAME_SMALL =     new Frame(3,5, new int[]{7,5,7,1,1});
-    static protected Frame DEGREE_FRAME_SMALL =   new Frame(1, 1, new int[] {1});
-    static protected Frame COLON_FRAME_SMALL =    new Frame(3,5, new int[]{0,2,0,2,0});
-    static protected Frame DECIMAL_FRAME_SMALL =  new Frame(1,5,new int[]{0,0,0,0,1});
-    static protected Frame[] NUMBERS_FRAME_SMALL = new Frame[]{ZERO_FRAME_SMALL, ONE_FRAME_SMALL, TWO_FRAME_SMALL, THREE_FRAME_SMALL, FOUR_FRAME_SMALL, FIVE_FRAME_SMALL, SIX_FRAME_SMALL, SEVEN_FRAME_SMALL, EIGHT_FRAME_SMALL, NINE_FRAME_SMALL};
-    static protected Frame EMPTY_FRAME_SMALL = new Frame(3,5, new int[]{0,0,0,0,0});
+    static Frame DEGREE_FRAME_SMALL =   new Frame(1, 1, new int[] {1});
+    static Frame COLON_FRAME_SMALL =    new Frame(3,5, new int[]{0,2,0,2,0});
+
+    static Frame DECIMAL_FRAME_SMALL =  new Frame(1,5,new int[]{0,0,0,0,1});
+    static Frame DECIMAL_FRAME =  new Frame(1,7,new int[]{0,0,0,0,0,0,1});
+    static Frame DECIMAL_FRAME_LARGE =  new Frame(1,19,new int[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1});
+
+    static Frame[] NUMBERS_FRAME_SMALL = new Frame[]{ZERO_FRAME_SMALL, ONE_FRAME_SMALL, TWO_FRAME_SMALL, THREE_FRAME_SMALL, FOUR_FRAME_SMALL, FIVE_FRAME_SMALL, SIX_FRAME_SMALL, SEVEN_FRAME_SMALL, EIGHT_FRAME_SMALL, NINE_FRAME_SMALL};
+    static Frame EMPTY_FRAME_SMALL = new Frame(3,5, new int[]{0,0,0,0,0});
 
     //Large 13x19 ASCII Frames
-    static protected Frame ZERO_FRAME_LARGE        = new Frame(13,19, new int[]{1016,2044,4094,7967,7695,7175,7175,7175,7175,7175,7175,7175,7175,7175,7695,7967,4094,2044,1016,});
-    static protected Frame ONE_FRAME_LARGE         = new Frame(13,19, new int[]{224,496,1008,2032,4080,240,240,240,240,240,240,240,240,240,240,240,240,240,240,});
-    static protected Frame TWO_FRAME_LARGE         = new Frame(13,19, new int[]{504,1020,2046,3855,3079,7,15,30,60,120,240,480,960,1920,3840,7168,7168,8190,4095,});
-    static protected Frame THREE_FRAME_LARGE       = new Frame(13,19, new int[]{1016,2044,4094,31,15,7,15,31,510,508,510,31,15,7,15,31,4094,2044,1016,});
-    static protected Frame FOUR_FRAME_LARGE        = new Frame(13,19, new int[]{15,31,63,119,231,455,903,1799,3591,7175,8191,4095,7,7,7,7,7,7,7,});
-    static protected Frame FIVE_FRAME_LARGE        = new Frame(13,19, new int[]{8191,8191,7680,7680,7680,7680,7680,7680,8190,8191,7,7,7,7,6151,7182,3612,4092,2040,});
-    static protected Frame SIX_FRAME_LARGE         = new Frame(13,19, new int[]{2040,4092,8190,7680,7168,7168,7168,7680,8184,8188,8190,7967,7695,7175,7695,7967,4094,2044,1016,});
-    static protected Frame SEVEN_FRAME_LARGE       = new Frame(13,19, new int[]{4094,8191,15,7,7,14,30,28,56,56,112,112,224,224,448,448,896,896,896,});
-    static protected Frame EIGHT_FRAME_LARGE       = new Frame(13,19, new int[]{1016,2044,4094,7967,7695,7175,7695,7967,4094,2044,4094,7967,7695,7175,7695,7967,4094,2044,1016,});
-    static protected Frame NINE_FRAME_LARGE        = new Frame(13,19, new int[]{1016,2044,4094,7967,7695,7175,7695,7967,4095,2047,511,15,7,7,7,7,7,7,7,});
-    static protected Frame[] NUMBERS_FRAME_LARGE = new Frame[]{ZERO_FRAME_LARGE, ONE_FRAME_LARGE, TWO_FRAME_LARGE, THREE_FRAME_LARGE, FOUR_FRAME_LARGE, FIVE_FRAME_LARGE, SIX_FRAME_LARGE, SEVEN_FRAME_LARGE, EIGHT_FRAME_LARGE, NINE_FRAME_LARGE};
-    static protected Frame COLON_FRAME_LARGE = new Frame(3,19,new int[]{0,0,0,0,0,7,7,7,0,0,0,7,7,7,0,0,0,0,0});
-    static protected Frame EMPTY_FRAME_LARGE = new Frame(13,19, new int[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
-
-
+    static private Frame ZERO_FRAME_LARGE        = new Frame(13,19, new int[]{1016,2044,4094,7967,7695,7175,7175,7175,7175,7175,7175,7175,7175,7175,7695,7967,4094,2044,1016,});
+    static private Frame ONE_FRAME_LARGE         = new Frame(13,19, new int[]{224,496,1008,2032,4080,240,240,240,240,240,240,240,240,240,240,240,240,240,240,});
+    static private Frame TWO_FRAME_LARGE         = new Frame(13,19, new int[]{504,1020,2046,3855,3079,7,15,30,60,120,240,480,960,1920,3840,7168,7168,8190,4095,});
+    static private Frame THREE_FRAME_LARGE       = new Frame(13,19, new int[]{1016,2044,4094,31,15,7,15,31,510,508,510,31,15,7,15,31,4094,2044,1016,});
+    static private Frame FOUR_FRAME_LARGE        = new Frame(13,19, new int[]{15,31,63,119,231,455,903,1799,3591,7175,8191,4095,7,7,7,7,7,7,7,});
+    static private Frame FIVE_FRAME_LARGE        = new Frame(13,19, new int[]{8191,8191,7680,7680,7680,7680,7680,7680,8190,8191,7,7,7,7,6151,7182,3612,4092,2040,});
+    static private Frame SIX_FRAME_LARGE         = new Frame(13,19, new int[]{2040,4092,8190,7680,7168,7168,7168,7680,8184,8188,8190,7967,7695,7175,7695,7967,4094,2044,1016,});
+    static private Frame SEVEN_FRAME_LARGE       = new Frame(13,19, new int[]{4094,8191,15,7,7,14,30,28,56,56,112,112,224,224,448,448,896,896,896,});
+    static private Frame EIGHT_FRAME_LARGE       = new Frame(13,19, new int[]{1016,2044,4094,7967,7695,7175,7695,7967,4094,2044,4094,7967,7695,7175,7695,7967,4094,2044,1016,});
+    static private Frame NINE_FRAME_LARGE        = new Frame(13,19, new int[]{1016,2044,4094,7967,7695,7175,7695,7967,4095,2047,511,15,7,7,7,7,7,7,7,});
+    static Frame[] NUMBERS_FRAME_LARGE = new Frame[]{ZERO_FRAME_LARGE, ONE_FRAME_LARGE, TWO_FRAME_LARGE, THREE_FRAME_LARGE, FOUR_FRAME_LARGE, FIVE_FRAME_LARGE, SIX_FRAME_LARGE, SEVEN_FRAME_LARGE, EIGHT_FRAME_LARGE, NINE_FRAME_LARGE};
+    static Frame COLON_FRAME_LARGE = new Frame(3,19,new int[]{0,0,0,0,0,7,7,7,0,0,0,7,7,7,0,0,0,0,0});
+    static Frame EMPTY_FRAME_LARGE = new Frame(13,19, new int[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
     //Spin1 Motion Frame
-    static protected Frame SPIN1_0 = new Frame(5,7, new int[]{27,27,27,0,27,27,27});
-    static protected Frame SPIN1_1 = new Frame(5,7, new int[]{3,3,3,0,27,27,27});
-    static protected Frame SPIN1_2 = new Frame(5,7, new int[]{24,24,24,0,27,27,27});
-    static protected Frame SPIN1_3 = new Frame(5,7, new int[]{27,27,27,0,24,24,24});
-    static protected Frame SPIN1_4 = new Frame(5,7, new int[]{27,27,27,0,3,3,3});
-    static protected Frame[] SPIN1 = new Frame[]{SPIN1_1,SPIN1_2, SPIN1_3,SPIN1_4};
-
-
-
-
-
-
-
+    static private Frame SPIN1_0 = new Frame(5,7, new int[]{27,27,27,0,27,27,27});
+    static private Frame SPIN1_1 = new Frame(5,7, new int[]{3,3,3,0,27,27,27});
+    static private Frame SPIN1_2 = new Frame(5,7, new int[]{24,24,24,0,27,27,27});
+    static private Frame SPIN1_3 = new Frame(5,7, new int[]{27,27,27,0,24,24,24});
+    static private Frame SPIN1_4 = new Frame(5,7, new int[]{27,27,27,0,3,3,3});
+    static Frame[] SPIN1 = new Frame[]{SPIN1_1,SPIN1_2, SPIN1_3,SPIN1_4};
+    static Frame PIXEL = new Frame(1,1,new int[]{1});
     protected  String FrameID;
-    protected int length, height;
-    protected Pixel[][] pixels;
-    protected ArrayList<Frame> subFrames;
-    protected int frameNumber = -1;
+    int length, height;
+    Pixel[][] pixels;
+    ArrayList<Frame> subFrames;
+    int frameNumber = -1;
 
     public Frame(int length,int height)
     {
