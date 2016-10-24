@@ -42,7 +42,7 @@ class WeatherElement extends DisplayElement{
         conditions = new ArrayList<>();
         times = new ArrayList<>();
         tempDisplayID = id + "-"+tempDisplayID;
-        tempGraphID = id + "-"+tempDisplayID;
+        tempGraphID = id + "-"+tempGraphID;
         layerManager.addLayer(tempDisplayID);
         layerManager.addLayer(tempGraphID);
 
@@ -101,7 +101,7 @@ class WeatherElement extends DisplayElement{
         int tempWriter = writePointerCol;
         for(int j=0;j<3;j++)        {
             String tempString = ((int) temps[j]) + "";
-            while(tempString.length() > 3){
+            while(tempString.length() < 3){
                 tempString = " " + tempString;
             }
             tempWriter = writePointerCol;
@@ -129,7 +129,7 @@ class WeatherElement extends DisplayElement{
             tempWriter += s.length + 1;
             jsons[j].add("f",frames);
         }
-        writePointerCol += tempWriter;
+        writePointerCol = tempWriter;
     }
 
     @Override
@@ -155,6 +155,11 @@ class WeatherElement extends DisplayElement{
         minTemp = maxTemp= currentTemp;
         writePointerRow = row;
         writePointerCol = col;
+
+        temps = new ArrayList<>();
+        conditions = new ArrayList<>();
+        times = new ArrayList<>();
+
         for(int i=0;i<forecast.size();i++)
         {
             //hourly_forecast[] -> FCTTIME -> epoch

@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Map;
 import java.util.Objects;
 
@@ -54,7 +55,7 @@ public class ClockDisplaySystem extends SystemParent{
         }
         layerManager = new LayerManager();
         elements.add(new ClockElement("clock", this, 2,0,18,new SimpleDateFormat("h:mm"), 5));
-        elements.add(new WeatherElement("weather", this,8,23,18, 10000,e));
+        elements.add(new WeatherElement("weather", this,8,23,18, 20000,e));
 
     }
 
@@ -100,23 +101,23 @@ public class ClockDisplaySystem extends SystemParent{
 
         JsonObject imageUpdate = new JsonObject();
         JsonArray frames = new JsonArray();
-
+        System.out.println(e.timestamp() + new SimpleDateFormat(" HH:mm:ss\t").format(start));
         for(long i=start; i<stop; i+=interval){
             JsonObject time = new JsonObject();
             JsonArray eles = new JsonArray();
             JsonObject[] eleArray = new JsonObject[]{};
-            for (DisplayElement e: elements) {
+            for (DisplayElement ele: elements) {
                 if(fullImage && i==start) {
-                    eleArray = e.get(i);
+                    eleArray = ele.get(i);
+                    System.out.println("FULL IMAGE");
                 }
-                else if((i-1)%e.getUpdateInterval()/2 > (i+interval-1)%e.getUpdateInterval()/2){
-                    eleArray = e.get(i);
+                else if((i-1)%ele.getUpdateInterval() > (i+interval-1)%ele.getUpdateInterval()){
+                    eleArray = ele.get(i);
+                    System.out.println(ele.getUpdateInterval());
                 }
                 for(int j=0;j<eleArray.length;j++)                {
                     eles.add(eleArray[j]);
                 }
-
-
             }
             if(eles.size() != 0) {
 
@@ -130,7 +131,7 @@ public class ClockDisplaySystem extends SystemParent{
         imageUpdate.addProperty("stop", stop);
         imageUpdate.addProperty("interval", interval);
         imageUpdate.addProperty("alpha",100);
-        System.out.print(imageUpdate.toString());
+        System.out.println(imageUpdate.toString());
         return imageUpdate.toString();
     }
 

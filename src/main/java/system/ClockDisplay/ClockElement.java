@@ -13,7 +13,7 @@ import java.time.Clock;
 public class ClockElement extends DisplayElement {
     SimpleDateFormat format;
     int characterCount;
-    static long UPDATE_INTERVAL = 5000;
+    static long UPDATE_INTERVAL = 30000;
 
     ClockElement(String id, ClockDisplaySystem system, int size, int row, int col, SimpleDateFormat format, int characterCount) {
         super(id, system, size, row, col, UPDATE_INTERVAL);
