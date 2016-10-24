@@ -133,13 +133,15 @@ def getImageUpdate():
     global imageTimeline, nextTimelineUpdateTime, nextStart, nextStop, canUpdate, lostConnection, queryTime, interval, reloadImage
     if time.time() * 1000 > nextTimelineUpdateTime and canUpdate:
         if reloadImage:
-            url = SERVER_ADDRESS + SERVER_ENDPOINTS[0]
-        else:
             url = SERVER_ADDRESS + SERVER_ENDPOINTS[1]
+        else:
+            url = SERVER_ADDRESS + SERVER_ENDPOINTS[0]
 
         try:
+            print(url)
             response = requests.get(url + "&t1=%d&t2=%d&interval=%d" % (nextStart, nextStop, interval), timeout = 5)
             imageTimeline = response.json();
+            print(response.text)
             canUpdate=False
             lostConnection = False
             reloadImage = False
@@ -218,7 +220,7 @@ def updateImage():
         if time.time() * 1000 >= nextImageUpdateTime:
             for frame in currentImageTimeline["frames"]:  
                 if len(frame["elements"])!=0:
-                    if frame["elements"][0]["t"] - (math.floor(time.time() * 1000 /currentImageTimeline["interval"]) * currentImageTimeline["interval"]) == 0:
+                    if frame["time"] - (math.floor(time.time() * 1000 /currentImageTimeline["interval"]) * currentImageTimeline["interval"]) == 0:
                         currentFrame = frame["elements"]                  
                         break
 
