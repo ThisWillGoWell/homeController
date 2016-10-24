@@ -109,7 +109,6 @@ public class HvacSystem extends SystemParent{
     }
 
     public void update() {
-        System.out.println("Update!");
         if(state.getMode() == HvacSystemState.MODE_COOL)
         {
             state.setHeat(false);
