@@ -11,14 +11,14 @@ import org.json.hue.JSONArray;
 public class MotionElement extends DisplayElement{
 
     MotionSprite motionSprite;
-    MotionElement(String id, SpriteDict spriteDict, int row, int col)
+    MotionElement(String id, ClockDisplaySystem system, int row, int col)
     {
-        super( id,  spriteDict,1, row, col, ((MotionSprite) spriteDict.get(id)).updateInterval);
-        motionSprite = (MotionSprite) spriteDict.get(id);
+        super( id,  system,1, row, col, ((MotionSprite) system.spriteDict.get(id)).updateInterval);
+        motionSprite = (MotionSprite) system.spriteDict.get(id);
     }
 
     @Override
-    JsonObject get(long time) {
+    JsonObject[] get(long time) {
         JsonObject json = new JsonObject();
         Frame f = motionSprite.getFrames().get(motionSprite.getFrameIndex(time));
         JsonArray list = new JsonArray();
@@ -33,9 +33,10 @@ public class MotionElement extends DisplayElement{
         json.addProperty("id", id);
         json.addProperty("t", time);
         json.add("f", list);
+        json.add("fill", fill(255,255,0,255));
 
 
-        return json;
+        return new JsonObject[]{json};
     }
 
 

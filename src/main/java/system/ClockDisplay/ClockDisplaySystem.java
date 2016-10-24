@@ -23,7 +23,9 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Created by Willi on 9/29/2016.
+ * The System level clock display
+ * manages a set of display elements, writes the resource gif
+ * Also does the /set&get
  */
 public class ClockDisplaySystem extends SystemParent{
 
@@ -33,17 +35,14 @@ public class ClockDisplaySystem extends SystemParent{
 
     */
 
-   Frame masterFrame;
-    Weather weather;
 
-    File ResouceGif;
-
-    int rows = 32;
-    int cols = 96;
+    private int rows = 32;
+    private int cols = 96;
     SpriteDict spriteDict;
-    ClockElement clock;
-    ArrayList<DisplayElement> elements = new ArrayList<>();
-    File resourceGif;
+    private ArrayList<DisplayElement> elements = new ArrayList<>();
+    private File resourceGif;
+    LayerManager layerManager;
+
     public ClockDisplaySystem(Engine e)
     {
         super(e);
@@ -53,15 +52,14 @@ public class ClockDisplaySystem extends SystemParent{
         } catch (IOException e1) {
             e1.printStackTrace();
         }
-        elements.add(new ClockElement("clock", spriteDict, 2,0,0,new SimpleDateFormat("h:mm"), 5));
-        //elements.add(new MotionElement("spin1", spriteDict, 23, 70));
-        elements.add(new WeatherElement("weather", spriteDict,8,23,0, 10000,e));
-
+        layerManager = new LayerManager();
+        elements.add(new ClockElement("clock", this, 2,0,18,new SimpleDateFormat("h:mm"), 5));
+        elements.add(new WeatherElement("weather", this,8,23,18, 10000,e));
 
     }
 
 
-    public Object get(String what, Map<String, String> requestParams) {
+    public Object get(String what, Map<String, String> requestParams){
         if(Objects.equals(what, "resourceImage")){
             try {
                 return getResourceGif();
@@ -69,8 +67,7 @@ public class ClockDisplaySystem extends SystemParent{
                 e.printStackTrace();
             }
         }
-        else if(Objects.equals(what,"imageStart"))
-        {
+        else if(Objects.equals(what,"imageStart")){
             if((requestParams.containsKey("t1") && Engine.isNumeric(requestParams.get("t1"))) &&
                     (requestParams.containsKey("t2") && Engine.isNumeric(requestParams.get("t2"))) &&
                     (requestParams.containsKey("interval") && Engine.isNumeric(requestParams.get("interval"))))
@@ -84,8 +81,7 @@ public class ClockDisplaySystem extends SystemParent{
             }
         }
 
-        else if(Objects.equals(what, "imageUpdate"))
-        {
+        else if(Objects.equals(what, "imageUpdate")){
             if((requestParams.containsKey("t1") && Engine.isNumeric(requestParams.get("t1"))) &&
                     (requestParams.containsKey("t2") && Engine.isNumeric(requestParams.get("t2"))) &&
                     (requestParams.containsKey("interval") && Engine.isNumeric(requestParams.get("interval"))))
@@ -93,38 +89,37 @@ public class ClockDisplaySystem extends SystemParent{
                 return getImageUpdate(Long.parseLong(requestParams.get("t1")), Long.parseLong(requestParams.get("t2")),
                         Integer.parseInt(requestParams.get("interval")), false);
             }
-            else
-            {
+            else{
                 return(what + " requires long param t1 and t2 and interval");
             }
         }
-
-
-
-
         return null;
     }
 
-
-    private String getImageUpdate(long start, long stop, long interval, boolean fullImage)
-    {
+    private String getImageUpdate(long start, long stop, long interval, boolean fullImage){
 
         JsonObject imageUpdate = new JsonObject();
         JsonArray frames = new JsonArray();
 
-        for(long i=start; i<stop; i+=interval)
-        {
+        for(long i=start; i<stop; i+=interval){
             JsonObject time = new JsonObject();
             JsonArray eles = new JsonArray();
+            JsonObject[] eleArray = new JsonObject[]{};
             for (DisplayElement e: elements) {
                 if(fullImage && i==start) {
-                    eles.add(e.get(i));
+                    eleArray = e.get(i);
                 }
                 else if((i-1)%e.getUpdateInterval()/2 > (i+interval-1)%e.getUpdateInterval()/2){
-                    eles.add(e.get(i));
+                    eleArray = e.get(i);
                 }
+                for(int j=0;j<eleArray.length;j++)                {
+                    eles.add(eleArray[j]);
+                }
+
+
             }
             if(eles.size() != 0) {
+
                 time.add("elements", eles);
                 time.addProperty("time", i);
                 frames.add(time);
@@ -134,7 +129,8 @@ public class ClockDisplaySystem extends SystemParent{
         imageUpdate.addProperty("start",start);
         imageUpdate.addProperty("stop", stop);
         imageUpdate.addProperty("interval", interval);
-
+        imageUpdate.addProperty("alpha",100);
+        System.out.print(imageUpdate.toString());
         return imageUpdate.toString();
     }
 
@@ -157,6 +153,7 @@ public class ClockDisplaySystem extends SystemParent{
 
 
     }
+
     private void writeResourceGif() throws IOException {
         resourceGif = new File("resources.gif");
         ImageOutputStream output = new FileImageOutputStream(resourceGif);
@@ -172,15 +169,11 @@ public class ClockDisplaySystem extends SystemParent{
                     }
                 }
                 writer.writeToSequence(img);
-
-
             }
         }
         writer.close();
         output.close();
     }
-
-
 
     @Override
     public String set(String what, String to, Map<String, String> requestParams) {
@@ -195,10 +188,11 @@ public class ClockDisplaySystem extends SystemParent{
 
     @Override
     public void update() {
-
+        for(int i=0;i<elements.size();i++)
+        {
+            elements.get(i).update();
+        }
     }
-
-
     public static void main(String[] args)
     {
         ClockDisplaySystem system = new ClockDisplaySystem(null);
@@ -208,5 +202,4 @@ public class ClockDisplaySystem extends SystemParent{
             e.printStackTrace();
         }
     }
-
 }

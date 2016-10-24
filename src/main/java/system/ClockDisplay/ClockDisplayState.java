@@ -6,7 +6,8 @@ import org.json.hue.JSONObject;
 import java.util.ArrayList;
 
 /**
- * Created by Willi on 9/29/2016.
+ * Not really sure what this does yet?
+ * @TODO Figure out if this does anything
  */
 public class ClockDisplayState {
 
