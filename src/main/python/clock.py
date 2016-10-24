@@ -1,26 +1,51 @@
+ONPI = True
 
-import Image
-import ImageSequence
-import ImageDraw
+
 import time
-import cStringIO
+
 import requests #http://docs.python-requests.org/en/master/
 import json
 import math
 import random
-import thread
-from rgbmatrix import Adafruit_RGBmatrix
-from socket import timeout
-matrix = Adafruit_RGBmatrix(32, 2)
 
+
+if ONPI:
+    from rgbmatrix import Adafruit_RGBmatrix
+    import Image #http://effbot.org/imagingbook/pil-index.htm
+    import ImageSequence
+    import ImageDraw
+    import thread
+else:
+    from PIL import Image #http://effbot.org/imagingbook/pil-index.htm
+    from PIL import ImageSequence
+    from PIL import ImageDraw
+    import threading as thread
+from socket import timeout
+
+
+
+if(ONPI):
+    matrix = Adafruit_RGBmatrix(32, 3)
+
+SYSTEM ="clock"
 SERVER_ADDRESS = 'http://192.168.1.84:8080'
-SERVER_ENDPOINTS = ['/getImageTimeline']
+SERVER_ENDPOINTS = ['/get?system=' + SYSTEM + "&what=imageUpdate",'/get?system=' + SYSTEM + "&what=imageStart", '/get?system=' + SYSTEM + "&what=resourceImage" ]
+
+
 #Get Iamge
 #http://www.effbot.org/imagingbook/pil-index.htm
 resources = []
 
-#file = cStringIO.StringIO(request.urlopen("http://192.168.1.84:8080/getImage").read());
-#resourceImage = Image.open(file);
+
+def getImage():
+    r = requests.get(SERVER_ADDRESS + SERVER_ENDPOINTS[2]);
+    with open("resources.gif", 'wb') as fd:
+        for chunk in r.iter_content(100):
+            fd.write(chunk)
+    fd.close()
+
+    
+getImage()
 
 def analyseImage(path):
     '''
@@ -93,70 +118,146 @@ nextStart = math.floor(time.time()) * 1000
 nextStop = nextStart  + 2000
 nextTimelineUpdateTime = nextStart
 nextImageUpdateTime = nextStart
-  
+interval = 100
 canUpdate= True
 lostConnection = True
 imageTimeline   = []
 imageTimeline= {'interval' :100}
+reloadImage = True
+blankImage = Image.new("RGBA",(96,32), (0,0,0,255))
+layers = {};
+masks = {};
+fills = {};
+
 def getImageUpdate():
-    global imageTimeline, nextTimelineUpdateTime, nextStart, nextStop, canUpdate, lostConnection, queryTime
+    global imageTimeline, nextTimelineUpdateTime, nextStart, nextStop, canUpdate, lostConnection, queryTime, interval, reloadImage
     if time.time() * 1000 > nextTimelineUpdateTime and canUpdate:
-        url = SERVER_ADDRESS + SERVER_ENDPOINTS[0]
+        if reloadImage:
+            url = SERVER_ADDRESS + SERVER_ENDPOINTS[0]
+        else:
+            url = SERVER_ADDRESS + SERVER_ENDPOINTS[1]
+
         try:
-            response = requests.get(url + "?start=%d&end=%d" % (nextStart, nextStop), timeout = 5)
-            print(response.elapsed )
-
-            jsonStr = str(response.text)
-
-            imageTimeline = json.loads(jsonStr)
+            response = requests.get(url + "&t1=%d&t2=%d&interval=%d" % (nextStart, nextStop, interval), timeout = 5)
+            imageTimeline = response.json();
             canUpdate=False
             lostConnection = False
-        except requests.exceptions.Timeout, e:
+            reloadImage = False
+        except requests.exceptions.Timeout:
             lostConnection = True
+            reloadImage = True
         
         nextTimelineUpdateTime = nextStop - imageTimeline['interval'] * 2
         nextStart = nextTimelineUpdateTime
         nextStop = nextTimelineUpdateTime + queryTime * 1000
 
-    
+
+
+redImage = Image.new("RGBA",(96,32), "red")
+
+def imageToMask(image, frameNumber=-1):
+    #take in a resouce image and return a mask of that image.
+    #Store that mask in a dict refrenced by source frame number 
+    #so dont have to regenerate it each time.
+    rows = image.size[1]
+    cols = image.size[0] 
+
+    p= 0
+    emptyPixel = (0,0,0,255)
+    #mask = Image.new("RGBA", image.size,(255,255,255,255))
+    #pmask = Image.new("RGBA", (1,1), (0,0,0,0));
+    pixels = image.getdata()
+
+    if ONPI:
+        m = []
+        for p in pixels:
+            if(p[0] == p[1] == p[2] == 0):
+                m.append(0x00)
+                m.append(0x00)
+                m.append(0x00)
+                m.append(0x00)
+            else:
+                m.append(0x00)
+                m.append(0x00)
+                m.append(0x00)
+                m.append(0xff)
+        maskData = bytearray(m)
+
+
+    else:
+        maskData = bytes([])
+        maskOn = bytes([0xff,0x00,0xff,0xff])
+        maskOff = bytes([0x00,0x00,0x00,0x00])
+        
+        for p in range(0, len(pixels)):
+            if pixels[p][0] == pixels[p][1] == pixels[p][2] == 0:
+                maskData =  maskData + maskOff
+            else:
+                maskData = maskData + maskOn;
+
+
+    mask = Image.frombuffer("RGBA", image.size, maskData)
+    mask = mask.transpose(Image.ROTATE_180).transpose(Image.FLIP_LEFT_RIGHT)
+
+    return mask
+
+
 def updateImage():
-    global nextImageUpdateTime, imageTimeline, canUpdate, lostConnection
+    global layers, blankImage, fills, nextImageUpdateTime, imageTimeline, canUpdate, lostConnection
     currentFrame = None
     if lostConnection == True:
         im = random.choice(resources)
         im.load()
-        matrix.SetImage(im.im.id, 0, 0)
+        if ONPI:
+            matrix.SetImage(im.im.id, 0, 0)
+        time.sleep(0.5)
        
         nextImageUpdateTime = math.floor(time.time()) * 1000  
     else:
         currentImageTimeline    = imageTimeline 
         if time.time() * 1000 >= nextImageUpdateTime:
             for frame in currentImageTimeline["frames"]:  
-                if frame["elements"][0]["t"] - (math.floor(time.time() * 1000 /currentImageTimeline["interval"]) * currentImageTimeline["interval"]) == 0:
-                    currentFrame = frame["elements"]                  
-                    break
-
+                if len(frame["elements"])!=0:
+                    if frame["elements"][0]["t"] - (math.floor(time.time() * 1000 /currentImageTimeline["interval"]) * currentImageTimeline["interval"]) == 0:
+                        currentFrame = frame["elements"]                  
+                        break
 
         if currentFrame != None:
-            im = Image.new("RGBA", resources[0].size)
+            #im = Image.new("RGBA", resources[0].size)
             for element in currentFrame:
-                for frame in element["f"]:  
-                    im.paste(resources[frame["n"]].crop((0,0,frame["w"], frame["h"])), (frame["c"], frame["r"]))
-            im.load()
-            matrix.SetImage(im.im.id,0,0);
+                currentLayer = Image.new("RGBA", (96,32))
+                if element["fill"]["fill"]:
+                    key = "%d%d%d%d" % (element["fill"]["r"],element["fill"]["g"],element["fill"]["b"],element["fill"]["a"])
+                    if key not in fills:
+                        fills[key] = Image.new("RGBA", (96,32), (element["fill"]["r"],element["fill"]["g"],element["fill"]["b"],element["fill"]["a"]))
+
+                    fillImage = fills[key]
+                    for frame in element["f"]:  
+                        currentLayer.paste(fillImage.crop((0,0,frame["w"], frame["h"])), (frame["c"], frame["r"]),imageToMask(resources[frame["n"]].crop((0,0,frame["w"], frame["h"])), frame["n"]))
+                else:
+                    for frame in element["f"]:
+                        currentLayer.paste(resources[frame["n"]].crop((0,0,frame["w"], frame["h"])), (frame["c"], frame["r"]), imageToMask(resources[frame["n"]].crop((0,0,frame["w"], frame["h"])),frame["n"] ))
+                layers[element["l"]] = currentLayer
+            
+            im = Image.new("RGBA", (96,32))
+            for i in range(len(layers)):
+                im.paste(layers[i],(0,0),imageToMask(layers[i]))
+
+            #im = Image.blend(im, blankImage, currentImageTimeline["alpha"])
+            if ONPI:
+                im.load()
+                matrix.SetImage(im.im.id,0,0);
+            else:
+                pass
+                #showImage(image)
+
             nextImageUpdateTime = nextImageUpdateTime + imageTimeline["interval"]
     canUpdate = True
 
-'''
-class updateThread(threading.Thread):
-    def __init__(self, threadID, funciton)
-        threading.Thread.__init__(self)
-        self.threadID= threadID
-        self.funciton = funciton
-    def run(self)
-
-    def getTimeline
-'''
+def showImage(image):
+    largeImage = image.resize((image.size[0]*10, image.size[1] * 10))
+    largeImage.load()
+    largeImage.show()
 
 
 def updateThread(threadName):
@@ -164,10 +265,18 @@ def updateThread(threadName):
         getImageUpdate()
         time.sleep(imageTimeline["interval"]/1000.0/2)
 
-
-processImage("resources.gif")   
+processImage("resources.gif")
+imageToMask(resources[0], 0)
 start = time.time() * 1000
-thread.start_new_thread(updateThread, ("Update",))
+if ONPI:
+    thread.start_new_thread(updateThread, ("Update",))
+else:
+    t = thread.Thread(target=updateThread, args=("update",))
+    t.start()
+
+im = Image.new("RGBA", resources[0].size)
+for i in range(10):
+    layers[i] = blankImage
 
 while(True  ):
     updateImage()
