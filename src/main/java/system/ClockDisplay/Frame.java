@@ -1,6 +1,7 @@
 package system.ClockDisplay;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -72,15 +73,36 @@ public class Frame {
     static private Frame SPIN1_4 = new Frame(5,7, new int[]{27,27,27,0,3,3,3});
     static Frame[] SPIN1 = new Frame[]{SPIN1_1,SPIN1_2, SPIN1_3,SPIN1_4};
     static Frame PIXEL = new Frame(1,1,new int[]{1});
+
+    private static Frame RAIN_DROP = new Frame(5,7,new int[]{4,14,14,30,29,14,4}, Color.blue);
+    static Frame RAIN_SCREEN()
+    {
+        int cols = 16;
+        int rows = 32;
+        Frame rainScreen = new Frame(cols, rows);
+        rainScreen.placeFrame(0,0,RAIN_DROP);
+        rainScreen.placeFrame(0,13,RAIN_DROP);
+        rainScreen.placeFrame(8,1,RAIN_DROP);
+        rainScreen.placeFrame(10,8,RAIN_DROP);
+        rainScreen.placeFrame(16,5,RAIN_DROP);
+        rainScreen.placeFrame(19,12,RAIN_DROP);
+        rainScreen.placeFrame(22,1,RAIN_DROP);
+        rainScreen.placeFrame(25,7,RAIN_DROP);
+        return rainScreen;
+
+    }
+
+
+
     protected  String FrameID;
     int length, height;
-    Pixel[][] pixels;
-    ArrayList<Frame> subFrames;
+    private Color[][] pixels;
+    private ArrayList<Frame> subFrames;
     int frameNumber = -1;
 
     public Frame(int length,int height)
     {
-        pixels = new Pixel[height][length];
+        pixels = new Color[height][length];
         subFrames = new ArrayList<Frame>();
         this.length = length;
         this.height = height;
@@ -89,15 +111,20 @@ public class Frame {
         {
             for(int c= 0;c<length;c++)
             {
-                pixels[r][c] = new Pixel(0,0,0);
+                pixels[r][c] = new Color(0,0,0);
             }
         }
     }
 
     public Frame(int length, int height, int[] values)
     {
+        this(length,height,values, new Color(255,255,255));
+
+    }
+    public Frame(int length, int height, int[] values, Color color)
+    {
         subFrames = new ArrayList<Frame>();
-        pixels = new Pixel[height][length];
+        pixels = new Color[height][length];
         this.length = length;
         this.height = height;
         for(int r=0;r<height;r++)
@@ -108,25 +135,24 @@ public class Frame {
             for(int c=0;c<length;c++)
             {
                 if (line.charAt(c) == '1')
-                    pixels[r][c] = new Pixel(128,128,128);
+                    pixels[r][c] = new Color(color.getRGB());
                 else
                 {
                     pixels[r][c] = new Pixel(0,0,0);
                 }
             }
         }
-
     }
     void setFrameNumber(int i)
     {
         frameNumber = i;
     }
 
-    Pixel[][] getPixels()
+    Color[][] getPixels()
     {
         return pixels;
     }
-    Pixel getPixel(int r, int c)
+    Color getPixel(int r, int c)
     {
         return pixels[r][c];
     }
@@ -172,6 +198,9 @@ public class Frame {
 
         return outputFile;
     }
+
+
+
 
 
 

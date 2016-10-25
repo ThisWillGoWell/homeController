@@ -9,7 +9,7 @@ import java.util.Map;
  */
 public abstract class SystemParent {
 
-    Engine e;
+    protected Engine e;
     public SystemParent(Engine e)
     {
         this.e = e;

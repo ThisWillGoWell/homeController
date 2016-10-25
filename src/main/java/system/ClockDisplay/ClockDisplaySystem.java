@@ -56,6 +56,7 @@ public class ClockDisplaySystem extends SystemParent{
         layerManager = new LayerManager();
         elements.add(new ClockElement("clock", this, 2,0,18,new SimpleDateFormat("h:mm"), 5));
         elements.add(new WeatherElement("weather", this,8,23,18, 20000,e));
+        elements.add(new RainMotionElement("rain", this,0,8,4,100, e));
 
     }
 
@@ -107,13 +108,11 @@ public class ClockDisplaySystem extends SystemParent{
             JsonArray eles = new JsonArray();
             JsonObject[] eleArray = new JsonObject[]{};
             for (DisplayElement ele: elements) {
-                if(fullImage && i==start) {
+                if(fullImage ) {
                     eleArray = ele.get(i);
-                    System.out.println("FULL IMAGE");
                 }
-                else if((i-1)%ele.getUpdateInterval() > (i+interval-1)%ele.getUpdateInterval()){
+                else if((i-1)%ele.getUpdateInterval() >= (i+interval-1)%ele.getUpdateInterval()){
                     eleArray = ele.get(i);
-                    System.out.println(ele.getUpdateInterval());
                 }
                 for(int j=0;j<eleArray.length;j++)                {
                     eles.add(eleArray[j]);

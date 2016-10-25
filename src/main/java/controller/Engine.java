@@ -101,40 +101,4 @@ public class Engine {
     {
         systems.get("HVAC").update();
     }
-        /*
-    public File getImageResource()
-    {
-        return clockDisplaySystem.getResouceGif();
-    }
-
-
-
-    double getMaxTempToday()
-    {
-        return weather.getTodayHigh();
-    }
-
-    double getMinTempToday()
-    {
-        return weather.getTodayLow();
-    }
-
-    String getForcast()
-    {
-        return weather.getTodayForcast();
-    }
-
-    String getImageTime(long start, long stop){return clockDisplaySystem.getImageUpdate(start, stop);}
-
-    String getState()
-    {
-        return "{\"state\":{"  + systemHVAC.getStateJSON() + "}}";
-    }
-    */
-
-
-
-
-
-
 }
