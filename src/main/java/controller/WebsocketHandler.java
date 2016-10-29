@@ -1,6 +1,5 @@
 package controller;
 
-import com.sun.xml.internal.fastinfoset.util.CharArray;
 import org.json.hue.JSONObject;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -18,7 +17,7 @@ import java.util.Objects;
  * communication to /ws
  *
  */
-public class WebSocketHandler extends TextWebSocketHandler {
+public class WebsocketHandler extends TextWebSocketHandler {
 
     static ArrayList<WebSocketSession> sessions = new ArrayList<>();
     @Override
@@ -30,9 +29,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        for(WebSocketSession s: sessions)
-            s.sendMessage(new TextMessage(message.getPayload()));
-        /*
+
         JSONObject m = new JSONObject(message.getPayload());
         Map<String,String> params = new HashMap<>();
         Object resp = null;
@@ -47,11 +44,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         else if(Objects.equals(params.get("op"), "get")){
             resp =  Application.getEngine().set(params);
         }
-
-        reply = resp.toString();
-        CharArray c = new CharArray(reply.toCharArray(),0,reply.length(),false);
-        session.sendMessage(new TextMessage(c));
-        */
+        session.sendMessage(new TextMessage( resp.toString()));
     }
 
     @Override

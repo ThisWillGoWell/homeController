@@ -6,7 +6,6 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.ui.ModelMap;
@@ -14,13 +13,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.socket.*;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.handler.PerConnectionWebSocketHandler;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 @SpringBootApplication
@@ -30,7 +27,8 @@ import java.util.Map;
 @RestController
 public class Application extends SpringBootServletInitializer implements WebSocketConfigurer{
 
-    static Engine e = new Engine();
+    private static Engine e = new Engine();
+    static Engine getEngine(){return e;}
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -46,7 +44,7 @@ public class Application extends SpringBootServletInitializer implements WebSock
     @Bean
     org.springframework.web.socket.WebSocketHandler getHandler()
     {
-        return new PerConnectionWebSocketHandler(WebSocketHandler.class);
+        return new PerConnectionWebSocketHandler(WebsocketHandler.class);
     }
 
 
