@@ -1,8 +1,10 @@
-package system.ClockDisplay;
+package system.ClockDisplay.DisplayElements;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import controller.Engine;
+import system.ClockDisplay.ClockDisplaySystem;
+import system.ClockDisplay.ImageManagement.Frame;
 
 import java.util.ArrayList;
 
@@ -10,7 +12,7 @@ import java.util.ArrayList;
  * Created by Willi on 10/1/2016.
  */
 
-class WeatherElement extends DisplayElement{
+public class WeatherElement extends DisplayElement{
 
     private Engine e;
     private int numRows;
@@ -31,7 +33,7 @@ class WeatherElement extends DisplayElement{
     private JsonObject maxTempJson;
     private JsonObject minTempJson;
 
-    WeatherElement(String id, ClockDisplaySystem clockDisplaySystem, int size, int row, int col, long updateInterval, Engine e){
+    public WeatherElement(String id, ClockDisplaySystem clockDisplaySystem, int size, int row, int col, long updateInterval, Engine e){
         super(id, clockDisplaySystem,size, row, col, updateInterval);
         this.e = e;
         numRows = size;
@@ -65,9 +67,6 @@ class WeatherElement extends DisplayElement{
         minTempJson.addProperty("id", tempDisplayID);
         minTempJson.add("fill", fill(0,0,255,255));
         minTempJson.addProperty("l", layerManager.get(tempDisplayID));
-
-        update();
-
     }
 
     private void updateGraphElement()
@@ -77,7 +76,7 @@ class WeatherElement extends DisplayElement{
         //get the most recent forecast from the weather subsystem
         //we have all the data now we need to compute the graph.
         //for this one, lets say the
-        double tempPerPixel = (maxTemp - minTemp)/numRows;
+        double tempPerPixel = numRows / (maxTemp - minTemp);
         JsonArray graph = new JsonArray();
         JsonObject currentPoint;
         for(int i = 0;i<temps.size();i++)
@@ -85,9 +84,9 @@ class WeatherElement extends DisplayElement{
             currentPoint = new JsonObject();
             currentPoint.addProperty("r",Math.round(writePointerRow + tempPerPixel * (maxTemp - temps.get(i))));
             currentPoint.addProperty("c",writePointerCol);
-            currentPoint.addProperty("n",spriteDict.get("pixel").getFrames().get(0).frameNumber);
-            currentPoint.addProperty("w",spriteDict.get("pixel").getFrames().get(0).length);
-            currentPoint.addProperty("h",spriteDict.get("pixel").getFrames().get(0).height);
+            currentPoint.addProperty("n",spriteDict.get("pixel").getFrames().get(0).getFrameNumber());
+            currentPoint.addProperty("w",spriteDict.get("pixel").getFrames().get(0).getLength());
+            currentPoint.addProperty("h",spriteDict.get("pixel").getFrames().get(0).getHeight());
             writePointerCol += 1;
             graph.add(currentPoint);
         }
@@ -110,30 +109,30 @@ class WeatherElement extends DisplayElement{
             for (int i = 0; i < tempString.length(); i++) {
                 JsonObject frameData = new JsonObject();
                 s = spriteDict.get(tempString.charAt(i) + "").getFrames().get(1);
-                frameData.addProperty("n", s.frameNumber);
-                frameData.addProperty("w", s.length);
-                frameData.addProperty("h", s.height);
+                frameData.addProperty("n", s.getFrameNumber());
+                frameData.addProperty("w", s.getHeight());
+                frameData.addProperty("h", s.getHeight());
                 frameData.addProperty("r", writePointerRow);
                 frameData.addProperty("c", tempWriter);
                 frames.add(frameData);
-                tempWriter += s.length;
+                tempWriter += s.getLength();
             }
             JsonObject frameData = new JsonObject();
             s = spriteDict.get("degree").getFrames().get(1);
-            frameData.addProperty("n", s.frameNumber);
-            frameData.addProperty("w", s.length);
-            frameData.addProperty("h", s.height);
+            frameData.addProperty("n", s.getFrameNumber());
+            frameData.addProperty("w", s.getLength());
+            frameData.addProperty("h", s.getHeight());
             frameData.addProperty("r", writePointerRow);
             frameData.addProperty("c", tempWriter);
             frames.add(frameData);
-            tempWriter += s.length + 1;
+            tempWriter += s.getLength()+ 1;
             jsons[j].add("f",frames);
         }
         writePointerCol = tempWriter;
     }
 
     @Override
-    JsonObject[] get(long time) {
+    public JsonObject[] get(long time) {
         //so the update time is going to be the same time as the update interval of the weather object.
         //but bascially I think I want it to be quicker than that..... or do I?
 
@@ -147,7 +146,7 @@ class WeatherElement extends DisplayElement{
     }
 
     @Override
-    void update()
+    public void update()
     {
         forecast = ((JsonObject) e.get("weather","hourlyForecast", null)).getAsJsonArray("hourly_forecast");
         currentTemp = (Double) e.get("weather", "currentTemp", null);

@@ -1,4 +1,4 @@
-package system.ClockDisplay;
+package system.ClockDisplay.ImageManagement;
 
 import java.util.ArrayList;
 
@@ -7,12 +7,12 @@ import java.util.ArrayList;
  */
 public class MotionSprite extends Sprite {
 
-    long updateInterval;
-    long nextUpdateTime;
-    int numFrames;
+    private long updateInterval;
+    private long nextUpdateTime;
+    private int numFrames;
 
 
-     MotionSprite(String spriteID, ArrayList<Frame> frames, long updateInterval) {
+    public MotionSprite(String spriteID, ArrayList<Frame> frames, long updateInterval) {
         super(spriteID,frames);
 
         this.updateInterval = updateInterval;
@@ -20,7 +20,7 @@ public class MotionSprite extends Sprite {
         animated = true;
     }
 
-    MotionSprite(String spriteID, Frame[] f, long updateInterval) {
+    public MotionSprite(String spriteID, Frame[] f, long updateInterval) {
         super(spriteID,f);
         this.updateInterval = updateInterval;
         numFrames = frames.size();
@@ -32,12 +32,12 @@ public class MotionSprite extends Sprite {
     /*
         Given a time, what index should it be at?
      */
-    int getFrameIndex(long time)
+    public int getFrameIndex(long time)
     {
         return (int) (((time)/updateInterval) % numFrames);
     }
 
-    long getNextUpdateTime()
+    public long getNextUpdateTime()
     {
         return System.currentTimeMillis() + System.currentTimeMillis() % updateInterval;
     }

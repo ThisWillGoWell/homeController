@@ -1,8 +1,10 @@
-package system.ClockDisplay;
+package system.ClockDisplay.DisplayElements;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import controller.Engine;
+import system.ClockDisplay.ClockDisplaySystem;
+import system.ClockDisplay.ImageManagement.Frame;
 
 /**
  * Created by Willi on 10/24/2016.
@@ -12,19 +14,19 @@ public class RainMotionElement extends DisplayElement{
     private int imageHeight;
     private int imageWidth;
     Frame s;
-    RainMotionElement(String id, ClockDisplaySystem clockDisplaySystem, int size, int row, int col, long updateInterval, Engine e)
+    public RainMotionElement(String id, ClockDisplaySystem clockDisplaySystem, int size, int row, int col, long updateInterval, Engine e)
     {
         super(id, clockDisplaySystem,size, row, col, updateInterval);
         //size is meaningless
         //always 12x12
-        imageHeight = 16;
+        imageHeight = 32;
         imageWidth = 16;
         s =  spriteDict.get("rainDrop").getFrames().get(0);
         layerManager.addLayer(id);
     }
 
     @Override
-    JsonObject[] get(long time) {
+    public JsonObject[] get(long time) {
         //update interval = 1 pixel down on screen
         //total round trip = rows * updateInterval
         int startLocation = s.getHeight() - (int) (( time / updateInterval) % s.getHeight());
@@ -40,7 +42,7 @@ public class RainMotionElement extends DisplayElement{
             current.addProperty("r", row);
             current.addProperty("c", col);
             current.addProperty("sr", startLocation);
-            current.addProperty("n", s.frameNumber);
+            current.addProperty("n", s.getFrameNumber());
             current.addProperty("w", imageWidth);
             current.addProperty("h", imageHeight);
             frames.add(current);
@@ -50,7 +52,7 @@ public class RainMotionElement extends DisplayElement{
             current.addProperty("r", row);
             current.addProperty("c", col);
             current.addProperty("sr", startLocation);
-            current.addProperty("n", s.frameNumber);
+            current.addProperty("n", s.getFrameNumber());
             current.addProperty("w", imageWidth);
             current.addProperty("h", imageHeight);
             frames.add(current);
@@ -58,7 +60,7 @@ public class RainMotionElement extends DisplayElement{
             current = new JsonObject();
             current.addProperty("r", row + s.getHeight() - startLocation);
             current.addProperty("c", col);
-            current.addProperty("n", s.frameNumber);
+            current.addProperty("n", s.getFrameNumber());
             current.addProperty("w", imageWidth);
             current.addProperty("h",imageHeight- (s.getHeight()-startLocation));
             frames.add(current);

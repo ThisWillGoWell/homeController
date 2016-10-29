@@ -1,4 +1,4 @@
-package system.ClockDisplay;
+package system.ClockDisplay.ImageManagement;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -143,7 +143,7 @@ public class Frame {
             }
         }
     }
-    void setFrameNumber(int i)
+    public void setFrameNumber(int i)
     {
         frameNumber = i;
     }
@@ -152,23 +152,22 @@ public class Frame {
     {
         return pixels;
     }
-    Color getPixel(int r, int c)
+    public Color getPixel(int r, int c)
     {
         return pixels[r][c];
     }
 
-    int getLength()
+    public int getLength()
     {
         return length;
     }
 
-    int getHeight()
+    public int getHeight()
     {
         return height;
     }
 
-
-    void placeFrame(int r, int c, Frame f) {
+    public void placeFrame(int r, int c, Frame f) {
         //subFrames.add(f);
         for (int i = 0; i < f.getHeight();i++)
         {
@@ -178,6 +177,11 @@ public class Frame {
                     pixels[r+i][c+j] = f.getPixel(i,j);
             }
         }
+    }
+
+    public int getFrameNumber()
+    {
+        return frameNumber;
     }
 
     public File writeFrame(String filename)

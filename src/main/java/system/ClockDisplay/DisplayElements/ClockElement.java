@@ -1,21 +1,22 @@
-package system.ClockDisplay;
+package system.ClockDisplay.DisplayElements;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import system.ClockDisplay.ClockDisplaySystem;
+import system.ClockDisplay.ImageManagement.Frame;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
-import java.time.Clock;
 
 /**
  * Simple clock element, displays the time, thats it...
  *
  */
 public class ClockElement extends DisplayElement {
-    SimpleDateFormat format;
-    int characterCount;
-    static long UPDATE_INTERVAL = 30000;
+    private SimpleDateFormat format;
+    private int characterCount;
+    private static long UPDATE_INTERVAL = 30000;
 
-    ClockElement(String id, ClockDisplaySystem system, int size, int row, int col, SimpleDateFormat format, int characterCount) {
+    public ClockElement(String id, ClockDisplaySystem system, int size, int row, int col, SimpleDateFormat format, int characterCount) {
         super(id, system, size, row, col, UPDATE_INTERVAL);
         this.characterCount = characterCount;
         this.format = format;
@@ -23,7 +24,7 @@ public class ClockElement extends DisplayElement {
 
     }
 
-    JsonObject[] get(long time) {
+    public JsonObject[] get(long time) {
         //make the time for that time
         String timeStr = format.format(new Date(time));
         while (timeStr.length() < characterCount) {
@@ -36,13 +37,13 @@ public class ClockElement extends DisplayElement {
         for (int i = 0; i < timeStr.length(); i++) {
             JsonObject frameData = new JsonObject();
             Frame s = spriteDict.get(timeStr.charAt(i) + "").getFrames().get(size);
-            frameData.addProperty("n", s.frameNumber);
-            frameData.addProperty("w", s.length);
-            frameData.addProperty("h", s.height);
+            frameData.addProperty("n", s.getFrameNumber());
+            frameData.addProperty("w", s.getLength());
+            frameData.addProperty("h", s.getHeight());
             frameData.addProperty("r", writePointerRow);
             frameData.addProperty("c", writePointerCol);
             list.add(frameData);
-            writePointerCol += s.length + 1;
+            writePointerCol += s.getLength() + 1;
         }
         json.addProperty("id", id);
         json.addProperty("t", time);

@@ -1,7 +1,7 @@
 package system.ClockDisplay;
 
 import com.google.gson.JsonObject;
-import org.json.hue.JSONObject;
+import system.ClockDisplay.DisplayElements.DisplayElement;
 
 import java.util.ArrayList;
 

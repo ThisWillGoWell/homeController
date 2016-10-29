@@ -1,29 +1,32 @@
-package system.ClockDisplay;
+package system.ClockDisplay.DisplayElements;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import org.json.hue.JSONArray;
+import system.ClockDisplay.ClockDisplaySystem;
+import system.ClockDisplay.DisplayElements.DisplayElement;
+import system.ClockDisplay.ImageManagement.Frame;
+import system.ClockDisplay.ImageManagement.MotionSprite;
 
 
 /**
  * Created by Willi on 10/3/2016.
  */
-public class MotionElement extends DisplayElement{
+public class MotionElement extends DisplayElement {
 
     MotionSprite motionSprite;
     MotionElement(String id, ClockDisplaySystem system, int row, int col)
     {
-        super( id,  system,1, row, col, ((MotionSprite) system.spriteDict.get(id)).updateInterval);
-        motionSprite = (MotionSprite) system.spriteDict.get(id);
+        super( id,  system,1, row, col, 1000);
+        motionSprite = (MotionSprite) system.getSpriteDict().get(id);
     }
 
     @Override
-    JsonObject[] get(long time) {
+    public JsonObject[] get(long time) {
         JsonObject json = new JsonObject();
         Frame f = motionSprite.getFrames().get(motionSprite.getFrameIndex(time));
         JsonArray list = new JsonArray();
         JsonObject frame = new JsonObject();
-        frame.addProperty("n", f.frameNumber);
+        frame.addProperty("n", f.getFrameNumber());
         frame.addProperty("w", f.getLength());
         frame.addProperty("h", f.getHeight());
         frame.addProperty("r", row);

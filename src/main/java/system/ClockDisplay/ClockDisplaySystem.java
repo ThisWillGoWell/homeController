@@ -3,11 +3,19 @@ package system.ClockDisplay;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import controller.Engine;
-import system.Weather.Weather;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import system.ClockDisplay.DisplayElements.*;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import system.ClockDisplay.ImageManagement.Frame;
+import system.ClockDisplay.ImageManagement.GifSequenceWriter;
+import system.ClockDisplay.ImageManagement.LayerManager;
+import system.ClockDisplay.ImageManagement.SpriteDict;
 import system.SystemParent;
 
 import javax.imageio.stream.FileImageOutputStream;
@@ -19,7 +27,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Map;
 import java.util.Objects;
 
@@ -28,6 +35,8 @@ import java.util.Objects;
  * manages a set of display elements, writes the resource gif
  * Also does the /set&get
  */
+@Component
+@EnableScheduling
 public class ClockDisplaySystem extends SystemParent{
 
    /*
@@ -39,14 +48,14 @@ public class ClockDisplaySystem extends SystemParent{
 
     private int rows = 32;
     private int cols = 96;
-    SpriteDict spriteDict;
+    private SpriteDict spriteDict;
     private ArrayList<DisplayElement> elements = new ArrayList<>();
     private File resourceGif;
-    LayerManager layerManager;
+    private LayerManager layerManager;
 
     public ClockDisplaySystem(Engine e)
     {
-        super(e);
+        super(e,3000);
         spriteDict = new SpriteDict();
         try {
             writeResourceGif();
@@ -56,7 +65,10 @@ public class ClockDisplaySystem extends SystemParent{
         layerManager = new LayerManager();
         elements.add(new ClockElement("clock", this, 2,0,18,new SimpleDateFormat("h:mm"), 5));
         elements.add(new WeatherElement("weather", this,8,23,18, 20000,e));
-        elements.add(new RainMotionElement("rain", this,0,8,4,100, e));
+        elements.add(new RainMotionElement("rain", this,0,1,1,200, e));
+        elements.add(new HVACMotionElement("hvac-mon", this, 25,89));
+
+        update();
 
     }
 
@@ -102,7 +114,7 @@ public class ClockDisplaySystem extends SystemParent{
 
         JsonObject imageUpdate = new JsonObject();
         JsonArray frames = new JsonArray();
-        System.out.println(e.timestamp() + new SimpleDateFormat(" HH:mm:ss\t").format(start));
+        System.out.println(Engine.timestamp() + new SimpleDateFormat(" HH:mm:ss\t").format(start));
         for(long i=start; i<stop; i+=interval){
             JsonObject time = new JsonObject();
             JsonArray eles = new JsonArray();
@@ -129,7 +141,7 @@ public class ClockDisplaySystem extends SystemParent{
         imageUpdate.addProperty("start",start);
         imageUpdate.addProperty("stop", stop);
         imageUpdate.addProperty("interval", interval);
-        imageUpdate.addProperty("alpha",100);
+        imageUpdate.addProperty("alpha",10);
         System.out.println(imageUpdate.toString());
         return imageUpdate.toString();
     }
@@ -175,19 +187,26 @@ public class ClockDisplaySystem extends SystemParent{
         output.close();
     }
 
-    @Override
-    public String set(String what, String to, Map<String, String> requestParams) {
+    public SpriteDict getSpriteDict()
+    {
+        return spriteDict;
+    }
 
-        return null;
+    public LayerManager getLayoutManager()
+    {
+        return layerManager;
     }
 
     @Override
-    public String getStateJSON() {
-        return "";
+    public String set(String what, String to, Map<String, String> requestParams) {
+
+        return "set Not Supported";
     }
 
     @Override
     public void update() {
+        int k = 0;
+
         for(int i=0;i<elements.size();i++)
         {
             elements.get(i).update();

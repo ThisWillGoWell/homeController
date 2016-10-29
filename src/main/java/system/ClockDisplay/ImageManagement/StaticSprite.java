@@ -1,4 +1,4 @@
-package system.ClockDisplay;
+package system.ClockDisplay.ImageManagement;
 
 import java.util.ArrayList;
 

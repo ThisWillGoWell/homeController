@@ -1,4 +1,4 @@
-package system.ClockDisplay;
+package system.ClockDisplay.ImageManagement;
 
 import java.util.HashMap;
 
@@ -12,12 +12,12 @@ import java.util.HashMap;
  */
 public class LayerManager extends HashMap<String, Integer> {
     private int currentPointer = 0;
-    LayerManager()
+    public LayerManager()
     {
         super();
     }
 
-    int addLayer(String s) {
+    public int addLayer(String s) {
         this.put(s,currentPointer++);
         return currentPointer;
     }

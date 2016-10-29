@@ -1,4 +1,4 @@
-package system.ClockDisplay;
+package system.ClockDisplay.ImageManagement;
 
 import java.util.HashMap;
 
@@ -6,7 +6,7 @@ import java.util.HashMap;
  * Created by Willi on 10/2/2016.
  */
 public class SpriteDict extends HashMap<String,Sprite>{
-    SpriteDict()
+    public SpriteDict()
     {
         super();
         make();

@@ -1,9 +1,6 @@
-package system.ClockDisplay;
-
-import sun.text.resources.cldr.mr.FormatData_mr;
+package system.ClockDisplay.ImageManagement;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Created by Willi on 10/2/2016.
@@ -37,7 +34,7 @@ public class Sprite {
         startFrame =i;
     }
 
-    ArrayList<Frame> getFrames()
+    public ArrayList<Frame> getFrames()
     {
         return frames;
     }
