@@ -5,6 +5,9 @@ out*
 target/classes
 target/gen*
 target/maven*
+target/sure*
+target/test*
+
 *.iml
 mvnw
 mvnw.cmd
