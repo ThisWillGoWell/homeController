@@ -1,5 +1,6 @@
 package system.hvac;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.HashMap;
@@ -33,7 +34,7 @@ public class HvacSystemState {
     private double systemTemp;
 
 
-    public HvacSystemState()
+    HvacSystemState()
     {
         mode = MODE_OFF;
         modeMap = new HashMap<>(4);
@@ -105,20 +106,17 @@ public class HvacSystemState {
     void setMode(int m)   {mode = m;}
     int getMode()    {return mode;}
 
-    public String getStateJSON()
+    public JsonObject getStateJSON()
     {
-
-        String s = "{\"HVAC\": {";
-
-        s += "\"mode\" :\"" + modeMap.get(mode) + "\",";
-        s += "\"heatState\" :" + heat + ",";
-        s += "\"acState\" :" + ac + ",";
-        s += "\"fanState\" :" + fan + ",";
-        s += "\"roomTemp\" :" + roomTemp + ",";
-        s += "\"systemTemp\" :" + systemTemp;
-        s+="}}";
-
-        return s;
+        JsonObject json = new JsonObject();
+        JsonObject state = new JsonObject();
+        state.addProperty("mode",modeMap.get(mode));
+        state.addProperty("heatState",heat);
+        state.addProperty("acState", ac);
+        state.addProperty("fanState",fan);
+        state.addProperty("roomTemp", roomTemp);
+        state.addProperty("systemTemp",systemTemp);
+        return state;
 
     }
 

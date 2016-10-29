@@ -1,5 +1,6 @@
 package system.hvac;
 
+import com.google.gson.JsonObject;
 import controller.Engine;
 import org.springframework.scheduling.annotation.Scheduled;
 import system.SystemParent;
@@ -21,9 +22,10 @@ public class HvacSystem extends SystemParent{
 
     public HvacSystem(Engine e)
     {
-        super(e);
+        super(e, 3500);
         state = new HvacSystemState();
         mode = 0;
+        update();
     }
 
     @Override
@@ -103,12 +105,7 @@ public class HvacSystem extends SystemParent{
 
     }
 
-    @Override
-    public String getStateJSON() {
-        return null;
-    }
-
-    public void update() {
+   public void update() {
         if(state.getMode() == HvacSystemState.MODE_COOL)
         {
             state.setHeat(false);
