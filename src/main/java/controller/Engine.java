@@ -1,38 +1,42 @@
 package controller;
 
+
+import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import system.Weather.Weather;
 import system.ClockDisplay.ClockDisplaySystem;
 import system.SystemParent;
-import org.springframework.stereotype.Service;
 import system.hvac.HvacSystem;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Created by Will on 9/3/2016.
  * Engine of the program, highest level.
  * Starts evryhting up on boot, and controls the timeing of the check chav cotnrol
  */
-@Service
 public class Engine {
-    HashMap<String, SystemParent> systems;
+    private HashMap<String, SystemParent> systems;
 
     public Engine()
     {
         initialize();
     }
-    void initialize()
+    private void initialize()
     {
         systems = new HashMap<>();
         systems.put("weather", new Weather(this));
-        systems.put("clock", new ClockDisplaySystem(this));
         systems.put("HVAC", new HvacSystem(this));
+        systems.put("clock", new ClockDisplaySystem(this));
 
+        for(String id: systems.keySet())
+        {
+            systems.get(id).setLastUpdateTime(System.currentTimeMillis());
+        }
     }
 
 
@@ -96,9 +100,26 @@ public class Engine {
 
 
 
-    @Scheduled(fixedRate = 3000)
-    public void updateCurrentTemp()
-    {
+    public void update(){
+        long t = System.currentTimeMillis();
+        {
+            for (String id: systems.keySet() ) {
+                SystemParent s = systems.get(id);
+                if(s.getLastUpdateTime() + s.getUpdateInterval() <= t) {
+                    s.setLastUpdateTime(t);
+                    s.update();
+                }
+            }
+        }
+    }
+
+    @Scheduled(initialDelay = 10,fixedRate = 3000)
+    public void updateCurrentTemp() {
         systems.get("HVAC").update();
+    }
+
+    @Scheduled(initialDelay = 2,fixedRate = 4050)
+    public void updateClock(){
+        systems.get("clock").update();
     }
 }

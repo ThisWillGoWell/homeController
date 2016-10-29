@@ -7,6 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,23 +23,25 @@ import org.springframework.web.socket.handler.PerConnectionWebSocketHandler;
 import java.util.ArrayList;
 import java.util.Map;
 
-@Configuration
+@SpringBootApplication
 @EnableAutoConfiguration
+@EnableScheduling
 @EnableWebSocket
 @RestController
 public class Application extends SpringBootServletInitializer implements WebSocketConfigurer{
 
-    static Engine e;
-    static Engine getEngine(){
-        return e;
-    }
-
-
+    static Engine e = new Engine();
 
     public static void main(String[] args) {
-        e = new Engine();
         SpringApplication.run(Application.class, args);
     }
+
+    @Scheduled(fixedRate = 10)
+    public void update()
+    {
+        e.update();
+    }
+
 
     @Bean
     org.springframework.web.socket.WebSocketHandler getHandler()
