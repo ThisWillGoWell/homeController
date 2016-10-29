@@ -26,30 +26,13 @@ public class RestHandeler {
     }
 
 
-    Engine engine;
-    @Autowired
-    public RestHandeler(Engine e)
-    {
-        engine = e;
-    }
+    private Engine engine;
 
-    @RequestMapping(value = "/get", method = RequestMethod.GET)
-    public Object get(@RequestParam Map<String,String> allRequestParams, ModelMap model){
-        Object o =  engine.get(allRequestParams);
-        if(o.getClass() == JsonObject.class)
-        {
-            return o.toString();
-        }
-        return o;
-    }
 
-    @RequestMapping(value = "/set", method = RequestMethod.GET)
-    public String set(@RequestParam Map<String,String> allRequestParams, ModelMap model)
-    {
-        return engine.set(allRequestParams);
-    }
 
 
 
 
 }
+
+
