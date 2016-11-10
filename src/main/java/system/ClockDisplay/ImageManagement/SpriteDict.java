@@ -3,6 +3,7 @@ package system.ClockDisplay.ImageManagement;
 import java.util.HashMap;
 
 /**
+ * Sprite Dict, used to store all the sprints in a hashMap
  * Created by Willi on 10/2/2016.
  */
 public class SpriteDict extends HashMap<String,Sprite>{
@@ -30,7 +31,8 @@ public class SpriteDict extends HashMap<String,Sprite>{
         this.put("spin1", new MotionSprite("spin1",Frame.SPIN1, 500));
         this.put("pixel", new Sprite("pixel", new Frame[]{Frame.PIXEL}));
         this.put("rainDrop", new Sprite("rainDrop", new Frame[]{Frame.RAIN_SCREEN()}));
-
+        this.put("mario", new Sprite("mario", new Frame[]{Frame.MARIO()}));
+        this.put("-",new Sprite("-", new Frame[]{Frame.MINUS_FRAME}));
 
 
     }
