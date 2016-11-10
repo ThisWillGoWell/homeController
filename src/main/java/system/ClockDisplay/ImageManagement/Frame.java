@@ -28,6 +28,7 @@ public class Frame {
     static protected Frame COLON_FRAME = new Frame(5,7, new int[]{0,12,12,0,12,12,0});
     static protected Frame[] NUMBERS_FRAME = new Frame[]{ZERO_FRAME, ONE_FRAME, TWO_FRAME, THREE_FRAME, FOUR_FRAME, FIVE_FRAME, SIX_FRAME, SEVEN_FRAME, EIGHT_FRAME, NINE_FRAME};
     static protected Frame EMPTY_FRAME = new Frame(5,7, new int[]{0,0,0,0,0,0,0});
+    static Frame MINUS_FRAME = new Frame(5,7,new int[]{0,0,0,7,0,0,0});
 
 
     //Small ASCII 3 x 5
@@ -74,7 +75,21 @@ public class Frame {
     static Frame[] SPIN1 = new Frame[]{SPIN1_1,SPIN1_2, SPIN1_3,SPIN1_4};
     static Frame PIXEL = new Frame(1,1,new int[]{1});
 
+
     private static Frame RAIN_DROP = new Frame(5,7,new int[]{4,14,14,30,29,14,4}, Color.blue);
+
+    static Frame MARIO(){
+        Frame mario = new Frame(13,16);
+        mario.placeFrame(0,0, new Frame(13,16, new int[]{1008,2046,0,0,0,0,0,1776,3804,7710,1032,0,0,0,0,0}, Color.RED));
+        mario.placeFrame(0,0, new Frame(13,16, new int[]{0,0,0,0,0,0,0,256,288,480,720,1008,2040,1848,0,0}, Color.BLUE));
+        mario.placeFrame(0,0, new Frame(13,16, new int[]{0,0,248,1534,1279,1022,1020,0,0,0,6150,7182,6150,0,0,0},  new Color(210,180,140)));
+        mario.placeFrame(0,0, new Frame(13,16, new int[]{0,0,1792,2560,2816,3072,0,0,0,0,0,0,0,0,3612,7710}, new Color(58,50,39)));
+        mario.placeFrame(0,0, new Frame(13,16, new int[]{0,0,0,0,0,0,0,0,0,0,288,0,0,0,0,0}, Color.YELLOW));
+        mario.placeFrame(0,0, new Frame(13,16, new int[]{0,0,16,16,8,30,0,0,0,0,0,0,0,0,0,0}, new Color(1,1,1)));
+        mario.writeFrame("mario.gif");
+        return mario;
+    }
+
     static Frame RAIN_SCREEN()
     {
         int cols = 16;
@@ -174,7 +189,8 @@ public class Frame {
             for(int j=0;j<f.getLength();j++)
             {
                 if(r+i < getHeight() && c+j < getLength())
-                    pixels[r+i][c+j] = f.getPixel(i,j);
+                    if(f.getPixel(i,j).getGreen() != 0 ||  f.getPixel(i,j).getBlue() != 0 ||f.getPixel(i,j).getRed() != 0 )
+                        pixels[r+i][c+j] = f.getPixel(i,j);
             }
         }
     }
