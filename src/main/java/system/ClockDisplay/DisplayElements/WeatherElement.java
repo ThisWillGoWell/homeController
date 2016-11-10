@@ -103,6 +103,7 @@ public class WeatherElement extends DisplayElement{
             while(tempString.length() < 3){
                 tempString = " " + tempString;
             }
+            tempString = tempString.substring(0,2);
             tempWriter = writePointerCol;
             JsonArray frames = new JsonArray();
             Frame s = null;
