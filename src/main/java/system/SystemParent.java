@@ -13,11 +13,10 @@ import java.util.Map;
  */
 
 
-public abstract class SystemParent {
+public abstract class SystemParent implements Runnable {
 
     private Engine engine;
     private long updateInterval;
-    private long lastUpdateTime;
 
     public SystemParent(Engine e)
     {
@@ -41,15 +40,17 @@ public abstract class SystemParent {
         return updateInterval;
     }
 
-    public long getLastUpdateTime()
-    {
-        return lastUpdateTime;
+    public void run(){
+        try {
+            while(true) {
+                update();
+                Thread.sleep(updateInterval);
+            }
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
-    public void setLastUpdateTime(long l)
-    {
-        lastUpdateTime = l;
-    }
-
     public void update(){
 
     }

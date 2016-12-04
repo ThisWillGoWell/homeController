@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import system.Weather.Weather;
 import system.ClockDisplay.ClockDisplaySystem;
 import system.SystemParent;
+import system.hue.HueSystem;
 import system.hvac.HvacSystem;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -26,22 +27,24 @@ public class Engine {
     {
         initialize();
     }
+
+
+
     private void initialize()
     {
         systems = new HashMap<>();
-        systems.put("weather", new Weather(this));
+        //systems.put("weather", new Weather(this));
         systems.put("HVAC", new HvacSystem(this));
-        systems.put("clock", new ClockDisplaySystem(this));
+        //systems.put("clock", new ClockDisplaySystem(this));
+        systems.put("lights", new HueSystem(this));
 
-        for(String id: systems.keySet())
-        {
-            systems.get(id).setLastUpdateTime(System.currentTimeMillis());
+        for(String id: systems.keySet()){
+            (new Thread(systems.get(id))).start();
         }
     }
 
 
-    public static String timestamp()
-    {
+    public static String timestamp(){
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss\t").format(Calendar.getInstance().getTime());
     }
     public static String time()
@@ -98,28 +101,4 @@ public class Engine {
         return systems.get(s);
     }
 
-
-
-    public void update(){
-        long t = System.currentTimeMillis();
-        {
-            for (String id: systems.keySet() ) {
-                SystemParent s = systems.get(id);
-                if(s.getLastUpdateTime() + s.getUpdateInterval() <= t) {
-                    s.setLastUpdateTime(t);
-                    s.update();
-                }
-            }
-        }
-    }
-
-    @Scheduled(initialDelay = 10,fixedRate = 3000)
-    public void updateCurrentTemp() {
-        systems.get("HVAC").update();
-    }
-
-    @Scheduled(initialDelay = 2,fixedRate = 4050)
-    public void updateClock(){
-        systems.get("clock").update();
-    }
 }

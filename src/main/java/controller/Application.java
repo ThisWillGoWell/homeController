@@ -34,12 +34,6 @@ public class Application extends SpringBootServletInitializer implements WebSock
         SpringApplication.run(Application.class, args);
     }
 
-    @Scheduled(fixedRate = 10)
-    public void update()
-    {
-        e.update();
-    }
-
 
     @Bean
     org.springframework.web.socket.WebSocketHandler getHandler()
@@ -67,8 +61,7 @@ public class Application extends SpringBootServletInitializer implements WebSock
     }
 
     @RequestMapping(value = "/set", method = RequestMethod.GET)
-    public String set(@RequestParam Map<String,String> allRequestParams, ModelMap model)
-    {
+    public String set(@RequestParam Map<String,String> allRequestParams, ModelMap model){
         return e.set(allRequestParams);
     }
 
