@@ -1,58 +1,98 @@
 package system.hue;
 
 
-import com.philips.lighting.hue.sdk.PHAccessPoint;
-import com.philips.lighting.hue.sdk.PHBridgeSearchManager;
-import com.philips.lighting.hue.sdk.PHHueSDK;
-import com.philips.lighting.hue.sdk.PHSDKListener;
-import com.philips.lighting.model.PHBridge;
-import com.philips.lighting.model.PHHueParsingError;
-import com.philips.lighting.model.PHLight;
+import com.philips.lighting.hue.sdk.*;
+import com.philips.lighting.hue.sdk.heartbeat.PHHeartbeatManager;
+import com.philips.lighting.hue.sdk.utilities.PHUtilities;
+import com.philips.lighting.model.*;
+import controller.Engine;
+import system.SystemParent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Willi on 9/26/2016.
  *
  */
 
-public class HueSystem {
+public class HueSystem extends SystemParent{
     private PHHueSDK phHueSDK;
     private final String HUE_IP = "192.168.1.140";
     List<PHLight> allLights;
     ArrayList<String> lightIdentifiers;
-
+    private PHBridge bridge;
     private PHSDKListener listener;
+    private PHBridgeResourcesCache cache;
+    private String HUE_USERNAME = "iixA66asLRYI-jOBsmrwjIhpu7VYkTl1R1CitgZa";
+    private boolean connected;
+    private HueEventListener eventListener;
+    private Map<String, PHLightState> lastState;
 
-
-    HueSystem()
+    private Map<String, String> ID2Name;
+    private Map<String, PHLight> name2Light;
+    private boolean liveMode;
+    private String currentMode = "";
+    void print(String s)
     {
+        System.out.println(s);
+    }
 
+    private ArrayList<PHLight> RainbowLights;
 
+    private Map<String, PHScene> mode2Scene;
+
+    public HueSystem(Engine e)
+    {
+        super(e);
+        eventListener = new HueEventListener(this);
         phHueSDK = PHHueSDK.getInstance();
-        phHueSDK.setAppName("Home Control");
-        listener = new PHSDKListener() {
 
+        //Hash to manage Light Name to its last state;
+        lastState = new HashMap<String, PHLightState>();
+        //hash to manage Unique ID 2 name, I populate this
+        ID2Name = new HashMap<String, String>();
+        populateID2Name();
+
+        //manages Name to it light
+        name2Light = new HashMap<String, PHLight>();
+         liveMode = false;
+
+
+        listener = new PHSDKListener() {
             @Override
             public void onAccessPointsFound(List accessPoint) {
                 // Handle your bridge search results here.  Typically if multiple results are returned you will want to display them in a list
                 // and let the user select their bridge.   If one is found you may opt to connect automatically to that bridge.
+
             }
 
             @Override
             public void onCacheUpdated(List cacheNotificationsList, PHBridge bridge) {
                 // Here you receive notifications that the BridgeResource Cache was updated. Use the PHMessageType to
                 // check which cache was updated, e.g.
-               // if (cacheNotificationsList.contains(PHMessageType.LIGHTS_CACHE_UPDATED)) {
-               //     System.out.println("Lights Cache Updated ");
-                //}
+                if (cacheNotificationsList.contains(PHMessageType.LIGHTS_CACHE_UPDATED)) {
+                    System.out.println("Lights Cache Updated ");
+                    processLightChange();
+
+                }
             }
 
             @Override
             public void onBridgeConnected(PHBridge b, String username) {
+                System.out.println("Bridge Connected: " + username);
                 phHueSDK.setSelectedBridge(b);
-                phHueSDK.enableHeartbeat(b, PHHueSDK.HB_INTERVAL);
+                PHHeartbeatManager heartbeatManager = PHHeartbeatManager.getInstance();
+
+                heartbeatManager.enableLightsHeartbeat(b, 1000);
+                bridge = b;
+                cache = b.getResourceCache();
+                allLights = cache.getAllLights();
+                connected = true;
+                //Populate
+
                 // Here it is recommended to set your connected bridge in your sdk object (as above) and start the heartbeat.
                 // At this point you are connected to a bridge so you should pass control to your main program/activity.
                 // The username is generated randomly by the bridge.
@@ -61,6 +101,7 @@ public class HueSystem {
 
             @Override
             public void onAuthenticationRequired(PHAccessPoint accessPoint) {
+                System.out.println("Auth Required");
                 phHueSDK.startPushlinkAuthentication(accessPoint);
                 // Arriving here indicates that Pushlinking is required (to prove the User has physical access to the bridge).  Typically here
                 // you will display a pushlink image (with a timer) indicating to to the user they need to push the button on their bridge within 30 seconds.
@@ -79,52 +120,260 @@ public class HueSystem {
             @Override
             public void onError(int code, final String message) {
                 // Here you can handle events such as Bridge Not Responding, Authentication Failed and Bridge Not Found
+                System.out.println(message);
             }
 
             @Override
             public void onParsingErrors(List parsingErrorsList) {
                 // Any JSON parsing errors are returned here.  Typically your program should never return these.
             }
-        };
-        phHueSDK.getNotificationManager().registerSDKListener(listener);
-        PHBridgeSearchManager sm = (PHBridgeSearchManager) phHueSDK.getSDKService(PHHueSDK.SEARCH_BRIDGE);
-        sm.search(true, true);
 
+
+        };
+        PHAccessPoint accessPoint = new PHAccessPoint();
+        accessPoint.setIpAddress(HUE_IP);
+        accessPoint.setUsername(HUE_USERNAME);
+        phHueSDK.getNotificationManager().registerSDKListener(listener);
+        phHueSDK.connect(accessPoint);
+        phHueSDK.setAppName("Home Control");
+        phHueSDK.setDeviceName("server");
 
 
 
     }
 
-    void update()
+    private void populateID2Name()
+    {
+        ID2Name.put("00:17:88:01:10:56:a4:5a-0b", "bathroom");
+        ID2Name.put("00:17:88:01:10:56:a4:0d-0b", "lamp");
+        ID2Name.put("00:17:88:01:10:56:a4:2c-0b", "tv");
+        ID2Name.put("00:17:88:01:01:1a:aa:5b-0b", "strip");
+        ID2Name.put("00:17:88:01:00:f7:1a:02-0b", "door");
+        ID2Name.put("00:17:88:01:10:2d:97:e3-0b", "fanWhite1");
+        ID2Name.put("00:17:88:01:10:2f:88:27-0b", "fanWhite2");
+
+    }
+
+    @Override
+    public Object get(String what, Map<String, String> requestParams) {
+        switch (what)
+        {
+            case "":
+        }
+        return "";
+    }
+
+    @Override
+    public String set(String what, String to, Map<String, String> requestParams) {
+        switch (what)
+        {
+            case "mode":
+                setMode(to, requestParams);
+            case "allLights":
+                setAllLights(to, requestParams);
+                break;
+            case "colorLights":
+                setAllColorLights(to, requestParams);
+                break;
+            case "bathroom":
+                setLight("bathroom", to, requestParams);
+                break;
+
+        }
+        return null;
+    }
+
+    private void setMode(String to, Map<String, String> requestParams) {
+        switch (to){
+            case "off":
+                allOff();
+                break;
+            case "bright":
+                setAllLightsRGB(255,255,255);
+                allOn();
+                break;
+            case "dim":
+
+                break;
+
+            case "standard":
+                break;
+
+            case "rainbow":
+                liveMode = true;
+                currentMode = "rainbow";
+
+        }
+    }
+
+
+
+    void setLight(PHLight light, String to, Map<String, String> requestParams){
+        switch (to) {
+            case "HSV":
+                PHLightState newState = new PHLightState();
+                if (requestParams.containsKey("H")) {
+                    newState.setHue(Integer.valueOf(requestParams.get("H")), true);
+                }
+                if (requestParams.containsKey("S")) {
+                    newState.setSaturation(Integer.valueOf(requestParams.get("S")), true);
+                }
+                if (requestParams.containsKey("V")) {
+                    newState.setBrightness(Integer.valueOf(requestParams.get("V")), true);
+                }
+
+                bridge.updateLightState(light, newState);
+                break;
+            case "off":
+                break;
+
+            case "on":
+                break;
+
+            case "RGB":
+                if(requestParams.containsKey("R") && requestParams.containsKey("G") && requestParams.containsKey("B")) {
+                    int R = Integer.parseInt(requestParams.get("R"));
+                    int G = Integer.parseInt(requestParams.get("G"));
+                    int B = Integer.parseInt(requestParams.get("B"));
+
+                    float xy[] = PHUtilities.calculateXYFromRGB(R, G, B, light.getModelNumber());
+                    PHLightState lightState = new PHLightState();
+                    lightState.setX(xy[0]);
+                    lightState.setY(xy[1]);
+                    bridge.updateLightState(light, lightState);
+                }
+
+        }
+    }
+    void setLight(String lightName, String to, Map<String, String> requestParams)
+    {
+        setLight(name2Light.get(lightName), to, requestParams);
+    }
+    void setAllColorLights(String to, Map<String, String> requsetParams){
+        for(PHLight light : allLights){
+            if(light.getLightType().equals(PHLight.PHLightType.COLOR_LIGHT))
+            {
+                setLight(light, to, requsetParams);
+            }
+        }
+
+    }
+
+    void setAllLights(String to, Map<String, String> requestParams){
+        switch (to){
+            case "on":
+                allOn();
+                break;
+            case "off":
+                allOff();
+                break;
+            case "HSV":
+                for(PHLight light : allLights){
+                    if(light.getLightType().equals(PHLight.PHLightType.COLOR_LIGHT)){
+                        setLight(light, to, requestParams);
+                    }
+                }
+                break;
+            case "RGB":
+                for(PHLight light: allLights){
+                    if(light.getLightType().equals(PHLight.PHLightType.COLOR_LIGHT)){
+                        setLight(light, to, requestParams);
+                    }
+                }
+                break;
+
+
+        }
+    }
+
+
+
+    public void update()
+    {
+        if(liveMode){
+            switch (currentMode){
+                case "rainbow":
+                    allOff();
+                    //currentMode = HueMotionScene.Rainbow(RainbowLights);
+                    break;
+            }
+        }
+
+    }
+
+    void allOff()
+    {
+        for(PHLight light : allLights){
+            PHLightState lightState = new PHLightState();
+            lightState.setOn(false);
+            bridge.updateLightState(light, lightState);
+        }
+    }
+
+    void allOn()
+    {
+        for(PHLight light : allLights){
+            PHLightState lightState = new PHLightState();
+            lightState.setOn(true);
+            bridge.updateLightState(light, lightState);
+        }
+    }
+
+    private void processLightChange()
     {
 
+        //Process light change
+
+        //UpdateCache
+        updateCache();
+
     }
 
-    void findBridge(){
-        PHBridgeSearchManager sm = (PHBridgeSearchManager) phHueSDK.getSDKService(PHHueSDK.SEARCH_BRIDGE);
-        sm.search(true, true);
-
-    }
-
-
-    /**
-     * Connect to the last known access point.
-     * This method is triggered by the Connect to Bridge button but it can equally be used to automatically connect to a bridge.
-     *
-     */
-    public boolean connectToLastKnownAccessPoint() {
-        String username = HueProperties.getUsername();
-        String lastIpAddress =  HueProperties.getLastConnectedIP();
-
-        if (username==null || lastIpAddress == null) {
-            System.out.println("Missing Last Username or Last IP.  Last known connection not found.");
-            return false;
+    private void updateCache()
+    {
+        for(PHLight light : allLights)
+        {
+            lastState.put(light.getUniqueId(), light.getLastKnownLightState());
         }
-        PHAccessPoint accessPoint = new PHAccessPoint();
-        accessPoint.setIpAddress(lastIpAddress);
-        accessPoint.setUsername(username);
-        phHueSDK.connect(accessPoint);
-        return true;
     }
+
+
+    void setAllLightsRGB(int R, int G, int B){
+        for(PHLight light : allLights){
+            float xy[] = PHUtilities.calculateXYFromRGB(R, G, B, light.getModelNumber());
+            PHLightState lightState = new PHLightState();
+            lightState.setX(xy[0]);
+            lightState.setY(xy[1]);
+            bridge.updateLightState(light, lightState);
+        }
+    }
+
+    private void locate()
+    {
+        for(PHLight light : allLights){
+            print(light.getUniqueId());
+        }
+    }
+    public static void main(String[] args)
+    {
+        HueSystem system = new HueSystem(null);
+        try{
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //system.setAllLightsRGB(255,0,255);
+
+        for(PHScene s: system.cache.getAllScenes()){
+            System.out.println(s.getName());
+        }
+        system.set("allLights", "off", null);
+        //system.setAllLightsRGB(69,47,42);
+        //system.allOn();
+    }
+
+
+
+
 }
 
