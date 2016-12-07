@@ -1,5 +1,6 @@
 package system.ClockDisplay.ImageManagement;
 
+import java.io.File;
 import java.util.HashMap;
 
 /**
@@ -15,7 +16,11 @@ public class SpriteDict extends HashMap<String,Sprite>{
 
     private void make()
     {
-        //Make the complex Frames
+        //AutoAdd anything in the folder
+        File[] files = new File("resources/gifs").listFiles();
+        for (File file : files) {
+            this.put(file.getName().replaceFirst("[.][^.]+$", ""), new Sprite(file.getName().replaceFirst("[.][^.]+$", ""),new Frame[]{Frame.gifToFrame(file)}));
+        }
 
 
         //Numbers
@@ -31,10 +36,9 @@ public class SpriteDict extends HashMap<String,Sprite>{
         this.put("spin1", new MotionSprite("spin1",Frame.SPIN1, 500));
         this.put("pixel", new Sprite("pixel", new Frame[]{Frame.PIXEL}));
         this.put("rainDrop", new Sprite("rainDrop", new Frame[]{Frame.RAIN_SCREEN()}));
+        //this.put("snow", new Sprite("snow", new Frame[]{Frame.SNOW_SCREEN()}));
         this.put("mario", new Sprite("mario", new Frame[]{Frame.MARIO()}));
-        this.put("-",new Sprite("-", new Frame[]{Frame.MINUS_FRAME}));
-
-
+        this.put("-",new Sprite("-", new Frame[]{Frame.MINUS_FRAME,Frame.MINUS_FRAME}));
     }
 
 

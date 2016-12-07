@@ -15,7 +15,7 @@ import java.util.Map;
 
 public abstract class SystemParent implements Runnable {
 
-    private Engine engine;
+    protected Engine engine;
     private long updateInterval;
 
     public SystemParent(Engine e)

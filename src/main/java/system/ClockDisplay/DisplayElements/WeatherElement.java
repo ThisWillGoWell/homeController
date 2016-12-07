@@ -3,6 +3,7 @@ package system.ClockDisplay.DisplayElements;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import controller.Engine;
+import org.json.hue.JSONObject;
 import system.ClockDisplay.ClockDisplaySystem;
 import system.ClockDisplay.ImageManagement.Frame;
 
@@ -27,11 +28,17 @@ public class WeatherElement extends DisplayElement{
     private double minTemp, maxTemp,tempTemp;
     private  String tempDisplayID = "tempDisplay";
     private  String tempGraphID = "tempGraph";
+    private String weatherImageID = "weatherImage";
 
     private JsonObject graphJson;
     private JsonObject currentTempJson;
     private JsonObject maxTempJson;
     private JsonObject minTempJson;
+
+    private JsonObject weatherImageJson;
+
+    String currentIcon;
+
 
     public WeatherElement(String id, ClockDisplaySystem clockDisplaySystem, int size, int row, int col, long updateInterval, Engine e){
         super(id, clockDisplaySystem,size, row, col, updateInterval);
@@ -43,10 +50,14 @@ public class WeatherElement extends DisplayElement{
         temps = new ArrayList<>();
         conditions = new ArrayList<>();
         times = new ArrayList<>();
+
         tempDisplayID = id + "-"+tempDisplayID;
         tempGraphID = id + "-"+tempGraphID;
+        weatherImageID = id + "-" + weatherImageID;
+
         layerManager.addLayer(tempDisplayID);
         layerManager.addLayer(tempGraphID);
+        layerManager.addLayer(weatherImageID);
 
         graphJson = new JsonObject();
         graphJson.addProperty("id", tempGraphID);
@@ -67,7 +78,57 @@ public class WeatherElement extends DisplayElement{
         minTempJson.addProperty("id", tempDisplayID);
         minTempJson.add("fill", fill(0,0,255,255));
         minTempJson.addProperty("l", layerManager.get(tempDisplayID));
+
+        weatherImageJson = new JsonObject();
+        weatherImageJson.addProperty("id", weatherImageID);
+        weatherImageJson.add("fill", fill());
+        weatherImageJson.addProperty("l",layerManager.get(weatherImageID));
+
     }
+
+
+    private void updateWeatherImage(){
+        JsonObject frame = new JsonObject();
+        frame.addProperty("w", 16);
+        frame.addProperty("h", 16);
+        frame.addProperty("r", 8);
+        frame.addProperty("c", 4);
+        switch (currentIcon){
+            default:
+                frame.addProperty("n",spriteDict.get("mario").getFrames().get(0).getFrameNumber());
+                break;
+            case "cloudy":
+            case "nt_cloudy":
+            case "nt_mostlycloudy":
+            case "mostlycloudy":
+                frame.addProperty("n",spriteDict.get("cloudy").getFrames().get(0).getFrameNumber());
+            break;
+
+            case "rain":
+            case "nt_rain":
+                frame.addProperty("n",spriteDict.get("rain").getFrames().get(0).getFrameNumber());
+                break;
+
+            case "clear":
+                frame.addProperty("n",spriteDict.get("clear").getFrames().get(0).getFrameNumber());
+                break;
+
+            case "nt_clear":
+                frame.addProperty("n",spriteDict.get("nt_clear").getFrames().get(0).getFrameNumber());
+                break;
+
+            case "snow":
+            case "nt_snow":
+                frame.addProperty("n",spriteDict.get("snow").getFrames().get(0).getFrameNumber());
+                break;
+
+        }
+        JsonArray frames = new JsonArray();
+        frames.add(frame);
+        weatherImageJson.add("f",frames);
+
+    }
+
 
     private void updateGraphElement()
     {
@@ -100,7 +161,7 @@ public class WeatherElement extends DisplayElement{
         int tempWriter = writePointerCol;
         for(int j=0;j<3;j++)        {
             String tempString = ((int) temps[j]) + "";
-            while(tempString.length() < 3){
+            while(tempString.length() < 2){
                 tempString = " " + tempString;
             }
             tempString = tempString.substring(0,2);
@@ -138,11 +199,11 @@ public class WeatherElement extends DisplayElement{
         //but bascially I think I want it to be quicker than that..... or do I?
 
         if(time / updateInterval % 10 == 0)
-            return new JsonObject[]{minTempJson, graphJson};
+            return new JsonObject[]{minTempJson, graphJson,weatherImageJson};
         else if (time/updateInterval%10==5)
-            return new JsonObject[]{maxTempJson, graphJson};
+            return new JsonObject[]{maxTempJson, graphJson,weatherImageJson};
         else
-            return new JsonObject[]{currentTempJson,graphJson};
+            return new JsonObject[]{currentTempJson,graphJson,weatherImageJson};
 
     }
 
@@ -151,7 +212,8 @@ public class WeatherElement extends DisplayElement{
     {
         forecast = ((JsonObject) e.get("weather","hourlyForecast", null)).getAsJsonArray("hourly_forecast");
         currentTemp = (Double) e.get("weather", "currentTemp", null);
-;
+        currentIcon = (String) e.get("weather", "currentIcon", null);
+
         minTemp = maxTemp= currentTemp;
         writePointerRow = row;
         writePointerCol = col;
@@ -176,10 +238,11 @@ public class WeatherElement extends DisplayElement{
             }
             times.add(forecast.get(i).getAsJsonObject().get("FCTTIME").getAsJsonObject().get("epoch").getAsLong());
             temps.add(tempTemp);
-            conditions.add(forecast.get(i).getAsJsonObject().get("condition").getAsString());
+            conditions.add(forecast.get(i).getAsJsonObject().get("icon").getAsString());
         }
         updateTempElement();
         updateGraphElement();
+        updateWeatherImage();
     }
 
 

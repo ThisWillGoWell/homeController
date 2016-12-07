@@ -49,6 +49,8 @@ public class Weather extends SystemParent{
                 return getTodayHigh();
             case "todayLow":
                 return getTodayLow();
+            case "currentIcon":
+                return getCurrentConditions();
             default:
                 return "what not supported";
         }
@@ -59,6 +61,7 @@ public class Weather extends SystemParent{
     public String set(String what, String to, Map<String, String> requestParams) {
         return null;
     }
+
 
 
     private JsonObject queryCurrentWeather() throws IOException {
@@ -89,8 +92,7 @@ public class Weather extends SystemParent{
 
 
     @Scheduled(fixedRate = updateInterval)
-    public void update()
-    {
+    public void update() {
         try {
             conditions = queryCurrentWeather();
             //weekForecast = queryWeekForecastWeather();
@@ -100,30 +102,30 @@ public class Weather extends SystemParent{
         }
     }
 
-    private double getCurrentTemp()
-    {
+    private double getCurrentTemp() {
         return conditions.get("current_observation").getAsJsonObject().get("temp_c").getAsDouble();
     }
 
-    private String getTodayForcast()
-    {
+    private String getTodayForcast() {
         return weekForecast.get("forecast").getAsJsonObject().get("simpleforecast").getAsJsonObject().get("forecastday").getAsJsonArray().get(0).getAsJsonObject().get("icon").getAsString();
     }
 
-    private double getTodayHigh()
-    {
+    private double getTodayHigh() {
         return Double.parseDouble(weekForecast.get("forecast").getAsJsonObject().get("simpleforecast").getAsJsonObject().get("forecastday").getAsJsonArray().get(0).getAsJsonObject().get("high").getAsJsonObject().get("celsius").getAsString());
     }
 
-    private double getTodayLow()
-    {
+    private double getTodayLow() {
         return Double.parseDouble(weekForecast.get("forecast").getAsJsonObject().get("simpleforecast").getAsJsonObject().get("forecastday").getAsJsonArray().get(0).getAsJsonObject().get("low").getAsJsonObject().get("celsius").getAsString());
     }
 
 
-    private String getWeatherJson()
-    {
+    private String getWeatherJson() {
         return "\"Weather\":" + "{\"currentTemp\":" + getCurrentTemp() + ",\"todayHigh\":" + getTodayHigh() + ",\"todayLow\":" + getTodayLow() + ",\"forecast\":\"" + getTodayForcast() + "\"}";
+    }
+
+    String getCurrentConditions(){
+        String s =  conditions.get("current_observation").getAsJsonObject().get("icon_url").getAsString();
+        return s.substring(s.lastIndexOf('/') + 1).replaceFirst("[.][^.]+$", "");
     }
 
     public static void main(String args[]){

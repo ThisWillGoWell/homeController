@@ -77,6 +77,13 @@ public class Frame {
 
 
     private static Frame RAIN_DROP = new Frame(5,7,new int[]{4,14,14,30,29,14,4}, Color.blue);
+    private static Frame SNOW_FLAKE = new Frame(3,3, new int[]{2,7,2});
+
+    private static Frame[] CLOUDS = new Frame[]{new Frame(16,9, new int[]{736,2320,45064,28676,32772,32770,32769,16385,16382}),
+                                    new Frame(16,9,new int[]{448,560,3088,4104,24592,32784,32776,28792,3968}),
+                                    new Frame(16,9,new int[]{0,1719,2176,28736,32816,32784,32784,25480,7288}) };
+
+
 
     static Frame MARIO(){
         Frame mario = new Frame(13,16);
@@ -105,6 +112,49 @@ public class Frame {
         rainScreen.placeFrame(25,7,RAIN_DROP);
         return rainScreen;
 
+    }
+
+    static Frame CLOUD_SCREEN(){
+        Frame cloudScreen = new Frame(50,16);
+        cloudScreen.placeFrame(0,0,CLOUDS[1]);
+        cloudScreen.placeFrame(0,16,CLOUDS[1]);
+        cloudScreen.placeFrame(0,35,CLOUDS[1]);
+        return cloudScreen;
+    }
+
+    static Frame SNOW_SCREEN(){
+        Frame snowScreen = new Frame(16,32);
+        snowScreen.placeFrame(12,13,SNOW_FLAKE);
+        snowScreen.placeFrame(29,3,PIXEL);
+        snowScreen.placeFrame(25,5,PIXEL);
+        snowScreen.placeFrame(29,6,PIXEL);
+        snowScreen.placeFrame(10,11,PIXEL);
+        snowScreen.placeFrame(22,5,PIXEL);
+        snowScreen.placeFrame(5,2  ,SNOW_FLAKE);
+        snowScreen.placeFrame(0,9,SNOW_FLAKE);
+        snowScreen.placeFrame(22,6,PIXEL);
+        snowScreen.placeFrame(9,14,PIXEL);
+        snowScreen.placeFrame(11,8,SNOW_FLAKE);
+        snowScreen.placeFrame(24,7,PIXEL);
+        snowScreen.placeFrame(22,2,PIXEL);
+        snowScreen.placeFrame(0,5,PIXEL);
+        snowScreen.placeFrame(12,5,PIXEL);
+        snowScreen.placeFrame(0,4,PIXEL);
+        snowScreen.placeFrame(16,15,PIXEL);
+        snowScreen.placeFrame(17,0,PIXEL);
+        snowScreen.placeFrame(30,12,PIXEL);
+        snowScreen.placeFrame(28,0,PIXEL);
+        snowScreen.placeFrame(17,11,PIXEL);
+        snowScreen.placeFrame(21,15,PIXEL);
+        snowScreen.placeFrame(2,5,PIXEL);
+        snowScreen.placeFrame(24,3,PIXEL);
+        snowScreen.placeFrame(18,14,PIXEL);
+        snowScreen.placeFrame(21,13,PIXEL);
+        snowScreen.placeFrame(18,7,SNOW_FLAKE);
+        snowScreen.placeFrame(25,14,PIXEL);
+        snowScreen.placeFrame(10,2,PIXEL);
+        snowScreen.placeFrame(27,5,PIXEL);
+        return snowScreen;
     }
 
 
@@ -217,6 +267,27 @@ public class Frame {
         }
 
         return outputFile;
+    }
+
+    public static Frame gifToFrame(File file){
+        BufferedImage image = null;
+        try {
+            image = ImageIO.read(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Frame frame = null;
+        if (image != null) {
+            frame = new Frame(image.getWidth(), image.getHeight());
+            int[] color;
+            int[] temp = null;
+            for (int r = 0; r < image.getWidth(); r++) {
+                for (int c = 0; c < image.getHeight(); c++) {
+                    frame.placeFrame(r, c, new Frame(1, 1, new int[]{1}, new Color(image.getRGB(c,r), true)));
+                }
+            }
+        }
+        return frame;
     }
 
 

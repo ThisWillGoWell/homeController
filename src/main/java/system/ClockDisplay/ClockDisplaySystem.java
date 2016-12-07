@@ -65,7 +65,6 @@ public class ClockDisplaySystem extends SystemParent{
         layerManager = new LayerManager();
         elements.add(new ClockElement("clock", this, 2,0,18,new SimpleDateFormat("h:mm"), 5));
         elements.add(new WeatherElement("weather", this,8,23,18, 20000,e));
-        elements.add(new RainMotionElement("rain", this,0,1,1,200, e));
         elements.add(new HVACMotionElement("hvac-mon", this, 25,89));
 
         update();
