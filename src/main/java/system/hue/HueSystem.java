@@ -115,7 +115,7 @@ public class HueSystem extends SystemParent{
                 phHueSDK.setSelectedBridge(b);
                 PHHeartbeatManager heartbeatManager = PHHeartbeatManager.getInstance();
 
-                heartbeatManager.enableLightsHeartbeat(b, 1000);
+                heartbeatManager.enableLightsHeartbeat(b, 500);
                 bridge = b;
                 cache = b.getResourceCache();
                 allLights = cache.getAllLights();
@@ -449,12 +449,19 @@ public class HueSystem extends SystemParent{
             try {
                 system.update();
                 Thread.sleep(100);
+                for(PHLight light:system.allLights){
+                    System.out.print(light.getLastKnownLightState());
+                }
+                System.out.println();
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+
         //system.setAllLightsRGB(69,47,42);
         //system.allOn();
+
     }
 
 

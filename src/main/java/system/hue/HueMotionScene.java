@@ -71,13 +71,13 @@ class RainbowScene extends HueMotionScene{
         lights.add(system.name2Light.get("lamp"));
         lights.add(system.name2Light.get("door"));
         lights.add(system.name2Light.get("bathroom"));
-
+        system.setAllLights("off", null);
         Map<String, String> state = new HashMap<>();
         for(PHLight light:lights) {
             state.put("S", (65535) + "");
             state.put("V", (65535) + "");
-            system.setLight(light, "on", null);
             system.setLight(light,"HSV",state);
+            system.setLight(light, "on", null);
         }
         system.setAllLights("longTransTime",null);
         step();
