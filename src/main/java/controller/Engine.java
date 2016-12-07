@@ -5,12 +5,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
 import system.Weather.Weather;
 import system.ClockDisplay.ClockDisplaySystem;
 import system.SystemParent;
+import system.coffee.Coffee;
 import system.hue.HueSystem;
 import system.hvac.HvacSystem;
+
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,10 +39,11 @@ public class Engine {
     private void initialize()
     {
         systems = new HashMap<>();
-        //systems.put("weather", new Weather(this));
+        systems.put("weather", new Weather(this));
         systems.put("HVAC", new HvacSystem(this));
-        //systems.put("clock", new ClockDisplaySystem(this));
+        systems.put("clock", new ClockDisplaySystem(this));
         systems.put("lights", new HueSystem(this));
+        //systems.put("coffee", new Coffee(this));
 
         for(String id: systems.keySet()){
             (new Thread(systems.get(id))).start();
@@ -99,6 +106,16 @@ public class Engine {
     public SystemParent getSystem(String s)
     {
         return systems.get(s);
+    }
+
+    public void sendWSMessage(String s){
+        for(WebSocketSession session : WebsocketHandler.sessions){
+            try {
+                session.sendMessage(new TextMessage(s));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

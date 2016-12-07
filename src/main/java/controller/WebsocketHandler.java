@@ -1,9 +1,12 @@
 package controller;
 
 import org.json.hue.JSONObject;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.ArrayList;
@@ -17,6 +20,8 @@ import java.util.Objects;
  * communication to /ws
  *
  */
+@Configuration
+@EnableWebSocket
 public class WebsocketHandler extends TextWebSocketHandler {
 
     static ArrayList<WebSocketSession> sessions = new ArrayList<>();
@@ -24,7 +29,7 @@ public class WebsocketHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         sessions.add(session);
         System.out.println("joined");
-        session.sendMessage(new TextMessage("Hello!, welcome to the party"));
+        session.sendMessage(new TextMessage("Hello! welcome to the party"));
     }
 
     @Override
@@ -41,7 +46,7 @@ public class WebsocketHandler extends TextWebSocketHandler {
         if(Objects.equals(params.get("op"), "get")){
             resp =  Application.getEngine().get(params);
         }
-        else if(Objects.equals(params.get("op"), "get")){
+        else if(Objects.equals(params.get("op"), "set")){
             resp =  Application.getEngine().set(params);
         }
         session.sendMessage(new TextMessage( resp.toString()));
