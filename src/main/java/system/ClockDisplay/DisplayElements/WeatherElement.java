@@ -3,11 +3,15 @@ package system.ClockDisplay.DisplayElements;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import controller.Engine;
-import org.json.hue.JSONObject;
+import controller.ParcelArray;
+import controller.ParcelException;
 import system.ClockDisplay.ClockDisplaySystem;
 import system.ClockDisplay.ImageManagement.Frame;
+import system.Weather.WeatherParcel;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Willi on 10/1/2016.
@@ -19,7 +23,7 @@ public class WeatherElement extends DisplayElement{
     private int numRows;
     private int writePointerRow;
     private int writePointerCol;
-    private JsonArray forecast;
+    private ParcelArray forecast;
     private double currentTemp;
     private long tempUpdateRate;
     private ArrayList<Double> temps;
@@ -208,43 +212,45 @@ public class WeatherElement extends DisplayElement{
     }
 
     @Override
-    public void update()
-    {
-        forecast = ((JsonObject) e.get("weather","hourlyForecast", null)).getAsJsonArray("hourly_forecast");
-        currentTemp = (Double) e.get("weather", "currentTemp", null);
-        currentIcon = (String) e.get("weather", "currentIcon", null);
+    public void update() {
 
-        minTemp = maxTemp= currentTemp;
-        writePointerRow = row;
-        writePointerCol = col;
+        try {
+            forecast = e.command(WeatherParcel.GET_HOUR_FORECAST()).getParcel("payload").getParcelArray("hourly_forecast");
+            currentTemp = e.command(WeatherParcel.GET_CURRENT_TEMP()).getDouble("payload");
+            currentIcon = e.command(WeatherParcel.GET_CURRENT_ICON()).getString("payload");
+            minTemp = maxTemp = currentTemp;
+            writePointerRow = row;
+            writePointerCol = col;
 
-        temps = new ArrayList<>();
-        conditions = new ArrayList<>();
-        times = new ArrayList<>();
+            temps = new ArrayList<>();
+            conditions = new ArrayList<>();
+            times = new ArrayList<>();
+            if (forecast != null) {
+                for (int i = 0; i < forecast.size(); i++) {
+                    //hourly_forecast[] -> FCTTIME -> epoch
+                    //hourly_forecast[] -> temp -> metric
+                    //hourly_forecast[] -> condition
+                    tempTemp = forecast.getParcel(i).getParcel("temp").getDouble("metric");
 
-        for(int i=0;i<forecast.size();i++)
-        {
-            //hourly_forecast[] -> FCTTIME -> epoch
-            //hourly_forecast[] -> temp -> metric
-            //hourly_forecast[] -> condition
-
-            tempTemp = forecast.get(i).getAsJsonObject().get("temp").getAsJsonObject().get("metric").getAsDouble();
-
-            if(minTemp > tempTemp){
-                minTemp = tempTemp;
+                    if (minTemp > tempTemp) {
+                        minTemp = tempTemp;
+                    } else if (maxTemp < tempTemp) {
+                        maxTemp = tempTemp;
+                    }
+                    times.add(forecast.getParcel(i).getParcel("FCTTIME").getLong("epoch"));
+                    temps.add(tempTemp);
+                    conditions.add(forecast.getParcel(i).getString("icon"));
+                }
+                updateTempElement();
+                updateGraphElement();
+                updateWeatherImage();
             }
-            else if(maxTemp < tempTemp){
-                maxTemp = tempTemp;
-            }
-            times.add(forecast.get(i).getAsJsonObject().get("FCTTIME").getAsJsonObject().get("epoch").getAsLong());
-            temps.add(tempTemp);
-            conditions.add(forecast.get(i).getAsJsonObject().get("icon").getAsString());
         }
-        updateTempElement();
-        updateGraphElement();
-        updateWeatherImage();
-    }
+        catch (ParcelException e1) {
+            e1.printStackTrace();
+        }
 
+    }
 
 
 }

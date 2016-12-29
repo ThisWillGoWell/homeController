@@ -5,6 +5,7 @@ import com.philips.lighting.model.PHLight;
 import com.philips.lighting.model.PHLightState;
 import com.philips.lighting.model.PHScene;
 import controller.Engine;
+import controller.Parcel;
 import org.omg.CORBA.MARSHAL;
 
 import java.util.ArrayList;
@@ -13,6 +14,8 @@ import java.util.Map;
 
 /**
  * Created by Willi on 11/21/2016.
+ * Class to manage Hue motion Scenes
+ *
  */
 
 
@@ -22,6 +25,10 @@ class HueMotionScene {
     protected long lastUpdateTime;
     HueSystem system;
     ArrayList<PHLight> lights;
+
+    /*
+    Keep track of all the lights involved with the pattern
+     */
     HueMotionScene(HueSystem system, long updateInterval){
         lights = new ArrayList<>();
         this.updateInterval = updateInterval;
@@ -34,6 +41,11 @@ class HueMotionScene {
         return updateInterval;
     }
 
+    /*
+    on update, check if they need to be ran again
+    if yes, do one "step" of the program
+    @NOTE: if the system laggs at all, then steps will be missed ie missed steps are missed
+     */
     void update() {
         if (lastUpdateTime + updateInterval <= System.currentTimeMillis()) {
             lastUpdateTime = System.currentTimeMillis();
@@ -56,6 +68,8 @@ class HueMotionScene {
     }
 
 
+
+
 }
 
 class RainbowScene extends HueMotionScene{
@@ -71,15 +85,14 @@ class RainbowScene extends HueMotionScene{
         lights.add(system.name2Light.get("lamp"));
         lights.add(system.name2Light.get("door"));
         lights.add(system.name2Light.get("bathroom"));
-        system.setAllLights("off", null);
-        Map<String, String> state = new HashMap<>();
+        system.process(Parcel.SET_PARCEL("","allLights","off"));
+
         for(PHLight light:lights) {
-            state.put("S", (65535) + "");
-            state.put("V", (65535) + "");
-            system.setLight(light,"HSV",state);
-            system.setLight(light, "on", null);
+            system.process(HueParcel.SET_LIGHT_HSV_PARCEL(light, 65535,65535,65535));
+            system.process(HueParcel.SET_LIGHT_ON_PARCEL(light));
         }
-        system.setAllLights("longTransTime",null);
+        system.process(HueParcel.SET_ALL_LIGHTS_LONG_TRANSTIME_PARCEL());
+
         step();
     }
 
@@ -89,9 +102,7 @@ class RainbowScene extends HueMotionScene{
         long startHue = ((System.currentTimeMillis() - startTime) % cycleTime) *65535/cycleTime ;
         long k = (System.currentTimeMillis() - startTime);
         for(PHLight light : lights){
-            Map<String,String> state = new HashMap<>();
-            state.put("H", (startHue +  (65535/lights.size() * count) % 65535) + "");
-            system.setLight(light,"HSV",state);
+            system.process(HueParcel.SET_LIGHT_HSV_PARCEL(light, (int) (startHue +  (65535/lights.size() * count) % 65535), -1,-1));
             count++;
         }
 
@@ -112,14 +123,11 @@ class HueShiftScene extends HueMotionScene{
         lights.add(system.name2Light.get("door"));
         lights.add(system.name2Light.get("bathroom"));
 
-        Map<String, String> state = new HashMap<>();
         for(PHLight light:lights) {
-            state.put("S", (65535) + "");
-            state.put("V", (65535) + "");
-            system.setLight(light, "on", null);
-            system.setLight(light,"HSV",state);
+            system.process(HueParcel.SET_LIGHT_HSV_PARCEL(light, 65535,65535,65535));
+            system.process(HueParcel.SET_LIGHT_ON_PARCEL(light));
         }
-        system.setAllLights("longTransTime",null);
+        system.process(HueParcel.SET_ALL_LIGHTS_LONG_TRANSTIME_PARCEL());
         step();
     }
 
@@ -129,12 +137,9 @@ class HueShiftScene extends HueMotionScene{
         long startHue = ((System.currentTimeMillis() - startTime) % cycleTime) *65535/cycleTime ;
         System.out.println(startHue + "");
         long k = (System.currentTimeMillis() - startTime);
-        for(PHLight light : lights){
-            Map<String,String> state = new HashMap<>();
-            state.put("H", startHue + "");
-            system.setLight(light,"HSV",state);
+        for(PHLight light : lights) {
+            system.process(HueParcel.SET_LIGHT_HSV_PARCEL(light, (int) startHue, -1, -1));
         }
-
     }
 }
 

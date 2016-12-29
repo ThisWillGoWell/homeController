@@ -1,6 +1,7 @@
 package controller;
 
 import com.google.gson.JsonObject;
+import org.json.hue.JSONObject;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,15 +11,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.handler.PerConnectionWebSocketHandler;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @SpringBootApplication
@@ -26,10 +25,13 @@ import java.util.Map;
 @EnableScheduling
 @EnableWebSocket
 @RestController
-public class Application extends SpringBootServletInitializer implements WebSocketConfigurer{
+public class Application extends SpringBootServletInitializer implements WebSocketConfigurer {
 
     private static Engine e = new Engine();
-    static Engine getEngine(){return e;}
+
+    static Engine getEngine() {
+        return e;
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
@@ -37,8 +39,7 @@ public class Application extends SpringBootServletInitializer implements WebSock
 
 
     @Bean
-    org.springframework.web.socket.WebSocketHandler getHandler()
-    {
+    org.springframework.web.socket.WebSocketHandler getHandler() {
         return new PerConnectionWebSocketHandler(WebsocketHandler.class);
     }
 
@@ -49,21 +50,13 @@ public class Application extends SpringBootServletInitializer implements WebSock
     }
 
 
-
-
-    @RequestMapping(value = "/get", method = RequestMethod.GET)
-    public Object get(@RequestParam Map<String,String> allRequestParams, ModelMap model){
-        Object o =  e.get(allRequestParams);
-        if(o != null & o.getClass() == JsonObject.class)
-        {
-            return o.toString();
+    @RequestMapping(value = "/c", method = RequestMethod.POST)
+    public Object command(@RequestBody String jsonString) {
+        Parcel p = e.command(Parcel.PROCESS_JSONSTR(jsonString));
+        try {
+            return p.toPayload();
+        } catch (ParcelException e1) {
+            return e1.toString();
         }
-        return o;
     }
-
-    @RequestMapping(value = "/set", method = RequestMethod.GET)
-    public String set(@RequestParam Map<String,String> allRequestParams, ModelMap model){
-        return e.set(allRequestParams);
-    }
-
 }

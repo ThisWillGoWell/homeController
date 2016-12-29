@@ -2,13 +2,18 @@ package system.ClockDisplay.DisplayElements;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import controller.Parcel;
+import controller.ParcelException;
 import system.ClockDisplay.ClockDisplaySystem;
 import system.ClockDisplay.ImageManagement.Frame;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Willi on 10/28/2016.
+ *
  */
 public class HVACMotionElement extends DisplayElement {
 
@@ -37,34 +42,43 @@ public class HVACMotionElement extends DisplayElement {
 
     @Override
     public void update() {
-        JsonObject hvacState = (JsonObject) engine.get("HVAC","state", null);
-        switch (hvacState.get("mode").getAsString()){
-            case "off":
-                currentFill = fill();
-                currentRate = slowUpdateRate;
-                break;
-            case "cool":
-                currentFill = fill(0,0,255,255);
-                if(hvacState.get("acState").getAsBoolean())
-                    currentRate = updateInterval;
-                else
-                    currentRate = slowUpdateRate;
-                break;
-            case "heat":
-                currentFill = fill(255,0,0,255);
-                if(hvacState.get("heatState").getAsBoolean())
-                    currentRate = updateInterval;
-                else
-                    currentRate = slowUpdateRate;
 
-                break;
-            case "fan":
-                currentFill = fill(0,255,0,255);
-                if(hvacState.get("fanState").getAsBoolean())
-                    currentRate = updateInterval;
-                else
-                    currentRate = slowUpdateRate;
-                break;
+        Parcel p = engine.command(Parcel.GET_PARCEL("HVAC","state"));
+        try {
+            if(p.getBoolean("success")){
+                Parcel hvacState = p.getParcel("payload");
+                switch (hvacState.getString("mode")){
+                    case "off":
+                        currentFill = fill();
+                        currentRate = slowUpdateRate;
+                        break;
+                    case "cool":
+                        currentFill = fill(0,0,255,255);
+                        if(hvacState.getBoolean("acState"))
+                            currentRate = updateInterval;
+                        else
+                            currentRate = slowUpdateRate;
+                        break;
+                    case "heat":
+                        currentFill = fill(255,0,0,255);
+                        if(hvacState.getBoolean("heatState"))
+                            currentRate = updateInterval;
+                        else
+                            currentRate = slowUpdateRate;
+
+                        break;
+                    case "fan":
+                        currentFill = fill(0,255,0,255);
+                        if(hvacState.getBoolean("fanState"))
+                            currentRate = updateInterval;
+                        else
+                            currentRate = slowUpdateRate;
+                        break;
+                }
+            }
+
+        } catch (ParcelException e) {
+            e.printStackTrace();
         }
     }
 

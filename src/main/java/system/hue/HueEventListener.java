@@ -56,10 +56,10 @@ public class HueEventListener {
             //1 Check if power was what changed
             if(currentState.isOn() != lastState.isOn()){
                 //did it turn on?
-                if(currentState.isReachable())
-                    system.set("allLights", "off", null);
-                else
-                    system.set("allLights", "on", null);
+               // if(currentState.isReachable())
+                    //system.set("allLights", "off", null);
+               // else
+                   // system.set("allLights", "on", null);
             }
         }
     }
@@ -79,7 +79,7 @@ public class HueEventListener {
                     command.put("H",32);
                     command.put("S",70);
                     command.put("V", 88);
-                    system.set("bathroom", "HSV", command);
+                    //system.set("bathroom", "HSV", command);
                 }
             }
         }

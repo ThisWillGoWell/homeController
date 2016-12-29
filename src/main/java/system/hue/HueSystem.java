@@ -7,8 +7,11 @@ import com.philips.lighting.hue.sdk.heartbeat.PHHeartbeatManager;
 import com.philips.lighting.hue.sdk.utilities.PHUtilities;
 import com.philips.lighting.model.*;
 import controller.Engine;
+import controller.Parcel;
+import controller.ParcelException;
 import system.SystemParent;
 
+import javax.validation.constraints.Null;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +19,8 @@ import java.util.Map;
 
 /**
  * Created by Willi on 9/26/2016.
- *
+ * USes the HUE SDK to talk to the hue system
+ * @Todo alot, mostly check, handle not found stuffs
  */
 
 public class HueSystem extends SystemParent{
@@ -32,7 +36,7 @@ public class HueSystem extends SystemParent{
     private HueEventListener eventListener;
     private Map<String, PHLightState> lastState;
 
-    Map<String, String> ID2Name;
+    static Map<String, String> ID2Name =  populateID2Name();
     Map<String, PHLight> name2Light;
     private boolean liveMode;
     private String currentMode = "";
@@ -72,17 +76,21 @@ public class HueSystem extends SystemParent{
 
         }
     };
+
+    /*
+    Hue System must update once every 10 ms for motion animations
+     */
     public HueSystem(Engine e)
     {
-        super(e, 100);
+        super(e, 10);
         eventListener = new HueEventListener(this);
         phHueSDK = PHHueSDK.getInstance();
 
         //Hash to manage Light Name to its last state;
         lastState = new HashMap<String, PHLightState>();
         //hash to manage Unique ID 2 name, I populate this
-        ID2Name = new HashMap<String, String>();
-        populateID2Name();
+
+
 
         //manages Name to it light
         name2Light = new HashMap<String, PHLight>();
@@ -103,7 +111,7 @@ public class HueSystem extends SystemParent{
                 // Here you receive notifications that the BridgeResource Cache was updated. Use the PHMessageType to
                 // check which cache was updated, e.g.
                 if (cacheNotificationsList.contains(PHMessageType.LIGHTS_CACHE_UPDATED)) {
-                    //System.out.println("Lights Cache Updated ");
+                 //   System.out.println("Lights Cache Updated ");
                     //processLightChange();
 
                 }
@@ -172,19 +180,30 @@ public class HueSystem extends SystemParent{
 
     }
 
-    private void populateID2Name()
+
+
+    /*
+    The current list of Light IDs and what I call them.
+    Used when only thing have access to is the ID
+     */
+    private static Map populateID2Name()
     {
-        ID2Name.put("00:17:88:01:10:56:a4:5a-0b", "bathroom");
-        ID2Name.put("00:17:88:01:10:56:a4:0d-0b", "lamp");
-        ID2Name.put("00:17:88:01:10:56:a4:2c-0b", "tv");
-        ID2Name.put("00:17:88:01:01:1a:aa:5b-0b", "strip");
-        ID2Name.put("00:17:88:01:00:f7:1a:02-0b", "door");
-        ID2Name.put("00:17:88:01:10:2d:97:e3-0b", "fanWhite1");
-        ID2Name.put("00:17:88:01:10:2f:88:27-0b", "fanWhite2");
-
-
+        HashMap<String,String> m = new HashMap<>();
+        m.put("00:17:88:01:10:56:a4:5a-0b", "bathroom");
+        m.put("00:17:88:01:10:56:a4:0d-0b", "lamp");
+        m.put("00:17:88:01:10:56:a4:2c-0b", "tv");
+        m.put("00:17:88:01:01:1a:aa:5b-0b", "strip");
+        m.put("00:17:88:01:00:f7:1a:02-0b", "door");
+        m.put("00:17:88:01:10:2d:97:e3-0b", "fanWhite1");
+        m.put("00:17:88:01:10:2f:88:27-0b", "fanWhite2");
+        return m;
     }
 
+
+
+    /*
+    Loop thogh all lights in the ID2Name list and match them to a PLight object
+     */
     private void populateName2Light(){
         for(String id : ID2Name.keySet()){
             for(PHLight light : allLights){
@@ -200,60 +219,99 @@ public class HueSystem extends SystemParent{
     }
 
 
+    /*
+    Makes dealing with hue scens alot easier because I can just call them by their
+    name and get their sceneID
+     */
     private void populateName2Scene(){
         for(PHScene scene : bridge.getResourceCache().getAllScenes()){
             name2SceneID.put(scene.getName(),scene.getSceneIdentifier());
         }
     }
-    @Override
-    public Object get(String what, Map<String, String> requestParams) {
-        switch (what)
-        {
-            case "mode":
-                return currentMode;
 
+    /*
+    @TODO return error code when not found
+     */
+
+    public Parcel process(Parcel p){
+        try {
+            switch (p.getString("op")){
+                case "get":
+                    return  get(p);
+                case "set":
+                    return set(p);
+                default:
+                    throw ParcelException.OP_NOT_SUPPORTED(p);
+            }
+        } catch (ParcelException e) {
+            return Parcel.RESPONSE_PARCEL_ERROR(e);
         }
-        return "";
     }
 
-    @Override
-    public String set(String what, String to, Map<String, String> requestParams) {
-        switch (what)
-        {
-            case "mode":
-                setMode(to, requestParams);
-            case "allLights":
-                setAllLights(to, requestParams);
-                break;
-            case "colorLights":
-                setAllColorLights(to, requestParams);
-                break;
-            case "bathroom":
-                setLight("bathroom", to, requestParams);
-                break;
+    private Parcel get(Parcel p) {
+        try {
+            switch (p.getString("what"))
+            {
+                case "mode":
+                    return Parcel.RESPONSE_PARCEL(currentMode);
+                default:
+                    throw ParcelException.WHAT_NOT_SUPPORTED(p);
 
+            }
+        } catch (ParcelException e) {
+            return Parcel.RESPONSE_PARCEL_ERROR(e);
         }
-        return null;
     }
 
-    private void setMode(String to, Map<String, String> requestParams) {
-        switch (to){
+    private Parcel set(Parcel p) {
+        try {
+            switch (p.getString("what"))
+            {
+                case "mode":
+                    setMode(p);
+                    break;
+                case "allLights":
+                    setAllLights(p);
+                    break;
+                case "colorLights":
+                    setAllColorLights(p);
+                    break;
+                case "light":
+                    setLight(p);
+                    break;
+                default:
+                    throw ParcelException.WHAT_NOT_SUPPORTED(p);
+            }
+        } catch (ParcelException e) {
+            return Parcel.RESPONSE_PARCEL_ERROR(e);
+        }
+        return Parcel.RESPONSE_PARCEL(null);
+    }
+
+    /*
+    Useing the String "to" do the required actions to set the program in that mode
+     */
+    private void setMode(Parcel p) throws ParcelException{
+        switch (p.getString("to")){
             case "off":
                 allOff();
+                currentMotionScene = null;
                 liveMode = false;
                 break;
             case "bright":
                 liveMode = false;
+                currentMotionScene = null;
                 bridge.activateScene(name2SceneID.get("Concentrate"), "0", sceneListener);
                 allOn();
                 break;
             case "dim":
                 liveMode =false;
+                currentMotionScene = null;
                 bridge.activateScene(name2SceneID.get("Nightlight"), "0", sceneListener);
                 break;
 
             case "standard":
-
+                currentMotionScene = null;
                 liveMode = false;
                 bridge.activateScene(name2SceneID.get("standard"),"0",sceneListener);
                 allOn();
@@ -263,24 +321,29 @@ public class HueSystem extends SystemParent{
                 liveMode = true;
                 currentMode = "rainbow";
                 currentMotionScene = new RainbowScene(this);
+                break;
 
+            default:
+                throw ParcelException.TO_NOT_SUPPORTED(p);
         }
     }
 
 
-    void setLight(PHLight light, String to, Map<String, String> requestParams){
+    /*
+    Set a PHlight using strings
+    @TODO dont crash on invalid input
+     */
+    private void setLight(PHLight light, Parcel p) throws ParcelException{
         PHLightState newState = new PHLightState();
-        switch (to) {
+        switch (p.getString("to")) {
             case "HSV":
-                if (requestParams.containsKey("H")) {
-                    newState.setHue(Integer.valueOf(requestParams.get("H")), true);
-                }
-                if (requestParams.containsKey("S")) {
-                    newState.setSaturation(Integer.valueOf(requestParams.get("S")), true);
-                }
-                if (requestParams.containsKey("V")) {
-                    newState.setBrightness(Integer.valueOf(requestParams.get("V")), true);
-                }
+                if(p.containsKey("H"))
+                    newState.setHue(p.getInteger("H"));
+                if(p.containsKey("S"))
+                    newState.setHue(p.getInteger("S"));
+                if(p.containsKey("V"))
+                    newState.setHue(p.getInteger("V"));
+
                 bridge.updateLightState(light, newState);
                 break;
             case "off":
@@ -294,37 +357,41 @@ public class HueSystem extends SystemParent{
                 break;
 
             case "RGB":
-                if(requestParams.containsKey("R") && requestParams.containsKey("G") && requestParams.containsKey("B")) {
-                    int R = Integer.parseInt(requestParams.get("R"));
-                    int G = Integer.parseInt(requestParams.get("G"));
-                    int B = Integer.parseInt(requestParams.get("B"));
-
-                    float xy[] = PHUtilities.calculateXYFromRGB(R, G, B, light.getModelNumber());
-                    PHLightState lightState = new PHLightState();
-                    lightState.setX(xy[0]);
-                    lightState.setY(xy[1]);
-                    bridge.updateLightState(light, lightState);
-                }
+                float xy[] = PHUtilities.calculateXYFromRGB(p.getInteger("R"),p.getInteger("G"),p.getInteger("B"), light.getModelNumber());
+                newState.setX(xy[0]);
+                newState.setY(xy[1]);
+                bridge.updateLightState(light, newState);
+                break;
+            default:
+                throw ParcelException.TO_NOT_SUPPORTED(p);
         }
     }
 
-    void setLight(String lightName, String to, Map<String, String> requestParams)
-    {
-        setLight(name2Light.get(lightName), to, requestParams);
+    private void setLight(Parcel p) throws ParcelException {
+        setLight(name2Light.get(p.getString("light")), p);
     }
 
-    private void setAllColorLights(String to, Map<String, String> requsetParams){
+    /*
+    Sets all the colored light to something
+     */
+    private void setAllColorLights(Parcel p) throws ParcelException{
         for(PHLight light : allLights){
             if(light.getLightType().equals(PHLight.PHLightType.COLOR_LIGHT))
             {
-                setLight(light, to, requsetParams);
+                setLight(light, p);
             }
         }
     }
 
-    void setAllLights(String to, Map<String, String> requestParams){
+    /*
+    Set all the lights to something
+    @Todo use groups to have it all change at once
+    @todo dont break on improper input
+    @todo return int error
+     */
+    private void setAllLights(Parcel p) throws ParcelException{
         PHLightState state = new PHLightState();
-        switch (to){
+        switch (p.getString("to")){
             case "on":
                 allOn();
                 break;
@@ -334,14 +401,14 @@ public class HueSystem extends SystemParent{
             case "HSV":
                 for(PHLight light : allLights){
                     if(light.getLightType().equals(PHLight.PHLightType.COLOR_LIGHT)){
-                        setLight(light, to, requestParams);
+                        setLight(light,p);
                     }
                 }
                 break;
             case "RGB":
                 for(PHLight light: allLights){
                     if(light.getLightType().equals(PHLight.PHLightType.COLOR_LIGHT)){
-                        setLight(light, to, requestParams);
+                        setLight(light, p);
                     }
                 }
                 break;
@@ -359,14 +426,12 @@ public class HueSystem extends SystemParent{
                     bridge.updateLightState(light,state);
                 }
                 break;
-
-
-
-
         }
     }
 
-
+    /*
+    Turn allvthe lights off
+     */
     private void allOff()
     {
         PHLightState lightState = new PHLightState();
@@ -392,18 +457,22 @@ public class HueSystem extends SystemParent{
         }
     }
 
-
+    /*
+    On update, check if there needs to be anything changed for the current mode
+    let the mode handel the acutal change
+     */
+    @Override
     public void update()
     {
-        if(liveMode){
-            switch (currentMode){
-                case "rainbow":
-                    //currentMode = HueMotionScene.Rainbow(RainbowLights);
-                    currentMotionScene.update();
-                    break;
+       // System.out.println("Lights:");
+        if(bridge != null) {
+            for (PHLight light : bridge.getResourceCache().getAllLights()) {
+             //   System.out.println(ID2Name.get(light.getUniqueId()) + ":\t" + light.getLastKnownLightState().isReachable());
+            }
+            if (currentMotionScene != null) {
+                currentMotionScene.update();
             }
         }
-
     }
 
     private void processLightChange()
@@ -424,10 +493,6 @@ public class HueSystem extends SystemParent{
         }
     }
 
-
-
-
-
     public static void main(String[] args)
     {
         HueSystem system = new HueSystem(null);
@@ -439,20 +504,18 @@ public class HueSystem extends SystemParent{
         //system.setAllLightsRGB(255,0,255);
 
         for(PHScene s: system.cache.getAllScenes()){
-            System.out.println(s.getName());
+          //  System.out.println(s.getName());
         }
-        system.set("allLights", "off", null);
 
-        system.setMode("standard", null);
 
         while(true) {
             try {
                 system.update();
                 Thread.sleep(100);
                 for(PHLight light:system.allLights){
-                    System.out.print(light.getLastKnownLightState());
+                   // System.out.print(light.getLastKnownLightState());
                 }
-                System.out.println();
+              // System.out.println();
 
             } catch (InterruptedException e) {
                 e.printStackTrace();

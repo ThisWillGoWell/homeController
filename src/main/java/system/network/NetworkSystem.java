@@ -1,6 +1,8 @@
 package system.network;
 
 import controller.Engine;
+import controller.Parcel;
+import controller.ParcelException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
@@ -13,7 +15,6 @@ import system.SystemParent;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
 
 
 /**
@@ -38,6 +39,20 @@ public class NetworkSystem extends SystemParent{
         state = new NetworkState();
         routerLogin();
         update();
+    }
+
+    @Override
+    public Parcel process(Parcel p)
+    {
+        try {
+            switch (p.getString("op")){
+
+                default:
+                    throw ParcelException.OP_NOT_SUPPORTED(p);
+            }
+        } catch (ParcelException e) {
+            return Parcel.RESPONSE_PARCEL_ERROR(e);
+        }
     }
 
     void routerLogin()
@@ -86,15 +101,7 @@ public class NetworkSystem extends SystemParent{
         getNetworkList();
     }
 
-    @Override
-    public Object get(String what, Map<String,String> requestParams) {
-        return null;
-    }
 
-    @Override
-    public String set(String what, String to, Map<String,String> requestParams) {
-        return null;
-    }
 
     public String getStateJSON()
     {

@@ -3,9 +3,9 @@ package system.ClockDisplay;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import controller.Engine;
-import org.springframework.context.annotation.Configuration;
+import controller.Parcel;
+import controller.ParcelException;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import system.ClockDisplay.DisplayElements.*;
 import org.springframework.core.io.InputStreamResource;
@@ -27,8 +27,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * The System level clock display
@@ -71,42 +69,41 @@ public class ClockDisplaySystem extends SystemParent{
 
     }
 
-
-    public Object get(String what, Map<String, String> requestParams){
-        if(Objects.equals(what, "resourceImage")){
-            try {
-                return getResourceGif();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
+    @Override
+    public Parcel process(Parcel p) {
+        try {
+            switch (p.getString("op")){
+                case "get":
+                    return get(p);
+                default:
+                    throw ParcelException.OP_NOT_SUPPORTED(p);
             }
-        }
-        else if(Objects.equals(what,"imageStart")){
-            if((requestParams.containsKey("t1") && Engine.isNumeric(requestParams.get("t1"))) &&
-                    (requestParams.containsKey("t2") && Engine.isNumeric(requestParams.get("t2"))) &&
-                    (requestParams.containsKey("interval") && Engine.isNumeric(requestParams.get("interval"))))
-            {
-                return getImageUpdate(Long.parseLong(requestParams.get("t1")), Long.parseLong(requestParams.get("t2")),
-                        Integer.parseInt(requestParams.get("interval")), true);
-            }
-            else
-            {
-                return(what + " requires long param t1 and t2");
-            }
+        } catch (ParcelException e) {
+            return Parcel.RESPONSE_PARCEL_ERROR(e);
         }
 
-        else if(Objects.equals(what, "imageUpdate")){
-            if((requestParams.containsKey("t1") && Engine.isNumeric(requestParams.get("t1"))) &&
-                    (requestParams.containsKey("t2") && Engine.isNumeric(requestParams.get("t2"))) &&
-                    (requestParams.containsKey("interval") && Engine.isNumeric(requestParams.get("interval"))))
-            {
-                return getImageUpdate(Long.parseLong(requestParams.get("t1")), Long.parseLong(requestParams.get("t2")),
-                        Integer.parseInt(requestParams.get("interval")), false);
+    }
+
+
+    public Parcel get(Parcel p){
+        try {
+            switch (p.getString("what")){
+                case "resourceImage":
+                    try {
+                        return Parcel.RESPONSE_PARCEL(getResourceGif(), true);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                case "imageStart":
+                    return Parcel.RESPONSE_PARCEL(getImageUpdate(p.getLong("t1"), p.getLong("t2"), p.getLong("interval"), true), false);
+                case "imageUpdate":
+                    return Parcel.RESPONSE_PARCEL(getImageUpdate(p.getLong("t1"), p.getLong("t2"), p.getLong("interval"), false), false);
             }
-            else{
-                return(what + " requires long param t1 and t2 and interval");
-            }
+            throw ParcelException.WHAT_NOT_SUPPORTED(p);
+
+        } catch (ParcelException e) {
+            return Parcel.RESPONSE_PARCEL_ERROR(e);
         }
-        return null;
     }
 
     private String getImageUpdate(long start, long stop, long interval, boolean fullImage){
@@ -196,11 +193,6 @@ public class ClockDisplaySystem extends SystemParent{
         return layerManager;
     }
 
-    @Override
-    public String set(String what, String to, Map<String, String> requestParams) {
-
-        return "set Not Supported";
-    }
 
     @Override
     public void update() {

@@ -1,8 +1,6 @@
 package controller;
 
-import org.json.hue.JSONObject;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -10,9 +8,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * Created by Willi on 10/25/2016.
@@ -35,21 +30,10 @@ public class WebsocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 
-        JSONObject m = new JSONObject(message.getPayload());
-        Map<String,String> params = new HashMap<>();
-        Object resp = null;
-        String reply;
-        for(Object key : m.keySet()){
-            String k = (String) key;
-            params.put(k,m.getString(k));
-        }
-        if(Objects.equals(params.get("op"), "get")){
-            resp =  Application.getEngine().get(params);
-        }
-        else if(Objects.equals(params.get("op"), "set")){
-            resp =  Application.getEngine().set(params);
-        }
-        session.sendMessage(new TextMessage( resp.toString()));
+        Parcel p = Parcel.PROCESS_JSONSTR(message.getPayload());
+        p.put("ws", session);
+        Parcel response = Application.getEngine().command(p);
+        session.sendMessage(new TextMessage(response.toString()));
     }
 
     @Override
