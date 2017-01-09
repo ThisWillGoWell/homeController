@@ -3,8 +3,8 @@ package system.ClockDisplay;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import controller.Engine;
-import controller.Parcel;
-import controller.ParcelException;
+import parcel.Parcel;
+import parcel.SystemException;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 import system.ClockDisplay.DisplayElements.*;
@@ -76,9 +76,9 @@ public class ClockDisplaySystem extends SystemParent{
                 case "get":
                     return get(p);
                 default:
-                    throw ParcelException.OP_NOT_SUPPORTED(p);
+                    throw SystemException.OP_NOT_SUPPORTED(p);
             }
-        } catch (ParcelException e) {
+        } catch (SystemException e) {
             return Parcel.RESPONSE_PARCEL_ERROR(e);
         }
 
@@ -99,9 +99,9 @@ public class ClockDisplaySystem extends SystemParent{
                 case "imageUpdate":
                     return Parcel.RESPONSE_PARCEL(getImageUpdate(p.getLong("t1"), p.getLong("t2"), p.getLong("interval"), false), false);
             }
-            throw ParcelException.WHAT_NOT_SUPPORTED(p);
+            throw SystemException.WHAT_NOT_SUPPORTED(p);
 
-        } catch (ParcelException e) {
+        } catch (SystemException e) {
             return Parcel.RESPONSE_PARCEL_ERROR(e);
         }
     }

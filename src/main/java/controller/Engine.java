@@ -1,12 +1,15 @@
 package controller;
 
 
+import parcel.Parcel;
+import parcel.SystemException;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import system.Weather.Weather;
 import system.ClockDisplay.ClockDisplaySystem;
 import system.SystemParent;
 
+import system.hue.HueSystem;
 import system.hvac.HvacSystem;
 
 import java.io.IOException;
@@ -23,6 +26,9 @@ import java.util.HashMap;
 public class Engine {
     private HashMap<String, SystemParent> systems;
 
+    HashMap<String, SystemParent> getSystems(){
+        return systems;
+    }
     public Engine() {
         initialize();
     }
@@ -33,7 +39,7 @@ public class Engine {
         systems.put("weather", new Weather(this));
         systems.put("HVAC", new HvacSystem(this));
         systems.put("clock", new ClockDisplaySystem(this));
-       // systems.put("lights", new HueSystem(this));
+        systems.put("lights", new HueSystem(this));
         //systems.put("coffee", new Coffee(this));
 
         for (String id : systems.keySet()) {
@@ -58,10 +64,10 @@ public class Engine {
         try {
             Parcel response = systems.get(p.getString("system")).command(p);
             return response;
-        } catch (ParcelException e) {
+        } catch (SystemException e) {
             return Parcel.RESPONSE_PARCEL_ERROR(e);
         } catch (NullPointerException e){
-            return Parcel.RESPONSE_PARCEL_ERROR(ParcelException.SYSTEM_NOT_FOUND_EXCEPTION(e,p));
+            return Parcel.RESPONSE_PARCEL_ERROR(SystemException.SYSTEM_NOT_FOUND_EXCEPTION(e,p));
         }
     }
 

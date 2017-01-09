@@ -1,4 +1,4 @@
-package controller;
+package parcel;
 
 import org.json.hue.JSONArray;
 import org.json.hue.JSONObject;
@@ -15,6 +15,25 @@ import java.util.Set;
 public class ParcelArray extends ArrayList<Object>{
     public ParcelArray(){
         super();
+    }
+
+    public ParcelArray(ParcelArray pa) throws SystemException {
+        super();
+        for(Object o: pa){
+            if(o instanceof StateValue){
+                this.add(new StateValue((StateValue) o));
+            }
+            else if(o instanceof Parcel) {
+                this.add(new Parcel((Parcel) o));
+            }
+            else if(o instanceof ParcelArray){
+                this.add(new ParcelArray((ParcelArray) o));
+            }
+            else{
+                this.add(o);
+            }
+        }
+
     }
 
     public static ParcelArray PROCESS_JSONARRAY(JSONArray jsonArray){
@@ -87,27 +106,27 @@ public class ParcelArray extends ArrayList<Object>{
         return s;
     }
 
-    public String getString(int index) throws ParcelException{
+    public String getString(int index) throws SystemException {
         if(index >= this.size() || index < 0){
-            throw new ParcelException("ParcelArray index out of bounds: index " + index + " size: " + this.size(), ParcelException.PARCEL_ARRAY_INDEX_BOUNDS, this);
+            throw new SystemException("ParcelArray index out of bounds: index " + index + " size: " + this.size(), SystemException.PARCEL_ARRAY_INDEX_BOUNDS, this);
         }
         return this.get(index).toString();
     }
 
-    public Parcel getParcel(int index) throws ParcelException {
+    public Parcel getParcel(int index) throws SystemException {
         if(index >= this.size()){
-            throw new ParcelException("ParcelArray index out of bounds: index " + index + " size: " + this.size(),ParcelException.PARCEL_ARRAY_INDEX_BOUNDS, this);
+            throw new SystemException("ParcelArray index out of bounds: index " + index + " size: " + this.size(), SystemException.PARCEL_ARRAY_INDEX_BOUNDS, this);
         }
         Object o = this.get(index);
         if(o instanceof Parcel){
             return (Parcel) o;
         }
-        throw new ParcelException("ParcelArray Parse Error, expected: Parcel, found: " + o.getClass(), ParcelException.PARCEL_ARRAY_PARSE_ERROR, this);
+        throw new SystemException("ParcelArray Parse Error, expected: Parcel, found: " + o.getClass(), SystemException.PARCEL_ARRAY_PARSE_ERROR, this);
     }
 
-    public Double getDouble(int index) throws ParcelException {
+    public Double getDouble(int index) throws SystemException {
         if(index >= this.size()){
-            throw new ParcelException("ParcelArray index out of bounds: index " + index + " size: " + this.size(), ParcelException.PARCEL_ARRAY_INDEX_BOUNDS, this);
+            throw new SystemException("ParcelArray index out of bounds: index " + index + " size: " + this.size(), SystemException.PARCEL_ARRAY_INDEX_BOUNDS, this);
         }
         Object o = this.get(index);
         if(o instanceof Double || o instanceof Integer || o instanceof Long){
@@ -117,12 +136,12 @@ public class ParcelArray extends ArrayList<Object>{
         {
             return Double.parseDouble(o.toString());
         }
-        throw new ParcelException("ParcelArray Parse Error, expected: Double, found: " + o.getClass(), ParcelException.PARCEL_ARRAY_PARSE_ERROR, this);
+        throw new SystemException("ParcelArray Parse Error, expected: Double, found: " + o.getClass(), SystemException.PARCEL_ARRAY_PARSE_ERROR, this);
     }
 
-    public Integer getInteger(int index) throws ParcelException {
+    public Integer getInteger(int index) throws SystemException {
         if(index >= this.size()){
-            throw new ParcelException("ParcelArray index out of bounds: index " + index + " size: " + this.size(), ParcelException.PARCEL_ARRAY_INDEX_BOUNDS, this);
+            throw new SystemException("ParcelArray index out of bounds: index " + index + " size: " + this.size(), SystemException.PARCEL_ARRAY_INDEX_BOUNDS, this);
         }
         Object o = this.get(index);
         if(o instanceof Double ||  o instanceof Integer || o instanceof Long){
@@ -131,12 +150,12 @@ public class ParcelArray extends ArrayList<Object>{
         if(isNumeric(o.toString())){
             return Integer.parseInt(o.toString());
         }
-        throw new ParcelException("ParcelArray Parse Error, expected: Integer, found: " + o.getClass(), ParcelException.PARCEL_ARRAY_PARSE_ERROR, this);
+        throw new SystemException("ParcelArray Parse Error, expected: Integer, found: " + o.getClass(), SystemException.PARCEL_ARRAY_PARSE_ERROR, this);
     }
 
-    public Long getLong(int index) throws ParcelException {
+    public Long getLong(int index) throws SystemException {
         if(index >= this.size()){
-            throw new ParcelException("ParcelArray index out of bounds: index " + index + " size: " + this.size(), ParcelException.PARCEL_ARRAY_INDEX_BOUNDS, this);
+            throw new SystemException("ParcelArray index out of bounds: index " + index + " size: " + this.size(), SystemException.PARCEL_ARRAY_INDEX_BOUNDS, this);
         }
         Object o = this.get(index);
         if(o instanceof Double || o instanceof Integer || o instanceof Long){
@@ -146,12 +165,12 @@ public class ParcelArray extends ArrayList<Object>{
         {
             return Long.parseLong(o.toString());
         }
-        throw new ParcelException("ParcelArray Parse Error, expected: Long, found: " + this.get(index).getClass(), ParcelException.PARCEL_ARRAY_PARSE_ERROR, this);
+        throw new SystemException("ParcelArray Parse Error, expected: Long, found: " + this.get(index).getClass(), SystemException.PARCEL_ARRAY_PARSE_ERROR, this);
     }
 
-    public Boolean getBoolean(int index) throws ParcelException {
+    public Boolean getBoolean(int index) throws SystemException {
         if(index >= this.size()){
-            throw new ParcelException("ParcelArray index out of bounds: index " + index + " size: " + this.size(), ParcelException.PARCEL_ARRAY_INDEX_BOUNDS, this);
+            throw new SystemException("ParcelArray index out of bounds: index " + index + " size: " + this.size(), SystemException.PARCEL_ARRAY_INDEX_BOUNDS, this);
         }
         Object o = this.get(index);
         if(o instanceof Boolean){
@@ -168,20 +187,20 @@ public class ParcelArray extends ArrayList<Object>{
                 return false;
         }
 
-        throw new ParcelException("ParcelArray Parse Error, expected: Boolean, found: " + this.get(index).getClass(), ParcelException.PARCEL_ARRAY_PARSE_ERROR, this);
+        throw new SystemException("ParcelArray Parse Error, expected: Boolean, found: " + this.get(index).getClass(), SystemException.PARCEL_ARRAY_PARSE_ERROR, this);
     }
 
 
 
 
-    public ArrayList<Parcel> getParcelArray() throws ParcelException{
+    public ArrayList<Parcel> getParcelArray() throws SystemException {
         ArrayList<Parcel> pList = new ArrayList<Parcel>();
         for(Object o : this){
             if(o instanceof Parcel) {
                 pList.add((Parcel) o);
             }
             else{
-                throw new ParcelException("ParcelArray Parse Error, expected: Parcel, found: " + o.getClass(), ParcelException.PARCEL_ARRAY_PARSE_ERROR, this);
+                throw new SystemException("ParcelArray Parse Error, expected: Parcel, found: " + o.getClass(), SystemException.PARCEL_ARRAY_PARSE_ERROR, this);
             }
         }
         return pList;

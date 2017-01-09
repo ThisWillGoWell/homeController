@@ -1,6 +1,6 @@
 package system.Weather;
 
-import controller.Parcel;
+import parcel.Parcel;
 
 /**
  * Created by Willi on 12/27/2016.

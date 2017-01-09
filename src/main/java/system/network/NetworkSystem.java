@@ -1,8 +1,8 @@
 package system.network;
 
 import controller.Engine;
-import controller.Parcel;
-import controller.ParcelException;
+import parcel.Parcel;
+import parcel.SystemException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
@@ -48,9 +48,9 @@ public class NetworkSystem extends SystemParent{
             switch (p.getString("op")){
 
                 default:
-                    throw ParcelException.OP_NOT_SUPPORTED(p);
+                    throw SystemException.OP_NOT_SUPPORTED(p);
             }
-        } catch (ParcelException e) {
+        } catch (SystemException e) {
             return Parcel.RESPONSE_PARCEL_ERROR(e);
         }
     }

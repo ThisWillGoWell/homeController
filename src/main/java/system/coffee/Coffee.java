@@ -2,8 +2,8 @@ package system.coffee;
 
 import com.google.gson.JsonObject;
 import controller.Engine;
-import controller.Parcel;
-import controller.ParcelException;
+import parcel.Parcel;
+import parcel.SystemException;
 import system.SystemParent;
 
 /**
@@ -24,9 +24,9 @@ public class Coffee extends SystemParent {
                     makeCoffee();
                     return  Parcel.RESPONSE_PARCEL("starting to make coffee");
                 default:
-                    throw ParcelException.OP_NOT_SUPPORTED(p);
+                    throw SystemException.OP_NOT_SUPPORTED(p);
             }
-        } catch (ParcelException e) {
+        } catch (SystemException e) {
             return Parcel.RESPONSE_PARCEL_ERROR(e);
         }
 

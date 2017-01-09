@@ -3,15 +3,13 @@ package system.ClockDisplay.DisplayElements;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import controller.Engine;
-import controller.ParcelArray;
-import controller.ParcelException;
+import parcel.ParcelArray;
+import parcel.SystemException;
 import system.ClockDisplay.ClockDisplaySystem;
 import system.ClockDisplay.ImageManagement.Frame;
 import system.Weather.WeatherParcel;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by Willi on 10/1/2016.
@@ -246,7 +244,7 @@ public class WeatherElement extends DisplayElement{
                 updateWeatherImage();
             }
         }
-        catch (ParcelException e1) {
+        catch (SystemException e1) {
             e1.printStackTrace();
         }
 

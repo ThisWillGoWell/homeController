@@ -2,14 +2,12 @@ package system.ClockDisplay.DisplayElements;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import controller.Parcel;
-import controller.ParcelException;
+import parcel.Parcel;
+import parcel.SystemException;
 import system.ClockDisplay.ClockDisplaySystem;
 import system.ClockDisplay.ImageManagement.Frame;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by Willi on 10/28/2016.
@@ -77,7 +75,7 @@ public class HVACMotionElement extends DisplayElement {
                 }
             }
 
-        } catch (ParcelException e) {
+        } catch (SystemException e) {
             e.printStackTrace();
         }
     }

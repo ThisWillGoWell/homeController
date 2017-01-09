@@ -1,5 +1,6 @@
 package controller;
 
+import parcel.Parcel;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;

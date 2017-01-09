@@ -1,23 +1,20 @@
 package controller;
 
-import com.google.gson.JsonObject;
-import org.json.hue.JSONObject;
+import org.springframework.ui.ModelMap;
+import parcel.Parcel;
+import parcel.SystemException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.handler.PerConnectionWebSocketHandler;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @SpringBootApplication
@@ -29,7 +26,7 @@ public class Application extends SpringBootServletInitializer implements WebSock
 
     private static Engine e = new Engine();
 
-    static Engine getEngine() {
+    public static Engine getEngine() {
         return e;
     }
 
@@ -54,9 +51,31 @@ public class Application extends SpringBootServletInitializer implements WebSock
     public Object command(@RequestBody String jsonString) {
         Parcel p = e.command(Parcel.PROCESS_JSONSTR(jsonString));
         try {
+            String s = (String) p.toPayload();
             return p.toPayload();
-        } catch (ParcelException e1) {
-            return e1.toString();
+        } catch (SystemException e1) {
+            return Parcel.RESPONSE_PARCEL_ERROR(e1);
         }
     }
+
+    @RequestMapping(value = "/spotifyRD", method = RequestMethod.GET)
+    public Object command(@RequestParam Map<String,String> allRequestParams, ModelMap model ) {
+        Parcel requset = null;
+        try {
+            requset = Parcel.SET_PARCEL("spotify","userCode",Parcel.PROCESS_MAP(allRequestParams).getString("code"));
+        } catch (SystemException e1) {
+            e1.printStackTrace();
+        }
+        Parcel p = e.command(requset);
+        if(p.success()){
+            e.command(Parcel.OP_PARCEL("login"));
+        }
+        try {
+            String s = (String) p.toPayload();
+            return p.toPayload();
+        } catch (SystemException e1) {
+            return Parcel.RESPONSE_PARCEL_ERROR(e1);
+        }
+    }
+
 }

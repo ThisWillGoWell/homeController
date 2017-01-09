@@ -2,18 +2,16 @@ package system.Weather;
 
 import com.google.gson.*;
 
-import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
 import controller.Engine;
-import controller.Parcel;
-import controller.ParcelException;
+import parcel.Parcel;
+import parcel.SystemException;
+import parcel.StateValue;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import system.SystemParent;
-
-import java.io.IOException;
 
 
 /**
@@ -23,14 +21,20 @@ import java.io.IOException;
  *
  */
 public class Weather extends SystemParent{
-    private final String CURRENT_WEATHER_ADDRESS = "http://api.wunderground.com/api/0457bdf6163baa58/conditions/q/NY/Rochester.json";
-    private final String WEEK_FORECAST_WEATHER_ADDRESS = "http://api.wunderground.com/api/0457bdf6163baa58/forecast/q/NY/Rochester.json";
-    private final String HOURLY_FORECAST_WEATHER_ADDRESS = "http://api.wunderground.com/api/0457bdf6163baa58/hourly/q/NY/Rochester.json";
-    private final  int updateInterval = 30 * 60000 ; //update once every 30 min
-    private Parcel conditions, weekForecast, hourForecast;
-    String weahterToday;
-    private HttpClient client ;
 
+    private static Parcel DEAFULT_WEATHER_STATE(){
+        Parcel p = new Parcel();
+        p.put("currentWeatherURL", new StateValue("http://api.wunderground.com/api/0457bdf6163baa58/conditions/q/NY/Rochester.json", StateValue.READ_WRITE_PRIVLAGE));
+        p.put("weekForecastURL", new StateValue("http://api.wunderground.com/api/0457bdf6163baa58/forecast/q/NY/Rochester.json", StateValue.READ_WRITE_PRIVLAGE));
+        p.put("hourlyForecastURL", new StateValue("http://api.wunderground.com/api/0457bdf6163baa58/hourly/q/NY/Rochester.json", StateValue.READ_WRITE_PRIVLAGE));
+        p.put("conditions", new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
+        p.put("weeklyForecast", new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
+        p.put("hourlyForecast", new StateValue(new Parcel(), StateValue.READ_PRIVLAGE));
+        return p;
+    }
+
+    private HttpClient client ;
+    private Parcel state;
     /*
     Update once every 10 min
     Use HTTPClientBulder class for http calls
@@ -38,6 +42,7 @@ public class Weather extends SystemParent{
     public Weather(Engine e)
     {
         super(e,10*60*1000);
+        state = DEAFULT_WEATHER_STATE();
         client = HttpClientBuilder.create().build();
         update();
     }
@@ -45,48 +50,53 @@ public class Weather extends SystemParent{
     @Override
     public Parcel process(Parcel p) {
         try {
-            switch(p.getString("op")){
+            switch (p.getString("op")){
                 case "get":
-                    return get(p);
+                    switch (p.getString("what")) {
+                        case "currentTemp":
+                            return Parcel.RESPONSE_PARCEL(getCurrentTemp());
+                        case "todayHigh":
+                            return Parcel.RESPONSE_PARCEL(getTodayHigh());
+                        case "todayLow":
+                            return Parcel.RESPONSE_PARCEL(getTodayLow());
+                        case "currentIcon":
+                            return Parcel.RESPONSE_PARCEL(getCurrentConditions());
+                        case "state":
+                            return Parcel.RESPONSE_PARCEL(state);
+                        default:
+                            if(state.contains(p.getString("what"))) {
+                                StateValue sp = state.getStateParcel(p.getString("what"));
+                                if (sp.canRead()) {
+                                    return Parcel.RESPONSE_PARCEL(sp.getValue());
+                                }
+                                throw SystemException.ACCESS_DENIED(p);
+                            }
+                            throw SystemException.WHAT_NOT_SUPPORTED(p);
+                    }
+                case "set":
+                    switch (p.getString("what")) {
+                        default:
+                            StateValue sp = state.getStateParcel(p.getString("what"));
+                            if (sp.canWrite()) {
+                                sp.update(p.get("to"));
+                                return Parcel.RESPONSE_PARCEL(sp.getValue());
+                            }
+                            throw SystemException.ACCESS_DENIED(p);
+                    }
                 default:
-                    throw ParcelException.OP_NOT_SUPPORTED(p);
+                    throw SystemException.OP_NOT_SUPPORTED(p);
             }
-        } catch (ParcelException e) {
+        } catch (SystemException e) {
             return Parcel.RESPONSE_PARCEL_ERROR(e);
         }
     }
 
     /*
-
-     */
-    public Parcel get(Parcel p) throws ParcelException {
-        switch(p.getString("what")){
-            case "current":
-                return Parcel.RESPONSE_PARCEL(conditions);
-            case "weekForecast":
-                return Parcel.RESPONSE_PARCEL(weekForecast);
-            case "hourlyForecast":
-                return Parcel.RESPONSE_PARCEL(hourForecast);
-            case "currentTemp":
-                return Parcel.RESPONSE_PARCEL(getCurrentTemp());
-            case "todayHigh":
-                return Parcel.RESPONSE_PARCEL(getTodayHigh());
-            case "todayLow":
-                return Parcel.RESPONSE_PARCEL(getTodayLow());
-            case "currentIcon":
-                return Parcel.RESPONSE_PARCEL(getCurrentConditions());
-            default:
-                throw ParcelException.WHAT_NOT_SUPPORTED(p);
-        }
-
-    }
-
-
-    /*
     Query the current weather URL of the weather underground API
      */
-    private Parcel queryCurrentWeather() throws IOException {
-        HttpGet request = new HttpGet(CURRENT_WEATHER_ADDRESS);
+    private Parcel queryCurrentWeather() throws Exception {
+        HttpGet request = null;
+        request = new HttpGet(state.getString("currentWeatherURL"));
         ResponseHandler<String> responseHandler = new BasicResponseHandler();
         String response = client.execute(request, responseHandler);
         return Parcel.PROCESS_JSONSTR(response);
@@ -95,8 +105,8 @@ public class Weather extends SystemParent{
     /*
     Query the hour-by-hour forecast
      */
-    private Parcel queryHourForecastWeather() throws IOException {
-        HttpGet request = new HttpGet(HOURLY_FORECAST_WEATHER_ADDRESS);
+    private Parcel queryHourForecastWeather() throws Exception {
+        HttpGet request = new HttpGet(state.getString("hourlyForecastURL"));
         ResponseHandler<String> responseHandler=new BasicResponseHandler();
         String response = client.execute(request, responseHandler);
         return Parcel.PROCESS_JSONSTR(response);
@@ -105,12 +115,11 @@ public class Weather extends SystemParent{
     /*
     Query the Whole weeks weather, day by day
      */
-    private Parcel queryWeekForecastWeather() throws IOException {
-        HttpGet request = new HttpGet(WEEK_FORECAST_WEATHER_ADDRESS);
+    private Parcel queryWeekForecastWeather() throws Exception {
+        HttpGet request = new HttpGet(state.getString("weekForecastURL"));
         ResponseHandler<String> responseHandler=new BasicResponseHandler();
         String response = client.execute(request, responseHandler);
         return Parcel.PROCESS_JSONSTR(response);
-
     }
 
 
@@ -119,10 +128,10 @@ public class Weather extends SystemParent{
      */
     public void update() {
         try {
-            conditions = queryCurrentWeather();
-            //weekForecast = queryWeekForecastWeather();
-            hourForecast = queryHourForecastWeather();
-        } catch (IOException e) {
+            state.getStateParcel("conditions").update(queryCurrentWeather());
+            state.getStateParcel("hourlyForecast").update(queryHourForecastWeather());
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -130,26 +139,26 @@ public class Weather extends SystemParent{
     /*
     The following methods just parse the reponse json
      */
-    private double getCurrentTemp() throws ParcelException {
-        return conditions.getParcel("current_observation").getDouble("temp_c");
+    private double getCurrentTemp() throws SystemException {
+        return  state.getParcel("conditions").getParcel("current_observation").getDouble("temp_c");
 
     }
 
-    private String getTodayForecast() throws ParcelException{
-        return weekForecast.getParcel("forecast").getParcel("simpleforecast").getParcelArray("forecastday").getParcel(0).getString("icon");
+    private String getTodayForecast() throws SystemException {
+        return state.getParcel("weekForecast").getParcel("forecast").getParcel("simpleforecast").getParcelArray("forecastday").getParcel(0).getString("icon");
     }
 
-    private double getTodayHigh() throws ParcelException{
-        return weekForecast.getParcel("forecast").getParcel("simpleforecast").getParcelArray("forecastday").getParcel(0).getParcel("high").getDouble("celsius");
+    private double getTodayHigh() throws SystemException {
+        return state.getParcel("weekForecast").getParcel("forecast").getParcel("simpleforecast").getParcelArray("forecastday").getParcel(0).getParcel("high").getDouble("celsius");
     }
 
-    private double getTodayLow() throws ParcelException{
-        return weekForecast.getParcel("forecast").getParcel("simpleforecast").getParcelArray("forecastday").getParcel(0).getParcel("low").getDouble("celsius");
+    private double getTodayLow() throws SystemException {
+        return state.getParcel("weekForecast").getParcel("forecast").getParcel("simpleforecast").getParcelArray("forecastday").getParcel(0).getParcel("low").getDouble("celsius");
     }
 
 
-    String getCurrentConditions() throws ParcelException{
-        String s =  conditions.getParcel("current_observation").getString("icon_url");
+    String getCurrentConditions() throws SystemException {
+        String s =  state.getParcel("conditions").getParcel("current_observation").getString("icon_url");
         return s.substring(s.lastIndexOf('/') + 1).replaceFirst("[.][^.]+$", "");
     }
 
