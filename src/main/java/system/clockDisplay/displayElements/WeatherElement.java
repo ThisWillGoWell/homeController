@@ -1,13 +1,13 @@
-package system.ClockDisplay.DisplayElements;
+package system.clockDisplay.displayElements;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import controller.Engine;
 import parcel.ParcelArray;
 import parcel.SystemException;
-import system.ClockDisplay.ClockDisplaySystem;
-import system.ClockDisplay.ImageManagement.Frame;
-import system.Weather.WeatherParcel;
+import system.clockDisplay.ClockDisplaySystem;
+import system.clockDisplay.imageManagement.Frame;
+import system.weather.WeatherParcel;
 
 import java.util.ArrayList;
 

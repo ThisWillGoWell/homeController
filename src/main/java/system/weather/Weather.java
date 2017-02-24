@@ -1,4 +1,4 @@
-package system.Weather;
+package system.weather;
 
 import com.google.gson.*;
 

@@ -1,27 +1,27 @@
-package system.ClockDisplay.DisplayElements;
+package system.clockDisplay.displayElements;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import controller.Engine;
-import system.ClockDisplay.ClockDisplaySystem;
-import system.ClockDisplay.ImageManagement.Frame;
+import system.clockDisplay.ClockDisplaySystem;
+import system.clockDisplay.imageManagement.Frame;
 
 /**
  * Created by Willi on 10/24/2016.
  */
-public class RainMotionElement extends DisplayElement{
+public class SnowMotionElement extends DisplayElement{
 
     private int imageHeight;
     private int imageWidth;
     Frame s;
-    public RainMotionElement(String id, ClockDisplaySystem clockDisplaySystem, int size, int row, int col, long updateInterval, Engine e)
+    public SnowMotionElement(String id, ClockDisplaySystem clockDisplaySystem, int size, int row, int col, long updateInterval, Engine e)
     {
         super(id, clockDisplaySystem,size, row, col, updateInterval);
         //size is meaningless
         //always 12x12
         imageHeight = 32;
         imageWidth = 16;
-        s =  spriteDict.get("rainDrop").getFrames().get(0);
+        s =  spriteDict.get("snow").getFrames().get(0);
         layerManager.addLayer(id);
     }
 

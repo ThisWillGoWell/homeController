@@ -1,7 +1,7 @@
 package parcel;
 
-import org.json.hue.JSONArray;
-import org.json.hue.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -66,32 +66,37 @@ public class ParcelArray extends ArrayList<Object>{
         return pa;
     }
 
-    private static final Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
+    static ParcelArray ONLY_WRAPPER_VALUES(ParcelArray pa) {
+        ParcelArray pa2;
+        pa2 = new ParcelArray();
+        for(Object o : pa){
+            if (Parcel.isWrapperType(o.getClass())){
+                if(o instanceof Parcel ) {
+                    pa2.add(Parcel.ONLY_WRAPPER_VALUES((Parcel) o));
+                }
+                else if(o instanceof ParcelArray){
+                    pa2.add(ONLY_WRAPPER_VALUES((ParcelArray) o));
+                }
+                else{
+                    pa2.add(o);
+                }
+            }
+            else {
+                pa2.add(o.toString());
+            }
+        }
 
-    private static Set<Class<?>> getWrapperTypes()
-    {
-        Set<Class<?>> ret = new HashSet<Class<?>>();
-        ret.add(Boolean.class);
-        ret.add(Byte.class);
-        ret.add(Short.class);
-        ret.add(Integer.class);
-        ret.add(Long.class);
-        ret.add(Float.class);
-        ret.add(Double.class);
-        ret.add(Parcel.class);
-        return ret;
+        return pa2;
     }
 
-    public static boolean isWrapperType(Class<?> clazz)
-    {
-        return WRAPPER_TYPES.contains(clazz);
-    }
+
+
 
     public String toString(){
         String s = "[";
         for(Object o : this) {
 
-            if (isWrapperType(o.getClass())){
+            if (Parcel.isWrapperType(o.getClass())){
                 s+= o.toString() + ", ";
             }
             else {

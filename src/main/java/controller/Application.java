@@ -1,6 +1,7 @@
 package controller;
 
 import org.springframework.ui.ModelMap;
+import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 import parcel.Parcel;
 import parcel.SystemException;
 import org.springframework.boot.SpringApplication;
@@ -22,7 +23,7 @@ import java.util.Map;
 @EnableScheduling
 @EnableWebSocket
 @RestController
-public class Application extends SpringBootServletInitializer implements WebSocketConfigurer {
+public class Application extends SpringBootServletInitializer{
 
     private static Engine e = new Engine();
 
@@ -33,19 +34,6 @@ public class Application extends SpringBootServletInitializer implements WebSock
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
-
-
-    @Bean
-    org.springframework.web.socket.WebSocketHandler getHandler() {
-        return new PerConnectionWebSocketHandler(WebsocketHandler.class);
-    }
-
-
-    @Override
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(getHandler(), "/ws").setAllowedOrigins("*");
-    }
-
 
     @RequestMapping(value = "/c", method = RequestMethod.POST)
     public Object command(@RequestBody String jsonString) {

@@ -7,4 +7,5 @@ import parcel.Parcel;
  */
 public interface Subscriber {
     void subscriptionAlert(Parcel p);
+    long subscriptionID = 0;
 }

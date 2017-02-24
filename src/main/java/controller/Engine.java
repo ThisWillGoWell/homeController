@@ -3,16 +3,13 @@ package controller;
 
 import parcel.Parcel;
 import parcel.SystemException;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
-import system.Weather.Weather;
-import system.ClockDisplay.ClockDisplaySystem;
 import system.SystemParent;
 
+import system.clockDisplay.ClockDisplaySystem;
 import system.hue.HueSystem;
 import system.hvac.HvacSystem;
+import system.weather.Weather;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 import java.util.Calendar;
@@ -38,10 +35,10 @@ public class Engine {
         systems = new HashMap<>();
         systems.put("weather", new Weather(this));
         systems.put("HVAC", new HvacSystem(this));
-        systems.put("clock", new ClockDisplaySystem(this));
+        //systems.put("clock", new ClockDisplaySystem(this));
         systems.put("lights", new HueSystem(this));
         //systems.put("coffee", new Coffee(this));
-
+        //systems.put("spotify", new Spotify(this));
         for (String id : systems.keySet()) {
             (new Thread(systems.get(id))).start();
         }
@@ -70,22 +67,4 @@ public class Engine {
             return Parcel.RESPONSE_PARCEL_ERROR(SystemException.SYSTEM_NOT_FOUND_EXCEPTION(e,p));
         }
     }
-
-
-
-    public SystemParent getSystem(String s)
-    {
-        return systems.get(s);
-    }
-
-    public void sendWSMessage(String s){
-        for(WebSocketSession session : WebsocketHandler.sessions){
-            try {
-                session.sendMessage(new TextMessage(s));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
 }

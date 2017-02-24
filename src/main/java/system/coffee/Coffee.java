@@ -36,7 +36,6 @@ public class Coffee extends SystemParent {
         JsonObject json = new JsonObject();
         json.addProperty("system", "coffee");
         json.addProperty("msg", "makeCoffee");
-        engine.sendWSMessage(json.toString());
     }
 }
 

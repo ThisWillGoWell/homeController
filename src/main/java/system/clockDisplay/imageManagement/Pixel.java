@@ -1,6 +1,5 @@
-package system.ClockDisplay.ImageManagement;
+package system.clockDisplay.imageManagement;
 
-import javax.swing.plaf.ColorUIResource;
 import java.awt.*;
 
 /**

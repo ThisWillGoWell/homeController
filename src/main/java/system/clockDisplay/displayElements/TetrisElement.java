@@ -1,4 +1,4 @@
-package system.ClockDisplay.DisplayElements;
+package system.clockDisplay.displayElements;
 
 /**
  * Created by Willi on 10/24/2016.

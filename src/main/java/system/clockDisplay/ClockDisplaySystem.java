@@ -1,4 +1,4 @@
-package system.ClockDisplay;
+package system.clockDisplay;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -7,15 +7,15 @@ import parcel.Parcel;
 import parcel.SystemException;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
-import system.ClockDisplay.DisplayElements.*;
+import system.clockDisplay.displayElements.*;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import system.ClockDisplay.ImageManagement.Frame;
-import system.ClockDisplay.ImageManagement.GifSequenceWriter;
-import system.ClockDisplay.ImageManagement.LayerManager;
-import system.ClockDisplay.ImageManagement.SpriteDict;
+import system.clockDisplay.imageManagement.Frame;
+import system.clockDisplay.imageManagement.GifSequenceWriter;
+import system.clockDisplay.imageManagement.LayerManager;
+import system.clockDisplay.imageManagement.SpriteDict;
 import system.SystemParent;
 
 import javax.imageio.stream.FileImageOutputStream;
@@ -62,8 +62,8 @@ public class ClockDisplaySystem extends SystemParent{
         }
         layerManager = new LayerManager();
         elements.add(new ClockElement("clock", this, 2,0,18,new SimpleDateFormat("h:mm"), 5));
-        elements.add(new WeatherElement("weather", this,8,23,18, 20000,e));
-        elements.add(new HVACMotionElement("hvac-mon", this, 25,89));
+        //elements.add(new WeatherElement("weather", this,8,23,18, 20000,e));
+        //elements.add(new HVACMotionElement("hvac-mon", this, 25,89));
 
         update();
 

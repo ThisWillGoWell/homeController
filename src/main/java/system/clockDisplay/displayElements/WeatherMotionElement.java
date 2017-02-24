@@ -1,7 +1,7 @@
-package system.ClockDisplay.DisplayElements;
+package system.clockDisplay.displayElements;
 
 import com.google.gson.JsonObject;
-import system.ClockDisplay.ClockDisplaySystem;
+import system.clockDisplay.ClockDisplaySystem;
 
 /**
  * Created by Willi on 12/5/2016.

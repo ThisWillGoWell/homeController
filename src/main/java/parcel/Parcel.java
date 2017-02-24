@@ -1,14 +1,13 @@
 package parcel;
 
 import com.google.gson.Gson;
-import com.sun.glass.ui.EventLoop;
-import org.json.hue.JSONArray;
-import org.json.hue.JSONObject;
-import org.springframework.validation.ObjectError;
-import org.springframework.web.socket.WebSocketSession;
+import controller.SocketSession;
+import controller.Subscriber;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
+
+import java.util.*;
 
 /**
  * Created by Willi on 12/19/2016.
@@ -16,7 +15,7 @@ import java.util.Map;
  */
 public class Parcel extends HashMap<String, Object>{
 
-
+    private static final Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
 
     public Parcel() {
         super();
@@ -40,22 +39,39 @@ public class Parcel extends HashMap<String, Object>{
         }
     }
 
+
+    /*
+    @TODO: FIX THIS SHIT
+     */
     public boolean equals(Object o){
-        if(o instanceof Parcel){
-            Parcel p = (Parcel) o;
-            for(String key : keySet()){
-                try {
-                    if(!this.get(key).equals(p.get(key))){
-                        return false;
-                    }
-                } catch (SystemException e) {
-                    return false;
-                }
-            }
-        }else{
+        if(!(o instanceof Parcel)) {
             return false;
         }
-        return true;
+        Parcel p = (Parcel) o;
+        for(String key : this.keySet()){
+            if(!p.containsKey(key)){
+                return false;
+            }
+            try {
+                Object currentObject = this.get(key);
+                Object theirObejct = p.get(key);
+                //Only do .equals on wrapper types
+                if(isWrapperType(currentObject.getClass())){
+                    if(!currentObject.equals(theirObejct)){
+                        return false;
+                    }
+                }
+                else{ //otherwise do String compare?
+                    if(!currentObject.toString().equals(theirObejct.toString())){
+                        return false;
+                    }
+                }
+            } catch (SystemException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+    return true;
     }
 
     public static Parcel PROCESS_JSONOBJ(JSONObject jsonObject){
@@ -206,6 +222,36 @@ public class Parcel extends HashMap<String, Object>{
 
     }
 
+
+    static Parcel ONLY_WRAPPER_VALUES(Parcel p){
+        try {
+            Parcel onlyWrapper = new Parcel();
+            for (String key : p.keySet())
+            {
+                Object o = p.get(key);
+                if (o != null && isWrapperType(o.getClass())){
+                    if(o instanceof Parcel) {
+                        onlyWrapper.put(key, ONLY_WRAPPER_VALUES((Parcel) o));
+                    }
+                    else if(o instanceof ParcelArray){
+                        onlyWrapper.put(key, ParcelArray.ONLY_WRAPPER_VALUES((ParcelArray) o));
+                    }
+                    else
+                        onlyWrapper.put(key, o);
+                }
+                else {
+                    onlyWrapper.put(key, o.toString());
+                }
+            }
+            return onlyWrapper;
+        }catch (SystemException e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
+
     public Object toPayload() throws SystemException {
         if(containsKey("payload")){
             if(containsKey("onlyPayload")){
@@ -234,7 +280,7 @@ public class Parcel extends HashMap<String, Object>{
 
 
     public String toString(){
-        Parcel p = REMOVE_STATE_OBJECTS(this);
+        Parcel p = ONLY_WRAPPER_VALUES(REMOVE_STATE_OBJECTS(this));
         Gson gson = new Gson();
         return gson.toJson(p);
     }
@@ -351,16 +397,16 @@ public class Parcel extends HashMap<String, Object>{
         throw new SystemException("Key " + value + " not found in package " + toString(), SystemException.KEY_NOT_FOUND, this);
     }
 
-    public WebSocketSession getWebsocketSession(String value) throws SystemException {
+    public Subscriber getSubscriber(String value) throws SystemException {
         if (this.containsKey(value)) {
             Object o = this.get(value);
             if(o instanceof StateValue)
                 o = ((StateValue) o).getValue();
 
-            if (o instanceof WebSocketSession) {
-                return (WebSocketSession) o;
+            if (o instanceof Subscriber) {
+                return (Subscriber) o;
             }
-            throw new SystemException("Key " + value + " returns object " + o.toString() + " of class " + o.getClass().toString() + " Expected Websocket", SystemException.CLASS_CAST_ERROR, this);
+            throw new SystemException("Key " + value + " returns object " + o.toString() + " of class " + o.getClass().toString() + " Expected Subscriber", SystemException.CLASS_CAST_ERROR, this);
         }
         throw new SystemException("Key " + value + " not found in package " + toString(), SystemException.KEY_NOT_FOUND, this);
     }
@@ -377,6 +423,26 @@ public class Parcel extends HashMap<String, Object>{
             throw new SystemException("Key " + value + " returns object " + o.toString() + " of class " + o.getClass().toString() + " Expected ParcelArray", SystemException.CLASS_CAST_ERROR, this);
         }
         throw new SystemException("Key " + value + " not found in package " + toString(), SystemException.KEY_NOT_FOUND, this);
+    }
+
+    private static Set<Class<?>> getWrapperTypes()
+    {
+        Set<Class<?>> ret = new HashSet<Class<?>>();
+        ret.add(Boolean.class);
+        ret.add(Byte.class);
+        ret.add(Short.class);
+        ret.add(Integer.class);
+        ret.add(Long.class);
+        ret.add(Float.class);
+        ret.add(Double.class);
+        ret.add(Parcel.class);
+        ret.add(ParcelArray.class);
+        return ret;
+    }
+
+    public static boolean isWrapperType(Class<?> clazz)
+    {
+        return WRAPPER_TYPES.contains(clazz);
     }
 
     public StateValue getStateParcel(String value) throws SystemException {
@@ -409,9 +475,14 @@ public class Parcel extends HashMap<String, Object>{
         p.put("double", d);
         p.put("int", i);
         p.put("long", l);
+        p.put("complex", new SocketSession(null));
 
         ParcelArray pa = new ParcelArray();
+
+        Parcel p1 = new Parcel();
+        p1.put("number", 0);
         pa.add(p);
+
         pa.add(p);
         pa.add(p);
 

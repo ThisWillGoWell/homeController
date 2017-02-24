@@ -22,7 +22,6 @@ public abstract class SystemParent implements Runnable, Subscriber {
 
     protected Engine engine;
     private long updateInterval;
-    private ArrayList<WebSocketSession> webSocketSessions;
 
     public SystemParent(Engine e)
     {
@@ -32,20 +31,14 @@ public abstract class SystemParent implements Runnable, Subscriber {
     {
         this.updateInterval = updateInterval;
         this.engine = e;
-        webSocketSessions = new ArrayList<>();
         SubscriberManager.register(this);
     }
-
-    private void registerSocket(WebSocketSession ws){
-        SubscriberManager.subscribe(new SocketSession(ws), this);
+    private void registerSubscriber(Parcel p) throws SystemException {
+        SubscriberManager.subscribe(p.getSubscriber("subscriber"), this, Parcel.GET_PARCEL(p.getString("system"), p.getString("what")));
     }
 
-    private void registerSubscriber(Subscriber s){
-        SubscriberManager.subscribe(s, this);
-    }
-
-    private void deregisterSocket(WebSocketSession ws){
-        webSocketSessions.remove(ws) ;
+    private void deregisterSubscriber(Subscriber s){
+        SubscriberManager.unsubscribe(s, this);
     }
 
     /*
@@ -58,57 +51,35 @@ public abstract class SystemParent implements Runnable, Subscriber {
         take care of any high level command here,
         Only one currently in use is register for websocket listener
          */
+        Parcel response = null;
         try {
             switch (p.getString("op")){
                 default:
                     return process(p);
-                case "register":
-                    if(p.contains("ws"))
-                        registerSocket(p.getWebsocketSession("ws"));
-                    else if(p.contains("subscriber")){
-                        registerSubscriber((Subscriber) p.get("subscriber"));
-                    }
-                    else
-                        throw SystemException.WHAT_NOT_SUPPORTED(p);
-                    return Parcel.RESPONSE_PARCEL("register success");
+                case "subscribe":
+                    registerSubscriber(p);
+                    response=  Parcel.RESPONSE_PARCEL("register success");
+                    break;
                 case "deregister":
-                    deregisterSocket(p.getWebsocketSession("ws"));
-                    return Parcel.RESPONSE_PARCEL("deregister success");
+                    deregisterSubscriber(p.getSubscriber("subscriber"));
+                    response = Parcel.RESPONSE_PARCEL("deregister success");
+                    break;
                 case "update":
                     update();
-                    return Parcel.RESPONSE_PARCEL("updated");
+                    response = Parcel.RESPONSE_PARCEL("updated");
+                    break;
             }
         } catch (SystemException e) {
-            return Parcel.RESPONSE_PARCEL_ERROR(e);
+                return Parcel.RESPONSE_PARCEL_ERROR(e);
         }
+        return response;
     }
 
     public abstract Parcel process(Parcel p);
 
-    /*
-    Send Meg:
-    Send a message to all websocket sessions
-     */
-    public void sendMsg(Parcel p){
-        sendMsg(p.toString());
-    }
-    public void sendMsg(String s){
-        for(WebSocketSession ws : webSocketSessions){
-            try {
-                ws.sendMessage(new TextMessage(s));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     public Engine getEngine() {
         return engine;
-    }
-
-    public long getUpdateInterval()
-    {
-        return updateInterval;
     }
 
     public void run(){
@@ -127,14 +98,6 @@ public abstract class SystemParent implements Runnable, Subscriber {
     public void subscriptionAlert(Parcel p){
 
     }
-
-    /*
-    @Todo
-    remove: replace with /command
-    replace missingRequired with an int error
-     */
-
-
 
     public void update(){
 

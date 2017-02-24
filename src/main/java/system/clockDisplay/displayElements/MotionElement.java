@@ -1,11 +1,10 @@
-package system.ClockDisplay.DisplayElements;
+package system.clockDisplay.displayElements;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import system.ClockDisplay.ClockDisplaySystem;
-import system.ClockDisplay.DisplayElements.DisplayElement;
-import system.ClockDisplay.ImageManagement.Frame;
-import system.ClockDisplay.ImageManagement.MotionSprite;
+import system.clockDisplay.ClockDisplaySystem;
+import system.clockDisplay.imageManagement.Frame;
+import system.clockDisplay.imageManagement.MotionSprite;
 
 
 /**

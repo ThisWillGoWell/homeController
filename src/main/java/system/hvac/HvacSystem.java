@@ -70,6 +70,12 @@ public class HvacSystem extends SystemParent{
                             }
                             throw SystemException.ACCESS_DENIED(p);
                     }
+                case "systemTempUp":
+                    state.getStateParcel("systemTemp").update((Double) state.getStateParcel("systemTemp").getValue() + 1);
+                    return Parcel.RESPONSE_PARCEL("tempUp success");
+                case "systemTempDown":
+                    state.getStateParcel("systemTemp").update((Double) state.getStateParcel("systemTemp").getValue() - 1);
+                    return Parcel.RESPONSE_PARCEL("tempDown success");
                 default:
                     throw SystemException.OP_NOT_SUPPORTED(p);
             }

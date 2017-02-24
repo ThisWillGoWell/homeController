@@ -1,4 +1,4 @@
-package system.ClockDisplay.ImageManagement;//
+package system.clockDisplay.imageManagement;//
 //  GifSequenceWriter.java
 //
 //  Created by Elliot Kroo on 2009-04-25.

@@ -1,4 +1,4 @@
-package system.ClockDisplay.ImageManagement;
+package system.clockDisplay.imageManagement;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

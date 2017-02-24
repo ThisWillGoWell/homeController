@@ -126,13 +126,14 @@ public class HueParcel{
 
     static Parcel LIGHT_UPDATE(PHLight light, PHLightState state){
         Parcel p = new Parcel();
-        p.put("allLights", false);
+        p.put("type", "lightUpdate");
         p.put("light", light);
         p.put("lightState", state);
         return p;
     }
     static Parcel ALL_LIGHT_UPDATE(PHLightState state){
         Parcel p = new Parcel();
+        p.put("type", "allLightUpdate");
         p.put("allLights", true);
         p.put("lightState", state);
         return p;
@@ -140,6 +141,12 @@ public class HueParcel{
 
 
 
+    static Parcel SCENE_UPDATE(String sceneId){
+        Parcel p = new Parcel();
+        p.put("type", "sceneUpdate");
+        p.put("sceneID", sceneId);
+        return p;
+    }
 
 
 }

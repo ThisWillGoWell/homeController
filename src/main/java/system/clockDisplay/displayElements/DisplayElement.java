@@ -1,10 +1,10 @@
-package system.ClockDisplay.DisplayElements;
+package system.clockDisplay.displayElements;
 
 import com.google.gson.JsonObject;
 import controller.Engine;
-import system.ClockDisplay.ClockDisplaySystem;
-import system.ClockDisplay.ImageManagement.LayerManager;
-import system.ClockDisplay.ImageManagement.SpriteDict;
+import system.clockDisplay.ClockDisplaySystem;
+import system.clockDisplay.imageManagement.LayerManager;
+import system.clockDisplay.imageManagement.SpriteDict;
 
 /**
  * Parent Object for anything that wishes to be displayed on scrren

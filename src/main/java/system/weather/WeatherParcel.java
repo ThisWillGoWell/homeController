@@ -1,4 +1,4 @@
-package system.Weather;
+package system.weather;
 
 import parcel.Parcel;
 

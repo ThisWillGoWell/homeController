@@ -1,11 +1,11 @@
-package system.ClockDisplay.DisplayElements;
+package system.clockDisplay.displayElements;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import parcel.Parcel;
 import parcel.SystemException;
-import system.ClockDisplay.ClockDisplaySystem;
-import system.ClockDisplay.ImageManagement.Frame;
+import system.clockDisplay.ClockDisplaySystem;
+import system.clockDisplay.imageManagement.Frame;
 
 import java.util.ArrayList;
 

@@ -25,6 +25,7 @@ import system.SystemParent;
 
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -57,25 +58,26 @@ public class Spotify extends SystemParent{
         client = HttpClientBuilder.create().build();
         api= Api.builder().clientId(clientID).clientSecret(clientSecret).redirectURI(redirectURI).build();
         state = DEAFULT_SPOTIFY_STATE();
-        sendAuthCodeRequset();
     }
 
-    private void loginSpotify(){
-
-    }
-
-
-    private String sendAuthCodeRequset(){
-        System.out.println(retreiveAuthorizationCode());
-        HttpGet request = new HttpGet(retreiveAuthorizationCode());
-        CloseableHttpResponse response = null;
+    @Override
+    public void run() {
         try {
-            response = client.execute(request);
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        sendAuthCodeRequset();
+        super.run();
+    }
+
+    private void sendAuthCodeRequset(){
+        System.out.println(retreiveAuthorizationCode());
+        try {
+            java.awt.Desktop.getDesktop().browse(URI.create(retreiveAuthorizationCode()));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(response);
-        return response.toString();
     }
 
 
@@ -98,13 +100,13 @@ public class Spotify extends SystemParent{
             System.out.println("Something went wrong!" + e.getMessage());
         }
     }
-    private void setAccessCode(){
+    private void setAccessCode() throws SystemException {
 
       /* Application details necessary to get an access token */
 
     /* Make a token request. Asynchronous requests are made with the .getAsync method and synchronous requests
     * are made with the .get method. This holds for all type of requests. */
-    final SettableFuture<AuthorizationCodeCredentials> authorizationCodeCredentialsFuture = api.authorizationCodeGrant("").build().getAsync();
+    final SettableFuture<AuthorizationCodeCredentials> authorizationCodeCredentialsFuture = api.authorizationCodeGrant(state.getString("userCode")).build().getAsync();
 
         /* Add callbacks to handle success and failure */
         Futures.addCallback(authorizationCodeCredentialsFuture, new FutureCallback<AuthorizationCodeCredentials>() {
@@ -175,7 +177,8 @@ public class Spotify extends SystemParent{
                             throw SystemException.ACCESS_DENIED(p);
                     }
                 case "login":
-
+                    setAccessCode();
+                    return Parcel.RESPONSE_PARCEL("");
                 default:
                     throw SystemException.OP_NOT_SUPPORTED(p);
             }

@@ -37,6 +37,7 @@ public class HueSystem extends SystemParent{
     private ArrayList<Parcel> lightCommands;
     private long lastSendTime;
     private Parcel state;
+    private boolean connected = false;
     void print(String s) {
         System.out.println(s);
     }
@@ -50,7 +51,7 @@ public class HueSystem extends SystemParent{
         m.put("00:17:88:01:10:56:a4:5a-0b", "bathroom");
         m.put("00:17:88:01:10:56:a4:0d-0b", "lamp");
         m.put("00:17:88:01:10:56:a4:2c-0b", "tv");
-        m.put("00:17:88:01:01:1a:aa:5b-0b", "strip");
+        m.put("00:17:88:01:01:21:6b:1c-0b", "strip");
         m.put("00:17:88:01:00:f7:1a:02-0b", "door");
         m.put("00:17:88:01:10:2d:97:e3-0b", "fanWhite1");
         m.put("00:17:88:01:10:2f:88:27-0b", "fanWhite2");
@@ -123,6 +124,7 @@ public class HueSystem extends SystemParent{
 
             @Override
             public void onBridgeConnected(PHBridge b, String username) {
+                connected = true;
                 System.out.println("Bridge Connected: " + username);
                 phHueSDK.setSelectedBridge(b);
                 PHHeartbeatManager heartbeatManager = PHHeartbeatManager.getInstance();
@@ -156,6 +158,7 @@ public class HueSystem extends SystemParent{
             @Override
             public void onConnectionLost(PHAccessPoint accessPoint) {
                 // Here you would handle the loss of connection to your bridge.
+                connected = false;
             }
 
             @Override
@@ -310,34 +313,35 @@ public class HueSystem extends SystemParent{
      */
     private void setMode(Parcel p) throws SystemException {
         switch (p.getString("to")){
-            case "off":
+            case "Off":
                 allOff();
                 currentMotionScene = null;
                 state.getStateParcel("liveMode").update(false);
-                break;
-
-            case "bright":
-            case "dim":
-            case "standard":
-                currentMotionScene = null;
-                allOn();
-                state.getStateParcel("liveMode").update(false);
-                bridge.activateScene(state.getParcel("name2Scene").getString(p.getString("to")),"0",sceneListener);
                 state.getStateParcel("mode").update(p.getString("to"));
                 break;
 
-            case "rainbow":
+            case "Bright":
+            case "Dim":
+            case "Standard":
+                currentMotionScene = null;
+                allOn();
+                state.getStateParcel("liveMode").update(false);
+                lightCommands.add(HueParcel.SCENE_UPDATE(state.getParcel("name2Scene").getString(p.getString("to"))));
+                state.getStateParcel("mode").update(p.getString("to"));
+                break;
+
+            case "Rainbow":
                 state.getStateParcel("liveMode").update(true);
                 state.getStateParcel("mode").update("rainbow");
                 currentMotionScene = new RainbowScene(this);
                 break;
 
-            case "hueShift":
+            case "HueShift":
                 state.getStateParcel("liveMode").update(true);
                 state.getStateParcel("mode").update("hueShift");
                 currentMotionScene = new HueShiftScene(this);
                 break;
-            case "randomColors":
+            case "RandomColors":
                 state.getStateParcel("liveMode").update(true);
                 state.getStateParcel("mode").update("randomColors");
                 currentMotionScene = new RandomColors(this);
@@ -460,14 +464,14 @@ public class HueSystem extends SystemParent{
     {
         PHLightState lightState = new PHLightState();
         lightState.setOn(false);
-        bridge.setLightStateForDefaultGroup(lightState);
+        lightCommands.add(HueParcel.ALL_LIGHT_UPDATE(lightState));
     }
 
     private void allOn()
     {
         PHLightState lightState = new PHLightState();
         lightState.setOn(true);
-        bridge.setLightStateForDefaultGroup(lightState);
+        lightCommands.add(HueParcel.ALL_LIGHT_UPDATE(lightState));
     }
     /*
     On update, check if there needs to be anything changed for the current mode
@@ -477,23 +481,28 @@ public class HueSystem extends SystemParent{
     public void update()
     {
        // System.out.println("Lights:");
-        if(bridge != null) {
-            for (PHLight light : bridge.getResourceCache().getAllLights()) {
-             //   System.out.println(ID2Name.get(light.getUniqueId()) + ":\t" + light.getLastKnownLightState().isReachable());
-            }
-            if (currentMotionScene != null) {
-                currentMotionScene.update();
-            }
+        if (currentMotionScene != null) {
+            currentMotionScene.update();
         }
         try {
             if(state.getInteger("sendLatency") + lastSendTime < System.currentTimeMillis()){
                 if(lightCommands.size() > 0){
                     Parcel p = lightCommands.remove(0);
-                    if(p.getBoolean("allLights")){
-                        bridge.setLightStateForDefaultGroup((PHLightState) p.get("lightState"));
-                    }else {
-                        bridge.updateLightState((PHLight) p.get("light"), (PHLightState) p.get("lightState"), lightLister);
+                    if(connected) {
+                        switch (p.getString("type")){
+                            case "allLightUpdate":
+                                bridge.setLightStateForDefaultGroup((PHLightState) p.get("lightState"));
+                                break;
+                            case "sceneUpdate":
+                                bridge.activateScene(p.getString("sceneID"), "0", sceneListener);
+                                break;
+                            case "lightUpdate":
+                                bridge.updateLightState((PHLight) p.get("light"), (PHLightState) p.get("lightState"), lightLister);
+                                break;
+
+                        }
                     }
+
                     lastSendTime = System.currentTimeMillis();
                 }
 
